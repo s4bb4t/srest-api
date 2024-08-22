@@ -47,8 +47,8 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 	return &Storage{db: db}, nil
 }
 
-func (s *Storage) AddNewUser(u u.User) (int64, error) {
-	const op = "database.postgres.AddNewUser"
+func (s *Storage) Add(u u.User) (int64, error) {
+	const op = "database.postgres.Add"
 
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.users (
@@ -62,6 +62,18 @@ func (s *Storage) AddNewUser(u u.User) (int64, error) {
 	hashedPassword, err := pwd.HashPassword(u.Password)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
+	}
+
+	var exists bool
+	query, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE username = $1 OR email = $2)`)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %v", op, err)
+	}
+
+	if err = query.QueryRow(u.Username, u.Email).Scan(&exists); err != nil {
+		return 0, fmt.Errorf("%s: %v", op, err)
+	} else if exists {
+		return 1337228, fmt.Errorf("%s: user already exists", op)
 	}
 
 	res, err := stmt.Exec(u.Username, u.Email, string(hashedPassword), time.Now().Format("2006-01-02 15:04:05"))
@@ -132,8 +144,8 @@ func (s *Storage) UpdateField(field string, u u.Login, val any) error {
 	return nil
 }
 
-func (s *Storage) RemoveUser(u u.Login) error {
-	const op = "database.postgres.RemoveUser"
+func (s *Storage) Remove(u u.Login) error {
+	const op = "database.postgres.Remove"
 
 	stmt, err := s.db.Prepare(`
 	DELETE FROM public.users 
@@ -160,8 +172,8 @@ func (s *Storage) RemoveUser(u u.Login) error {
 	return nil
 }
 
-func (s *Storage) GetAllUsers() ([]u.TableUser, error) {
-	const op = "database.postgres.GetAllUsers"
+func (s *Storage) GetAll() ([]u.TableUser, error) {
+	const op = "database.postgres.GetAll"
 
 	rows, err := s.db.Query(`SELECT * FROM public.users`)
 	if err != nil {

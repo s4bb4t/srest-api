@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sabbatD/srest-api/internal/config"
 	sdb "github.com/sabbatD/srest-api/internal/database"
-	"github.com/sabbatD/srest-api/internal/logger/sl"
+	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 )
 
 func main() {
