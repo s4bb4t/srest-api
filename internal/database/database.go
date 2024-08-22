@@ -27,7 +27,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 
 	// stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE password TEXT email TEXT UNIQUE date TEXT block BOOLEAN NOT NULL DEFAULT FALSE admin BOOLEAN NOT NULL DEFAULT FALSE)")
 	stmt, err := db.Prepare(`
-		CREATE TABLE IF NOT EXISTS users (
+		CREATE TABLE IF NOT EXISTS public.users (
 			username TEXT UNIQUE,
 			password TEXT,
 			email TEXT UNIQUE,
@@ -50,12 +50,16 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 func (s *Storage) AddNewUser(u u.User) (int64, error) {
 	const op = "database.postgres.AddNewUser"
 
-	stmt, err := s.db.Prepare("INSERT INTO public.users (username, email, password, date) VALUES ($1, $2, $3, $4)")
+	stmt, err := s.db.Prepare(`
+		INSERT INTO public.users (
+			username, email, password, date
+		) VALUES ($1, $2, $3, $4)
+	`)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	res, err := stmt.Exec(u.Username, u.Email, u.Password, time.Now())
+	res, err := stmt.Exec(u.Username, u.Email, u.Password, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
@@ -68,11 +72,15 @@ func (s *Storage) AddNewUser(u u.User) (int64, error) {
 	return id, nil
 }
 
-// TODO: Check authdata
 func (s *Storage) Auth(u u.AuthData) (bool, error) {
 	const op = "database.postgres.Auth"
 
-	stmt, err := s.db.Prepare("SELECT EXISTS (SELECT 1 FROM users WHERE username = $1 OR email = $2 AND password = $2)")
+	stmt, err := s.db.Prepare(`
+		SELECT EXISTS (
+			SELECT 1 FROM public.users 
+			WHERE username = $1 AND password = $2
+		)
+	`)
 	if err != nil {
 		return false, fmt.Errorf("%s: %v", op, err)
 	}
@@ -85,12 +93,81 @@ func (s *Storage) Auth(u u.AuthData) (bool, error) {
 	return exists, nil
 }
 
-// TODO: Make admin
+func (s *Storage) UpdateField(field string, u u.Login, val any) error {
+	const op = "database.postgres.UpdateField"
 
-// TODO: Remove User	 #admin olny
+	stmt, err := s.db.Prepare(`
+		UPDATE public.users 
+			SET $1 = $2
+			WHERE username = $3
+	`)
+	if err != nil {
+		return fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
+	}
 
-// TODO: Block user		 #admin olny
+	res, err := stmt.Exec(field, val, u.Username)
+	if err != nil {
+		return fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
+	}
 
-// TODO: Unblock user	 #admin olny
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
+	}
 
-// TODO: Get all users	 #admin olny
+	if n == 0 {
+		return fmt.Errorf("%s: no users with usernname: %v", op, u.Username)
+	}
+
+	return nil
+}
+
+func (s *Storage) RemoveUser(u u.Login) error {
+	const op = "database.postgres.RemoveUser"
+
+	stmt, err := s.db.Prepare(`
+	DELETE FROM public.users 
+		WHERE username = $1
+	`)
+	if err != nil {
+		return fmt.Errorf("%s: %v", op, err)
+	}
+
+	res, err := stmt.Exec(u.Username)
+	if err != nil {
+		return fmt.Errorf("%s: %v", op, err)
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%s: %v", op, err)
+	}
+
+	if n == 0 {
+		return fmt.Errorf("%s: no users with usernname: %v", op, u.Username)
+	}
+
+	return nil
+}
+
+func (s *Storage) GetAllUsers() ([]u.TableUser, error) {
+	const op = "database.postgres.GetAllUsers"
+
+	rows, err := s.db.Query(`SELECT * FROM public.users`)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
+	var result []u.TableUser
+	var user u.TableUser
+
+	for rows.Next() {
+		if err := rows.Scan(&user.Username, &user.Password, &user.Email, &user.Date, &user.Blocked, &user.Admin); err != nil {
+			return nil, fmt.Errorf("%s: %v", op, err)
+		}
+
+		result = append(result, user)
+	}
+
+	return result, nil
+}
