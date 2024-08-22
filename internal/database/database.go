@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	pwd "github.com/sabbatD/srest-api/internal/password"
 	u "github.com/sabbatD/srest-api/internal/user"
 )
 
@@ -25,7 +26,6 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
-	// stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE password TEXT email TEXT UNIQUE date TEXT block BOOLEAN NOT NULL DEFAULT FALSE admin BOOLEAN NOT NULL DEFAULT FALSE)")
 	stmt, err := db.Prepare(`
 		CREATE TABLE IF NOT EXISTS public.users (
 			username TEXT UNIQUE,
@@ -59,7 +59,12 @@ func (s *Storage) AddNewUser(u u.User) (int64, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	res, err := stmt.Exec(u.Username, u.Email, u.Password, time.Now().Format("2006-01-02 15:04:05"))
+	hashedPassword, err := pwd.HashPassword(u.Password)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %v", op, err)
+	}
+
+	res, err := stmt.Exec(u.Username, u.Email, string(hashedPassword), time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
@@ -85,8 +90,13 @@ func (s *Storage) Auth(u u.AuthData) (bool, error) {
 		return false, fmt.Errorf("%s: %v", op, err)
 	}
 
+	hashedPassword, err := pwd.HashPassword(u.Password)
+	if err != nil {
+		return false, fmt.Errorf("%s: %v", op, err)
+	}
+
 	var exists bool
-	if err = stmt.QueryRow(u.Username, u.Password).Scan(&exists); err != nil {
+	if err = stmt.QueryRow(u.Username, string(hashedPassword)).Scan(&exists); err != nil {
 		return false, fmt.Errorf("%s: %v", op, err)
 	}
 
@@ -171,3 +181,9 @@ func (s *Storage) GetAllUsers() ([]u.TableUser, error) {
 
 	return result, nil
 }
+
+// TODO: forgot password help
+
+// func (s *Storage) GetPass(u u.Login) (string, error) {
+
+// }
