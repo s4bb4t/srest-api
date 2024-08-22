@@ -67,3 +67,30 @@ func (s *Storage) AddNewUser(u u.User) (int64, error) {
 
 	return id, nil
 }
+
+// TODO: Check authdata
+func (s *Storage) Auth(u u.AuthData) (bool, error) {
+	const op = "database.postgres.Auth"
+
+	stmt, err := s.db.Prepare("SELECT EXISTS (SELECT 1 FROM users WHERE username = $1 OR email = $2 AND password = $2)")
+	if err != nil {
+		return false, fmt.Errorf("%s: %v", op, err)
+	}
+
+	var exists bool
+	if err = stmt.QueryRow(u.Username, u.Password).Scan(&exists); err != nil {
+		return false, fmt.Errorf("%s: %v", op, err)
+	}
+
+	return exists, nil
+}
+
+// TODO: Make admin
+
+// TODO: Remove User	 #admin olny
+
+// TODO: Block user		 #admin olny
+
+// TODO: Unblock user	 #admin olny
+
+// TODO: Get all users	 #admin olny
