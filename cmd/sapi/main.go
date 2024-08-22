@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	// "github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sabbatD/srest-api/internal/config"
 	sdb "github.com/sabbatD/srest-api/internal/database"
 	"github.com/sabbatD/srest-api/internal/logger/sl"
@@ -25,8 +26,11 @@ func main() {
 	}
 	_ = Storage
 
-	// TODO: init router
-	// r := chi.NewRouter()
+	router := chi.NewRouter()
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
 
 	// TODO: run server
 }

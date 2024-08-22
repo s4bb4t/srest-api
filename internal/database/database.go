@@ -6,8 +6,8 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 	pwd "github.com/sabbatD/srest-api/internal/password"
-	u "github.com/sabbatD/srest-api/internal/user"
 )
 
 type Storage struct {

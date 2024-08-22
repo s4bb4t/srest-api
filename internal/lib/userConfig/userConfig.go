@@ -1,12 +1,13 @@
-package user
+package userConfig
 
 type User struct {
-	AuthData
-	Email string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
 }
 
 type AuthData struct {
-	Login
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
