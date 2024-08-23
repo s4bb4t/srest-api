@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 	pwd "github.com/sabbatD/srest-api/internal/password"
 )
@@ -64,20 +64,11 @@ func (s *Storage) Add(u u.User) (int64, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	var exists bool
-	query, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE username = $1 OR email = $2)`)
-	if err != nil {
-		return 0, fmt.Errorf("%s: %v", op, err)
-	}
-
-	if err = query.QueryRow(u.Username, u.Email).Scan(&exists); err != nil {
-		return 0, fmt.Errorf("%s: %v", op, err)
-	} else if exists {
-		return 1337228, fmt.Errorf("%s: user already exists", op)
-	}
-
 	res, err := stmt.Exec(u.Username, u.Email, string(hashedPassword), time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
+		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" { // Код ошибки 23505 означает нарушение уникальности
+			return 0, fmt.Errorf("%s: user already exists", op)
+		}
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
@@ -89,7 +80,7 @@ func (s *Storage) Add(u u.User) (int64, error) {
 	return id, nil
 }
 
-func (s *Storage) Auth(u u.AuthData) (bool, error) {
+func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, err error) {
 	const op = "database.postgres.Auth"
 
 	stmt, err := s.db.Prepare(`
@@ -99,23 +90,36 @@ func (s *Storage) Auth(u u.AuthData) (bool, error) {
 		)
 	`)
 	if err != nil {
-		return false, fmt.Errorf("%s: %v", op, err)
+		return true, false, fmt.Errorf("%s: %v", op, err)
 	}
 
 	hashedPassword, err := pwd.HashPassword(u.Password)
 	if err != nil {
-		return false, fmt.Errorf("%s: %v", op, err)
+		return true, false, fmt.Errorf("%s: %v", op, err)
 	}
 
 	var exists bool
 	if err = stmt.QueryRow(u.Username, string(hashedPassword)).Scan(&exists); err != nil {
-		return false, fmt.Errorf("%s: %v", op, err)
+		return false, false, fmt.Errorf("%s: %v", op, err)
 	}
 
-	return exists, nil
+	stmt, err = s.db.Prepare(`SELECT admin, blocked FROM public.users WHERE username = $1`)
+	if err != nil {
+		return true, false, fmt.Errorf("%s: %v", op, err)
+	}
+
+	var isAdmin, isBlocked bool
+	err = stmt.QueryRow(u.Username).Scan(&isAdmin, &isBlocked)
+	if err != nil {
+		return true, false, fmt.Errorf("%s: %v", op, err)
+	}
+	if isBlocked {
+		isAdmin = false
+	}
+	return exists, isAdmin, nil
 }
 
-func (s *Storage) UpdateField(field string, u u.Login, val any) error {
+func (s *Storage) UpdateField(field string, u u.Login, val any) (int64, error) {
 	const op = "database.postgres.UpdateField"
 
 	stmt, err := s.db.Prepare(`
@@ -124,27 +128,27 @@ func (s *Storage) UpdateField(field string, u u.Login, val any) error {
 			WHERE username = $3
 	`)
 	if err != nil {
-		return fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
 	}
 
 	res, err := stmt.Exec(field, val, u.Username)
 	if err != nil {
-		return fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
 	}
 
 	if n == 0 {
-		return fmt.Errorf("%s: no users with usernname: %v", op, u.Username)
+		return n, fmt.Errorf("%s: no users with usernname: %v", op, u.Username)
 	}
 
-	return nil
+	return n, nil
 }
 
-func (s *Storage) Remove(u u.Login) error {
+func (s *Storage) Remove(u u.Login) (int64, error) {
 	const op = "database.postgres.Remove"
 
 	stmt, err := s.db.Prepare(`
@@ -152,24 +156,24 @@ func (s *Storage) Remove(u u.Login) error {
 		WHERE username = $1
 	`)
 	if err != nil {
-		return fmt.Errorf("%s: %v", op, err)
+		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 
 	res, err := stmt.Exec(u.Username)
 	if err != nil {
-		return fmt.Errorf("%s: %v", op, err)
+		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("%s: %v", op, err)
+		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 
 	if n == 0 {
-		return fmt.Errorf("%s: no users with usernname: %v", op, u.Username)
+		return n, fmt.Errorf("%s: no users with usernname: %v", op, u.Username)
 	}
 
-	return nil
+	return n, nil
 }
 
 func (s *Storage) GetAll() ([]u.TableUser, error) {

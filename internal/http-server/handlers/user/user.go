@@ -3,9 +3,11 @@ package user
 import (
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
+	"github.com/sabbatD/srest-api/internal/lib/api/access"
 	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
@@ -18,7 +20,7 @@ type RegisterResponse struct {
 
 type UserHandler interface {
 	Add(u u.User) (int64, error)
-	Auth(u u.AuthData) (bool, error)
+	Auth(u u.AuthData) (succsess, isAdmin bool, err error)
 }
 
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
@@ -41,9 +43,9 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		log.Info("request body decoded", slog.Any("request", req))
 
-		id, err := user.Add(req)
+		_, err := user.Add(req)
 		if err != nil {
-			if id == 1337228 {
+			if err.Error() == "database.postgres.Add: user already exists" {
 				log.Info(err.Error())
 
 				render.JSON(w, r, resp.Error("user already exists"))
@@ -51,6 +53,10 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 				return
 			}
 			log.Debug(err.Error())
+
+			render.JSON(w, r, resp.Error("Internal Server Error"))
+
+			return
 		}
 
 		log.Info("user successfully created")
@@ -60,7 +66,7 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.user.Register"
+		const op = "http-server.hanlders.user.Auth"
 
 		log.With(
 			slog.String("op", op),
@@ -78,7 +84,41 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		log.Info("request body decoded", slog.Any("request", req))
 
-		// ok, err := user.Auth(req)
-		// TODO: make auth call
+		ok, isAdmin, err := user.Auth(req)
+		if err != nil {
+			if !ok {
+				log.Info(err.Error())
+
+				render.JSON(w, r, resp.Error("wrong login or password"))
+
+				return
+			}
+			log.Debug(err.Error())
+
+			render.JSON(w, r, resp.Error("Internal Server Error"))
+
+			return
+		}
+
+		if isAdmin {
+			token, err := access.GenerateJWT(req.Username)
+			if err != nil {
+				log.Debug("could not generate JWT Token")
+
+				render.JSON(w, r, resp.Error("Internal Server Error"))
+
+				return
+			}
+
+			http.SetCookie(w, &http.Cookie{
+				Name:     "token",
+				Value:    token,
+				Expires:  time.Now().Add(12 * time.Hour),
+				HttpOnly: true,
+			})
+		}
+
+		log.Info("successfully logged in")
+		render.JSON(w, r, resp.OK())
 	}
 }
