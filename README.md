@@ -51,8 +51,7 @@
 ```json
 {
   "status": "OK",
-  "Error": "", `omitempty`  
-  "authdata": { `omitempty`
+  "authdata": {
     "username": "string",
     "password": "string"
   }
@@ -81,7 +80,6 @@
 ```json
 {
   "status": "OK"
-  "error": "", `omitempty`  
 }
 ```
 
@@ -117,7 +115,6 @@
 ```json
 {
   "status": "OK"
-  "error": "", `omitempty`  
 }
 ```
 
@@ -136,8 +133,7 @@
 ```json
 {
   "status": "OK",
-  "error": "", `omitempty`  
-  "user": { `omitempty`  
+  "user": {
     "username": "string",
     "email": "string",
     "is_admin": "boolean",
@@ -173,7 +169,6 @@
 ```json
 {
   "status": "OK"
-  "error": "", `omitempty`  
 }
 ```
 
@@ -202,8 +197,7 @@
 ```json
 {
   "status": "OK",
-  "error": "", `omitempty`  
-  "authdata": {`omitempty`  
+  "authdata": {
     "username": "string",
     "password": "string"
   }
@@ -235,7 +229,6 @@
 ```json
 {
   "status": "OK"
-  "error": "", `omitempty`  
 }
 ```
 
@@ -254,8 +247,7 @@
 ```json
 {
   "status": "OK",
-  "error": "", `omitempty`  
-  "user": { `omitempty` 
+  "user": {
     "username": "string",
     "email": "string",
     "is_admin": "boolean",
@@ -279,9 +271,7 @@
 ```json
 {
   "status": "OK",
-  "error": "", `omitempty`  
-
-  "users": [ `omitempty` 
+  "users": [
     {
       "username": "string",
       "email": "string",
@@ -307,7 +297,6 @@
 ```json
 {
   "status": "OK"
-  "error": "", `omitempty`  
 }
 ```
 
