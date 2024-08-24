@@ -171,7 +171,7 @@
   "status": "OK"
 }
 ```
-
+ 
 ---
 
 #### 2. Register a New User
