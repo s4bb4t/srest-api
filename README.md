@@ -135,9 +135,11 @@
   "status": "OK",
   "user": {
     "username": "string",
-    "email": "string",
-    "is_admin": "boolean",
-    "blocked": "boolean"
+    "password": "string",
+    "email":    "string",
+    "date":     "string",
+    "blocked":  "boolean",
+    "admin":    "boolean"  
   }
 }
 ```
