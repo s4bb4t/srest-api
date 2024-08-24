@@ -198,6 +198,74 @@ func (s *Storage) GetAll() ([]u.TableUser, error) {
 	return result, nil
 }
 
+func (s *Storage) Get(username string) (u.TableUser, error) {
+	const op = "database.postgres.Get"
+
+	rows, err := s.db.Query(`SELECT * FROM public.users WHERE username = $1`, username)
+	if err != nil {
+		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
+	}
+
+	var user u.TableUser
+
+	if rows.Next() {
+		if err := rows.Scan(&user.Username, &user.Password, &user.Email, &user.Date, &user.Blocked, &user.Admin); err != nil {
+			return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
+		}
+	} else {
+		return u.TableUser{}, fmt.Errorf("%s: no such user", op)
+	}
+
+	return user, nil
+}
+
+func (s *Storage) UpdateUser(u u.User, username string) (int64, error) {
+	const op = "database.postgres.UpdateField"
+
+	stmt, err := s.db.Prepare(`
+		SELECT EXISTS (
+			SELECT 1 FROM public.users 
+			WHERE username = $1 AND password = $2
+		)
+	`)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v, %v", op, err, u.Username, u.Password, u.Email, username)
+	}
+
+	var exists bool
+	if err = stmt.QueryRow(u.Username, u.Email).Scan(&exists); err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v, %v", op, err, u.Username, u.Password, u.Email, username)
+	}
+	if exists {
+		return 0, fmt.Errorf("%s: username or email already used", op)
+	}
+
+	stmt, err = s.db.Prepare(`
+		UPDATE public.users 
+			SET username = $1 password = $2 email = $ 3
+			WHERE username = $4
+	`)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v, %v", op, err, u.Username, u.Password, u.Email, username)
+	}
+
+	res, err := stmt.Exec(u.Username, u.Password, u.Email, username)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v, %v", op, err, u.Username, u.Password, u.Email, username)
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v, %v", op, err, u.Username, u.Password, u.Email, username)
+	}
+
+	if n == 0 {
+		return n, fmt.Errorf("%s: no users with usernname: %v", op, username)
+	}
+
+	return n, nil
+}
+
 // TODO: forgot password help
 
 // func (s *Storage) GetPass(u u.Login) (string, error) {

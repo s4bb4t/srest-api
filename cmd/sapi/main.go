@@ -12,7 +12,8 @@ import (
 	sdb "github.com/sabbatD/srest-api/internal/database"
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/admin"
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/user"
-	"github.com/sabbatD/srest-api/internal/lib/api/access"
+
+	access "github.com/sabbatD/srest-api/internal/lib/api/jwt"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 )
 
@@ -38,12 +39,35 @@ func main() {
 	router.Post("/signup", user.Register(log, storage))
 	router.Post("/signin", user.Auth(log, storage))
 
+	router.Route("/u", func(u chi.Router) {
+		u.Use(access.JWTAuthMiddleware)
+
+		u.Post("/profile/update", user.UpdateUser(log, storage))
+
+		u.Get("/profile", user.Profile(log, storage))
+	})
+
 	router.Route("/admin", func(r chi.Router) {
 		r.Use(access.JWTAuthMiddleware)
+		// r.Use(access.AdminAuthMiddleware)
 
-		r.Post("/rights/{field}", admin.Update(log, storage))
-		r.Post("/remove", admin.Remove(log, storage))
-		r.Get("/allusers", admin.GetAll(log, storage))
+		// update user's rights admin & blocked
+		r.Post("/users/rights/{field}", admin.Update(log, storage))
+
+		// create a new user
+		r.Post("/users/registrate/new", user.Register(log, storage))
+
+		// update all user's fields
+		r.Post("/users/user?username={username}/update", admin.UpdateUser(log, storage))
+
+		// get whole user's information
+		r.Get("/users/profile/user?={username}", admin.Profile(log, storage))
+
+		// get array of all users with whole information
+		r.Get("/users/all", admin.GetAll(log, storage))
+
+		// delete user with following username
+		r.Delete("/users/remove?username={username}", admin.Remove(log, storage))
 	})
 
 	log.Info("starting server", slog.String("address", cfg.Address))
