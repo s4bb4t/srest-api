@@ -208,7 +208,7 @@
 
 #### 3. Update Any User Profile
 
-- **URL**: `http://localhost:8080/admin/users/user?username={username}/update`
+- **URL**: `http://localhost:8080/admin/users/user={username}/update`
 - **Method**: `POST`
 - **Description**: Updates the profile information of any user by an admin.
 
@@ -236,7 +236,7 @@
 
 #### 4. Get User Information
 
-- **URL**: `http://localhost:8080/admin/users/profile/user?username={username}`
+- **URL**: `http://localhost:8080/admin/users/profile/user={username}`
 - **Method**: `GET`
 - **Description**: Retrieves the profile information of any user by an admin.
 
@@ -286,7 +286,7 @@
 
 #### 6. Delete a User
 
-- **URL**: `http://localhost:8080/admin/users/remove?username={username}`
+- **URL**: `http://localhost:8080/admin/users/remove/user={username}`
 - **Method**: `DELETE`
 - **Description**: Deletes a user account by username.
 
