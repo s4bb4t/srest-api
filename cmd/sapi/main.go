@@ -13,7 +13,7 @@ import (
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/admin"
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/user"
 
-	access "github.com/sabbatD/srest-api/internal/lib/api/jwt"
+	"github.com/sabbatD/srest-api/internal/lib/api/access"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 )
 
