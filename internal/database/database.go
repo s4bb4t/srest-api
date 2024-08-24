@@ -72,7 +72,7 @@ func (s *Storage) Add(u u.User) (int64, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	id, err := res.LastInsertId()
+	id, err := res.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("%s, failed to get lastInsertID: %v", op, err)
 	}
@@ -103,7 +103,7 @@ func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, err error) {
 		return false, false, fmt.Errorf("%s: %v", op, err)
 	}
 
-	stmt, err = s.db.Prepare(`SELECT admin, blocked FROM public.users WHERE username = $1`)
+	stmt, err = s.db.Prepare(`SELECT admin, block FROM public.users WHERE username = $1`)
 	if err != nil {
 		return true, false, fmt.Errorf("%s: %v", op, err)
 	}
@@ -121,17 +121,17 @@ func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, err error) {
 
 func (s *Storage) UpdateField(field string, u u.Login, val any) (int64, error) {
 	const op = "database.postgres.UpdateField"
+	query := fmt.Sprintf(`
+	UPDATE public.users 
+	SET %s = $1
+	WHERE username = $2`, field)
 
-	stmt, err := s.db.Prepare(`
-		UPDATE public.users 
-			SET $1 = $2
-			WHERE username = $3
-	`)
+	stmt, err := s.db.Prepare(query)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
 	}
 
-	res, err := stmt.Exec(field, val, u.Username)
+	res, err := stmt.Exec(val, u.Username)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, u.Username, val)
 	}
@@ -220,7 +220,7 @@ func (s *Storage) Get(username string) (u.TableUser, error) {
 }
 
 func (s *Storage) UpdateUser(u u.User, username string) (int64, error) {
-	const op = "database.postgres.UpdateField"
+	const op = "database.postgres.UpdateUser"
 
 	stmt, err := s.db.Prepare(`
 		SELECT EXISTS (
@@ -242,7 +242,7 @@ func (s *Storage) UpdateUser(u u.User, username string) (int64, error) {
 
 	stmt, err = s.db.Prepare(`
 		UPDATE public.users 
-			SET username = $1 password = $2 email = $ 3
+			SET username = $1, password = $2, email = $3
 			WHERE username = $4
 	`)
 	if err != nil {

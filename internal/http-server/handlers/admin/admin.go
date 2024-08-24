@@ -41,7 +41,9 @@ func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		AdmCheck(w, r, log)
+		if !AdmCheck(w, r, log) {
+			return
+		}
 
 		var req u.Login
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
@@ -109,20 +111,14 @@ func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		AdmCheck(w, r, log)
-
-		var req u.Login
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
-
-			render.JSON(w, r, resp.Error("failed to decode request"))
-
+		if !AdmCheck(w, r, log) {
 			return
 		}
 
-		log.Info("request body decoded", slog.Any("request", req))
+		var username u.Login
+		username.Username = chi.URLParam(r, "username")
 
-		n, err := user.Remove(req)
+		n, err := user.Remove(username)
 		if err != nil {
 			if n == 0 {
 				log.Info(err.Error())
@@ -153,7 +149,9 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		AdmCheck(w, r, log)
+		if !AdmCheck(w, r, log) {
+			return
+		}
 
 		users, err := user.GetAll()
 		if err != nil {
@@ -186,7 +184,9 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		AdmCheck(w, r, log)
+		if !AdmCheck(w, r, log) {
+			return
+		}
 
 		username := chi.URLParam(r, "username")
 
@@ -220,7 +220,9 @@ func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		AdmCheck(w, r, log)
+		if !AdmCheck(w, r, log) {
+			return
+		}
 
 		var req u.User
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
@@ -264,7 +266,7 @@ func contextAdmin(w http.ResponseWriter, r *http.Request) (bool, error) {
 	return userContext.IsAdmin, nil
 }
 
-func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) {
+func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) bool {
 	ok, err := contextAdmin(w, r)
 	if !ok {
 		if err != nil {
@@ -272,13 +274,14 @@ func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) {
 
 			render.JSON(w, r, resp.Error(err.Error()))
 
-			return
+			return false
 		}
 
 		log.Info("Not enough rights")
 
 		render.JSON(w, r, resp.Error("Not enough rights"))
 
-		return
+		return false
 	}
+	return true
 }

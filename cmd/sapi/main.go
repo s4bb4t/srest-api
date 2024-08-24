@@ -55,19 +55,19 @@ func main() {
 		r.Post("/users/rights/{field}", admin.Update(log, storage))
 
 		// create a new user
-		r.Post("/users/registrate/new", user.Register(log, storage))
+		r.Post("/users/registrate/new", user.Register(log, storage)) //
 
 		// update all user's fields
-		r.Post("/users/user?username={username}/update", admin.UpdateUser(log, storage))
+		r.Post("/users/user={username}/update", admin.UpdateUser(log, storage)) //
 
 		// get whole user's information
-		r.Get("/users/profile/user?={username}", admin.Profile(log, storage))
+		r.Get("/users/profile/user={username}", admin.Profile(log, storage)) //
 
 		// get array of all users with whole information
 		r.Get("/users/all", admin.GetAll(log, storage))
 
 		// delete user with following username
-		r.Delete("/users/remove?username={username}", admin.Remove(log, storage))
+		r.Delete("/users/remove/user={username}", admin.Remove(log, storage))
 	})
 
 	log.Info("starting server", slog.String("address", cfg.Address))
