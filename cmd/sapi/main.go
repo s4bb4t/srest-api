@@ -55,8 +55,8 @@ func main() {
 		r.Post("/users/user={id}/rights", admin.Update(log, storage))
 
 		// update user's rights admin & blocked
-		r.Get("/users/user={id}/block", admin.Block(log, storage))
-		r.Get("/users/user={id}/Unblock", admin.Unblock(log, storage))
+		r.Post("/users/user={id}/block", admin.Block(log, storage))
+		r.Post("/users/user={id}/Unblock", admin.Unblock(log, storage))
 
 		// create a new user
 		r.Post("/users/registrate/new", user.Register(log, storage)) //

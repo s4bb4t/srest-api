@@ -122,13 +122,13 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 #### Block User
 
-- **Endpoint:** `GET /admin/users/user={id}/block`
+- **Endpoint:** `POST /admin/users/user={id}/block`
 - **Description:** Blocks a user.
 - **Authentication Required**
 
 #### Unblock User
 
-- **Endpoint:** `GET /admin/users/user={id}/unblock`
+- **Endpoint:** `POST /admin/users/user={id}/unblock`
 - **Description:** Unblocks a user.
 - **Authentication Required**
 
