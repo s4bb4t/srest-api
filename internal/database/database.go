@@ -113,6 +113,10 @@ func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, ID int, err error) {
 
 func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 	const op = "database.postgres.UpdateField"
+
+	if field != "admin" {
+		return 0, fmt.Errorf("%s: no such field: %v", op, field)
+	}
 	query := fmt.Sprintf(`UPDATE public.users SET %s = $1 WHERE id = $2`, field)
 
 	stmt, err := s.db.Prepare(query)
