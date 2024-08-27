@@ -41,7 +41,6 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 # User Endpoints
 
----
 
 ## Register a New User
 
@@ -128,11 +127,9 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   ```
 - **Authentication Required**
 
----
 
 # Admin Endpoints
 
----
 
 ## Update User Rights
 
@@ -253,7 +250,6 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 - **Description:** Deletes a specific user.
 - **Authentication Required**
 
----
 
 # Error Handling
 
