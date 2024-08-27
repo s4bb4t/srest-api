@@ -43,11 +43,11 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ## Endpoints
 
-### User Endpoints
+# User Endpoints
 
 ---
 
-#### Register a New User
+## Register a New User
 
 - **Endpoint:** `POST /signup`
 - **Description:** Registers a new user.
@@ -73,7 +73,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Sign In
+## Sign In
 
 - **Endpoint:** `POST /signin`
 - **Description:** Authenticates a user and returns a JWT token.
@@ -94,7 +94,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Update User Profile
+## Update User Profile
 
 - **Endpoint:** `PUT /user/profile`
 - **Description:** Updates the logged-in user's profile.
@@ -111,7 +111,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Get User Profile
+## Get User Profile
 
 - **Endpoint:** `GET /user/profile`
 - **Description:** Retrieves the logged-in user's profile information.
@@ -134,11 +134,11 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-### Admin Endpoints
+# Admin Endpoints
 
 ---
 
-#### Update User Rights
+## Update User Rights
 
 - **Endpoint:** `POST /admin/users/user={id}/rights`
 - **Description:** Updates the rights of a user.
@@ -153,7 +153,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Block User
+## Block User
 
 - **Endpoint:** `POST /admin/users/user={id}/block`
 - **Description:** Blocks a user.
@@ -161,7 +161,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Unblock User
+## Unblock User
 
 - **Endpoint:** `POST /admin/users/user={id}/unblock`
 - **Description:** Unblocks a user.
@@ -169,7 +169,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Register a New User (Admin)
+## Register a New User (Admin)
 
 - **Endpoint:** `POST /admin/users/registrate/new`
 - **Description:** Registers a new user as an admin.
@@ -186,7 +186,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Update User Profile (Admin)
+## Update User Profile (Admin)
 
 - **Endpoint:** `PUT /admin/users/profile/user={id}`
 - **Description:** Updates a specific user's profile.
@@ -203,7 +203,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Get User Profile (Admin)
+## Get User Profile (Admin)
 
 - **Endpoint:** `GET /admin/users/profile/user={id}`
 - **Description:** Retrieves the profile information of a specific user.
@@ -226,7 +226,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Get All Users
+## Get All Users
 
 - **Endpoint:** `GET /admin/users/all`
 - **Description:** Retrieves a list of all users.
@@ -251,7 +251,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-#### Delete User
+## Delete User
 
 - **Endpoint:** `DELETE /admin/users/user={id}`
 - **Description:** Deletes a specific user.
@@ -260,7 +260,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ---
 
-## Error Handling
+# Error Handling
 
 For any errors, you will receive a response with the status set to `"Error"` and an appropriate message describing the issue.
 
