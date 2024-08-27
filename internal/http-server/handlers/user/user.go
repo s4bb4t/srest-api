@@ -15,6 +15,11 @@ import (
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
+type AuthResponse struct {
+	resp.Response
+	token string
+}
+
 type RegisterResponse struct {
 	resp.Response
 	Authdata u.AuthData `json:"authdata,omitempty"`
@@ -22,9 +27,9 @@ type RegisterResponse struct {
 
 type UserHandler interface {
 	Add(u u.User) (int64, error)
-	Auth(u u.AuthData) (succsess, isAdmin bool, err error)
-	Get(username string) (u.TableUser, error)
-	UpdateUser(u u.User, username string) (int64, error)
+	Auth(u u.AuthData) (succsess, isAdmin bool, id int, err error)
+	Get(id int) (u.TableUser, error)
+	UpdateUser(u u.User, id int) (int64, error)
 }
 
 type GetResponse struct {
@@ -43,10 +48,7 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		var req u.User
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
-
-			render.JSON(w, r, resp.Error("failed to decode request"))
-
+			JsonDecodeError(w, r, log, err)
 			return
 		}
 
@@ -61,15 +63,12 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 				return
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("user successfully created")
-		render.JSON(w, r, RegisterResponse{resp.OK(), u.AuthData{Username: req.Username, Password: req.Password}})
+		render.JSON(w, r, RegisterResponse{resp.OK(), u.AuthData{Login: req.Login, Password: req.Password}})
 	}
 }
 
@@ -84,16 +83,13 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		var req u.AuthData
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
-
-			render.JSON(w, r, resp.Error("failed to decode request"))
-
+			JsonDecodeError(w, r, log, err)
 			return
 		}
 
 		log.Info("request body decoded", slog.Any("request", req))
 
-		ok, isAdmin, err := user.Auth(req)
+		ok, isAdmin, id, err := user.Auth(req)
 		if err != nil {
 			if !ok {
 				log.Info(err.Error())
@@ -102,19 +98,13 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 				return
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
-		token, err := access.GenerateJWT(req.Username, isAdmin)
+		token, err := access.GenerateJWT(id, req.Login, isAdmin)
 		if err != nil {
-			log.Debug("could not generate JWT Token")
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, fmt.Errorf("could not generate JWT Token"))
 			return
 		}
 
@@ -126,7 +116,7 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		})
 
 		log.Info("successfully logged in")
-		render.JSON(w, r, resp.OK())
+		render.JSON(w, r, AuthResponse{resp.OK(), token})
 	}
 }
 
@@ -141,10 +131,7 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		var req u.User
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
-
-			render.JSON(w, r, resp.Error("failed to decode request"))
-
+			JsonDecodeError(w, r, log, err)
 			return
 		}
 
@@ -156,21 +143,18 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		n, err := user.UpdateUser(req, userContext.Username)
+		n, err := user.UpdateUser(req, userContext.Id)
 		if err != nil {
 			if n == 0 {
 				log.Info(err.Error())
 
 				render.JSON(w, r, resp.Error(err.Error()))
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully updated user: %v to %v with password %v and email %v", userContext.Username, req.Username, req.Password, req.Email))
+		log.Info(fmt.Sprintf("Successfully updated user: %v to %v with password %v and email %v", userContext.Id, req.Username, req.Password, req.Email))
 
 		render.JSON(w, r, resp.OK())
 	}
@@ -192,7 +176,7 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		user, err := user.Get(userContext.Username)
+		user, err := user.Get(userContext.Id)
 		if err != nil {
 			if err.Error() == "database.postgres.Get: no such user" {
 				log.Info(err.Error())
@@ -201,14 +185,23 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 				return
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("user successfully retrieved")
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
+}
+
+func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
+	log.Debug(err.Error())
+
+	render.JSON(w, r, resp.Error("Internal Server Error"))
+}
+
+func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
+	log.Error("failed to decode request body", sl.Err(err))
+
+	render.JSON(w, r, resp.Error("failed to decode request"))
 }

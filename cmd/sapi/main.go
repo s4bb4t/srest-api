@@ -39,10 +39,10 @@ func main() {
 	router.Post("/signup", user.Register(log, storage))
 	router.Post("/signin", user.Auth(log, storage))
 
-	router.Route("/u", func(u chi.Router) {
+	router.Route("/user", func(u chi.Router) {
 		u.Use(access.JWTAuthMiddleware)
 
-		u.Post("/profile/update", user.UpdateUser(log, storage))
+		u.Put("/profile", user.UpdateUser(log, storage))
 
 		u.Get("/profile", user.Profile(log, storage))
 	})
@@ -52,22 +52,26 @@ func main() {
 		// r.Use(access.AdminAuthMiddleware)
 
 		// update user's rights admin & blocked
-		r.Post("/users/rights/{field}", admin.Update(log, storage))
+		r.Post("/users/user={id}/rights", admin.Update(log, storage))
+
+		// update user's rights admin & blocked
+		r.Get("/users/user={id}/block", admin.Block(log, storage))
+		r.Get("/users/user={id}/Unblock", admin.Unblock(log, storage))
 
 		// create a new user
 		r.Post("/users/registrate/new", user.Register(log, storage)) //
 
 		// update all user's fields
-		r.Post("/users/user={username}/update", admin.UpdateUser(log, storage)) //
+		r.Put("/users/profile/user={id}", admin.UpdateUser(log, storage)) //
 
 		// get whole user's information
-		r.Get("/users/profile/user={username}", admin.Profile(log, storage)) //
+		r.Get("/users/profile/user={id}", admin.Profile(log, storage)) //
 
 		// get array of all users with whole information
 		r.Get("/users/all", admin.GetAll(log, storage))
 
 		// delete user with following username
-		r.Delete("/users/remove/user={username}", admin.Remove(log, storage))
+		r.Delete("/users/user={id}", admin.Remove(log, storage))
 	})
 
 	log.Info("starting server", slog.String("address", cfg.Address))

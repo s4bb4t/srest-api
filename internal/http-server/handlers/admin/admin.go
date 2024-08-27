@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -13,6 +14,11 @@ import (
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
+
+type UpdateRequest struct {
+	Field string
+	Value string
+}
 
 type GetAllResponse struct {
 	resp.Response
@@ -25,11 +31,11 @@ type GetResponse struct {
 }
 
 type AdminHandler interface {
-	UpdateField(field string, u u.Login, val any) (int64, error)
+	UpdateField(field string, id int, val any) (int64, error)
 	GetAll() ([]u.TableUser, error)
-	Remove(u u.Login) (int64, error)
-	Get(username string) (u.TableUser, error)
-	UpdateUser(u u.User, username string) (int64, error)
+	Remove(id int) (int64, error)
+	Get(id int) (u.TableUser, error)
+	UpdateUser(u u.User, id int) (int64, error)
 }
 
 func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
@@ -45,58 +51,111 @@ func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		var req u.Login
+		var req UpdateRequest
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			JsonDecodeError(w, r, log, err)
 			return
 		}
 
-		field := chi.URLParam(r, "field")
-		var isIt bool
-
-		switch field {
-		case "block":
-			isIt = true
-		case "unblock":
-			isIt = false
-		case "makeadmin":
-			isIt = true
-		case "makeuser":
-			isIt = false
-		default:
-			isIt = false
-		}
-
-		switch field {
-		case "block":
-			field = "block"
-		case "unblock":
-			field = "block"
-		case "makeadmin":
-			field = "admin"
-		case "makeuser":
-			field = "admin"
-		default:
-			log.Info("Wrong field in url: " + field)
-
-			render.JSON(w, r, resp.Error("Wrong field in url"))
-
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
 			return
 		}
 
-		if n, err := user.UpdateField(field, req, isIt); err != nil {
+		if n, err := user.UpdateField(req.Field, id, req.Value); err != nil {
 			if n == 0 {
 				log.Info(err.Error())
 
 				render.JSON(w, r, resp.Error(err.Error()))
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", field, isIt))
+		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", req.Field, req.Value))
+
+		render.JSON(w, r, resp.OK())
+	}
+}
+
+func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.admin.Block"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		if !AdmCheck(w, r, log) {
+			return
+		}
+
+		var req UpdateRequest
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			JsonDecodeError(w, r, log, err)
+			return
+		}
+
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
+
+		if n, err := user.UpdateField("block", id, true); err != nil {
+			if n == 0 {
+				log.Info(err.Error())
+
+				render.JSON(w, r, resp.Error(err.Error()))
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", req.Field, req.Value))
+
+		render.JSON(w, r, resp.OK())
+	}
+}
+
+func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.admin.Block"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		if !AdmCheck(w, r, log) {
+			return
+		}
+
+		var req UpdateRequest
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			JsonDecodeError(w, r, log, err)
+			return
+		}
+
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
+
+		if n, err := user.UpdateField("block", id, false); err != nil {
+			if n == 0 {
+				log.Info(err.Error())
+
+				render.JSON(w, r, resp.Error(err.Error()))
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", req.Field, req.Value))
 
 		render.JSON(w, r, resp.OK())
 	}
@@ -115,10 +174,13 @@ func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		var username u.Login
-		username.Username = chi.URLParam(r, "username")
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
 
-		n, err := user.Remove(username)
+		n, err := user.Remove(id)
 		if err != nil {
 			if n == 0 {
 				log.Info(err.Error())
@@ -127,10 +189,7 @@ func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 
 				return
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
@@ -162,10 +221,7 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 
 				return
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
@@ -188,9 +244,13 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		username := chi.URLParam(r, "username")
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
 
-		user, err := user.Get(username)
+		user, err := user.Get(id)
 		if err != nil {
 			if err.Error() == "database.postgres.Get: no such user" {
 				log.Info(err.Error())
@@ -199,10 +259,7 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 
 				return
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
@@ -235,23 +292,24 @@ func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 
 		log.Info("request body decoded", slog.Any("request", req))
 
-		username := chi.URLParam(r, "username")
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
 
-		n, err := user.UpdateUser(req, username)
+		n, err := user.UpdateUser(req, id)
 		if err != nil {
 			if n == 0 {
 				log.Info(err.Error())
 
 				render.JSON(w, r, resp.Error(err.Error()))
 			}
-			log.Debug(err.Error())
-
-			render.JSON(w, r, resp.Error("Internal Server Error"))
-
+			InternalError(w, r, log, err)
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully updated user: %v to %v with password %v and email %v", username, req.Username, req.Password, req.Email))
+		log.Info(fmt.Sprintf("Successfully updated user: %v to %v with password %v and email %v", id, req.Username, req.Password, req.Email))
 
 		render.JSON(w, r, resp.OK())
 	}
@@ -284,4 +342,16 @@ func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) bool {
 		return false
 	}
 	return true
+}
+
+func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
+	log.Debug(err.Error())
+
+	render.JSON(w, r, resp.Error("Internal Server Error"))
+}
+
+func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
+	log.Error("failed to decode request body", sl.Err(err))
+
+	render.JSON(w, r, resp.Error("failed to decode request"))
 }

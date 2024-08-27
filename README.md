@@ -1,328 +1,229 @@
-# sAPI - RESTful API Server
+# sAPI RESTful API Documentation
 
-`sAPI` is a robust RESTful API server designed for managing user profiles and administering user access. It provides a suite of endpoints for user registration, authentication, profile management, and administrative control over user accounts. The server is built using the `Go` programming language and leverages the `chi` router for handling HTTP requests.
+Welcome to the sAPI RESTful API documentation! This guide provides a comprehensive overview of all available endpoints in the API. For every endpoint, ensure to include an `Authorization` header with a valid JWT token for authentication.
 
-## Table of Contents
+---
 
-- [Overview](#overview)
-- [API Endpoints](#api-endpoints)
-  - [User Endpoints](#user-endpoints)
-    - [Sign Up](#1-sign-up)
-    - [Sign In](#2-sign-in)
-    - [Update User Profile](#3-update-user-profile)
-    - [Get User Profile](#4-get-user-profile)
-  - [Admin Endpoints](#admin-endpoints)
-    - [Update User Rights](#1-update-user-rights)
-    - [Register a New User](#2-register-a-new-user)
-    - [Update Any User Profile](#3-update-any-user-profile)
-    - [Get User Information](#4-get-user-information)
-    - [Get All Users](#5-get-all-users)
-    - [Delete a User](#6-delete-a-user)
-- [Running the Server](#running-the-server)
-- [Authorization](#authorization)
-- [Error Handling](#error-handling)
+## Base URL
 
-## Overview
+The base URL for all endpoints is:
 
-`sAPI` provides endpoints to manage user accounts and perform administrative tasks. The server uses JWT for authorization, and all endpoints return JSON responses.
+```
+http://localhost:8080
+```
 
-## API Endpoints
+---
+
+## Authentication
+
+All endpoints, except `/signup` and `/signin`, require authentication. You must include an `Authorization` header in your requests with a valid JWT token. The token should be prefixed with `Bearer `.
+
+---
+
+## Endpoints
 
 ### User Endpoints
 
-#### 1. Sign Up
+#### Register a New User
 
-- **URL**: `http://localhost:8080/signup`
-- **Method**: `POST`
-- **Description**: Registers a new user with a `username`, `password`, and `email`.
-
-**Request Body**:
-
-```json
-{
-  "username": "string",
-  "password": "string",
-  "email": "string"
-}
-```
-
-**Response**:
-
-```json
-{
-  "status": "OK",
-  "authdata": {
-    "username": "string",
-    "password": "string"
-  }
-}
-```
-
----
-
-#### 2. Sign In
-
-- **URL**: `http://localhost:8080/signin`
-- **Method**: `POST`
-- **Description**: Authenticates a user and issues a JWT token in the `token` cookie.
-
-**Request Body**:
-
-```json
-{
-  "username": "string",
-  "password": "string"
-}
-```
-
-**Response**:
-
-```json
-{
-  "status": "OK"
-}
-```
-
-**Cookies**:
-
-- **Name**: `token`
-- **Value**: JWT token
-- **Expires**: 12 hours
-- **HttpOnly**: true
-
----
-
-#### 3. Update User Profile
-
-- **URL**: `http://localhost:8080/u/profile/update`
-- **Method**: `POST`
-- **Description**: Updates the authenticated user's profile information (`username`, `password`, `email`).
-
-**Authorization**: JWT required (set as a cookie)
-
-**Request Body**:
-
-```json
-{
-  "username": "string",
-  "password": "string",
-  "email": "string"
-}
-```
-
-**Response**:
-
-```json
-{
-  "status": "OK"
-}
-```
-
----
-
-#### 4. Get User Profile
-
-- **URL**: `http://localhost:8080/u/profile`
-- **Method**: `GET`
-- **Description**: Retrieves the authenticated user's profile information.
-
-**Authorization**: JWT required (set as a cookie)
-
-**Response**:
-
-```json
-{
-  "status": "OK",
-  "user": {
+- **Endpoint:** `POST /signup`
+- **Description:** Registers a new user.
+- **Request Body:**
+  ```json
+  {
+    "login": "string",
     "username": "string",
     "password": "string",
-    "email":    "string",
-    "date":     "string",
-    "blocked":  "boolean",
-    "admin":    "boolean"  
+    "email": "string"
   }
-}
-```
+  ```
+- **Response:**
+  ```json
+  {
+    "status": "OK",
+    "authdata": {
+      "login": "string",
+      "password": "string"
+    }
+  }
+  ```
+
+#### Sign In
+
+- **Endpoint:** `POST /signin`
+- **Description:** Authenticates a user and returns a JWT token.
+- **Request Body:**
+  ```json
+  {
+    "login": "string",
+    "password": "string"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "status": "OK",
+    "token": "string"
+  }
+  ```
+
+#### Update User Profile
+
+- **Endpoint:** `PUT /user/profile`
+- **Description:** Updates the logged-in user's profile.
+- **Request Body:**
+  ```json
+  {
+    "login": "string",
+    "username": "string",
+    "password": "string",
+    "email": "string"
+  }
+  ```
+- **Authentication Required**
+
+#### Get User Profile
+
+- **Endpoint:** `GET /user/profile`
+- **Description:** Retrieves the logged-in user's profile information.
+- **Response:**
+  ```json
+  {
+    "status": "OK",
+    "user": {
+      "id": 1,
+      "login": "string",
+      "username": "string",
+      "email": "string",
+      "date": "string",
+      "block": false,
+      "admin": false
+    }
+  }
+  ```
+- **Authentication Required**
+
+---
 
 ### Admin Endpoints
 
-#### 1. Update User Rights
+#### Update User Rights
 
-- **URL**: `http://localhost:8080/admin/users/rights/{field}`
-- **Method**: `POST`
-- **Description**: Updates the rights of a user by setting them as blocked, unblocked, admin, or a regular user.
-
-**Authorization**: JWT required (admin access)
-
-**URL Parameters**:
-
-- `{field}`: `block`, `unblock`, `makeadmin`, `makeuser`
-
-**Request Body**:
-
-```json
-{
-  "username": "string"
-}
-```
-
-**Response**:
-
-```json
-{
-  "status": "OK"
-}
-```
- 
----
-
-#### 2. Register a New User
-
-- **URL**: `http://localhost:8080/admin/users/registrate/new`
-- **Method**: `POST`
-- **Description**: Registers a new user via an admin request. Useful for bulk or managed registrations.
-
-**Authorization**: JWT required (admin access)
-
-**Request Body**:
-
-```json
-{
-  "username": "string",
-  "password": "string",
-  "email": "string"
-}
-```
-
-**Response**:
-
-```json
-{
-  "status": "OK",
-  "authdata": {
-    "username": "string",
-    "password": "string"
+- **Endpoint:** `POST /admin/users/user={id}/rights`
+- **Description:** Updates the rights of a user.
+- **Request Body:**
+  ```json
+  {
+    "field": "string",
+    "value": "string"
   }
-}
-```
+  ```
+- **Authentication Required**
 
----
+#### Block User
 
-#### 3. Update Any User Profile
+- **Endpoint:** `GET /admin/users/user={id}/block`
+- **Description:** Blocks a user.
+- **Authentication Required**
 
-- **URL**: `http://localhost:8080/admin/users/user={username}/update`
-- **Method**: `POST`
-- **Description**: Updates the profile information of any user by an admin.
+#### Unblock User
 
-**Authorization**: JWT required (admin access)
+- **Endpoint:** `GET /admin/users/user={id}/unblock`
+- **Description:** Unblocks a user.
+- **Authentication Required**
 
-**Request Body**:
+#### Register a New User (Admin)
 
-```json
-{
-  "username": "string",
-  "password": "string",
-  "email": "string"
-}
-```
-
-**Response**:
-
-```json
-{
-  "status": "OK"
-}
-```
-
----
-
-#### 4. Get User Information
-
-- **URL**: `http://localhost:8080/admin/users/profile/user={username}`
-- **Method**: `GET`
-- **Description**: Retrieves the profile information of any user by an admin.
-
-**Authorization**: JWT required (admin access)
-
-**Response**:
-
-```json
-{
-  "status": "OK",
-  "user": {
+- **Endpoint:** `POST /admin/users/registrate/new`
+- **Description:** Registers a new user as an admin.
+- **Request Body:**
+  ```json
+  {
+    "login": "string",
     "username": "string",
-    "email": "string",
-    "is_admin": "boolean",
-    "blocked": "boolean"
+    "password": "string",
+    "email": "string"
   }
-}
-```
+  ```
+- **Authentication Required**
 
----
+#### Update User Profile (Admin)
 
-#### 5. Get All Users
+- **Endpoint:** `PUT /admin/users/profile/user={id}`
+- **Description:** Updates a specific user's profile.
+- **Request Body:**
+  ```json
+  {
+    "login": "string",
+    "username": "string",
+    "password": "string",
+    "email": "string"
+  }
+  ```
+- **Authentication Required**
 
-- **URL**: `http://localhost:8080/admin/users/all`
-- **Method**: `GET`
-- **Description**: Retrieves a list of all registered users in the system.
+#### Get User Profile (Admin)
 
-**Authorization**: JWT required (admin access)
-
-**Response**:
-
-```json
-{
-  "status": "OK",
-  "users": [
-    {
+- **Endpoint:** `GET /admin/users/profile/user={id}`
+- **Description:** Retrieves the profile information of a specific user.
+- **Response:**
+  ```json
+  {
+    "status": "OK",
+    "user": {
+      "id": 1,
+      "login": "string",
       "username": "string",
       "email": "string",
-      "is_admin": "boolean",
-      "blocked": "boolean"
+      "date": "string",
+      "block": false,
+      "admin": false
     }
-  ]
-}
-```
+  }
+  ```
+- **Authentication Required**
+
+#### Get All Users
+
+- **Endpoint:** `GET /admin/users/all`
+- **Description:** Retrieves a list of all users.
+- **Response:**
+  ```json
+  {
+    "status": "OK",
+    "users": [
+      {
+        "id": 1,
+        "login": "string",
+        "username": "string",
+        "email": "string",
+        "date": "string",
+        "block": false,
+        "admin": false
+      }
+    ]
+  }
+  ```
+- **Authentication Required**
+
+#### Delete User
+
+- **Endpoint:** `DELETE /admin/users/user={id}`
+- **Description:** Deletes a specific user.
+- **Authentication Required**
 
 ---
-
-#### 6. Delete a User
-
-- **URL**: `http://localhost:8080/admin/users/remove/user={username}`
-- **Method**: `DELETE`
-- **Description**: Deletes a user account by username.
-
-**Authorization**: JWT required (admin access)
-
-**Response**:
-
-```json
-{
-  "status": "OK"
-}
-```
-
-## Running the Server
-
-To run the server, use the following address:
-
-- **URL**: `http://localhost:8080`
-
-The server will start and listen for requests on `localhost` port `8080`.
-
-## Authorization
-
-All endpoints that modify user data or access sensitive information require JWT-based authorization. The JWT token is issued upon successful login and must be provided in the cookie named `token`.
 
 ## Error Handling
 
-Errors in requests, such as invalid JSON bodies, incorrect endpoints, or internal server errors, will return a response with the following format:
+For any errors, you will receive a response with the status set to `"Error"` and an appropriate message describing the issue.
 
-**Response**:
-
+Example Error Response:
 ```json
 {
   "status": "Error",
-  "error": "Error message"
+  "error": "Internal Server Error"
 }
 ```
+
+---

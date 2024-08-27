@@ -3,6 +3,7 @@ package access
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -10,23 +11,28 @@ import (
 
 var jwtKey = []byte("YouAreKissedSabbatsAss")
 
+type cxtKey string
+
 type Claims struct {
-	Username string `json:"username"`
-	IsAdmin  bool   `json:"isadmin"`
+	Id      int    `json:"id"`
+	Login   string `json:"login"`
+	IsAdmin bool   `json:"isadmin"`
 	jwt.StandardClaims
 }
 
 type UserContext struct {
-	Username  string `json:"username"`
+	Id        int    `json:"id"`
+	Login     string `json:"login"`
 	IsAdmin   bool   `json:"isadmin"`
 	IsBlocked bool   `json:"isblocked"`
 }
 
-func GenerateJWT(username string, admin bool) (string, error) {
+func GenerateJWT(id int, login string, admin bool) (string, error) {
 	expirationTime := time.Now().Add(12 * time.Hour)
 	claims := &Claims{
-		Username: username,
-		IsAdmin:  admin,
+		Id:      id,
+		Login:   login,
+		IsAdmin: admin,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -52,8 +58,18 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		// ----------------------------------------------------------------
+		_ = cookie // в случае отмены токена в хедере => коммент
+		// tokenString := cookie.Value // раскоммент
 
-		tokenString := cookie.Value
+		// этот костыль ебучий для токена из хедера сделан специально
+		// чтобы студики учились работать с токеном
+		// но такой запрос появился уже после того как я сделал полноценную функцию jwt аутентификации
+
+		tokenString := r.Header.Get("Authorization") // коммент
+
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ") // коммент
+		// ----------------------------------------------------------------
 		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
@@ -65,10 +81,11 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		userContext := UserContext{
-			Username: claims.Username,
-			IsAdmin:  claims.IsAdmin,
+			Id:      claims.Id,
+			Login:   claims.Login,
+			IsAdmin: claims.IsAdmin,
 		}
-		ctx := context.WithValue(r.Context(), "userContext", userContext)
+		ctx := context.WithValue(r.Context(), cxtKey("userContext"), userContext)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
