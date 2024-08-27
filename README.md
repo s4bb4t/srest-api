@@ -45,6 +45,8 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ### User Endpoints
 
+---
+
 #### Register a New User
 
 - **Endpoint:** `POST /signup`
@@ -69,6 +71,8 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   }
   ```
 
+---
+
 #### Sign In
 
 - **Endpoint:** `POST /signin`
@@ -88,6 +92,8 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   }
   ```
 
+---
+
 #### Update User Profile
 
 - **Endpoint:** `PUT /user/profile`
@@ -102,6 +108,8 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   }
   ```
 - **Authentication Required**
+
+---
 
 #### Get User Profile
 
@@ -128,6 +136,8 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ### Admin Endpoints
 
+---
+
 #### Update User Rights
 
 - **Endpoint:** `POST /admin/users/user={id}/rights`
@@ -141,17 +151,23 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   ```
 - **Authentication Required**
 
+---
+
 #### Block User
 
 - **Endpoint:** `POST /admin/users/user={id}/block`
 - **Description:** Blocks a user.
 - **Authentication Required**
 
+---
+
 #### Unblock User
 
 - **Endpoint:** `POST /admin/users/user={id}/unblock`
 - **Description:** Unblocks a user.
 - **Authentication Required**
+
+---
 
 #### Register a New User (Admin)
 
@@ -168,6 +184,8 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   ```
 - **Authentication Required**
 
+---
+
 #### Update User Profile (Admin)
 
 - **Endpoint:** `PUT /admin/users/profile/user={id}`
@@ -182,6 +200,8 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   }
   ```
 - **Authentication Required**
+
+---
 
 #### Get User Profile (Admin)
 
@@ -203,6 +223,8 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   }
   ```
 - **Authentication Required**
+
+---
 
 #### Get All Users
 
@@ -227,11 +249,14 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   ```
 - **Authentication Required**
 
+---
+
 #### Delete User
 
 - **Endpoint:** `DELETE /admin/users/user={id}`
 - **Description:** Deletes a specific user.
 - **Authentication Required**
+---
 
 ---
 
