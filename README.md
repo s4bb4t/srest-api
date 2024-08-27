@@ -33,15 +33,11 @@ The base URL for all endpoints is:
 http://localhost:8080
 ```
 
----
-
 ## Authentication
 
 All endpoints, except `/signup` and `/signin`, require authentication. You must include an `Authorization` header in your requests with a valid JWT token. The token should be prefixed with `Bearer `.
 
 ---
-
-## Endpoints
 
 # User Endpoints
 
@@ -256,7 +252,6 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 - **Endpoint:** `DELETE /admin/users/user={id}`
 - **Description:** Deletes a specific user.
 - **Authentication Required**
----
 
 ---
 
@@ -271,5 +266,3 @@ Example Error Response:
   "error": "Internal Server Error"
 }
 ```
-
----
