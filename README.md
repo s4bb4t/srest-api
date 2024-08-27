@@ -4,6 +4,27 @@ Welcome to the sAPI RESTful API documentation! This guide provides a comprehensi
 
 ---
 
+## Table of Contents
+
+- [Authentication](#authentication)
+- [User Endpoints](#user-endpoints)
+  - [Sign Up](#sign-up)
+  - [Sign In](#sign-in)
+  - [Update Profile](#update-profile)
+  - [Get Profile](#get-profile)
+- [Admin Endpoints](#admin-endpoints)
+  - [Update User Rights](#update-user-rights)
+  - [Block User](#block-user)
+  - [Unblock User](#unblock-user)
+  - [Register New User](#register-new-user)
+  - [Update User Profile](#update-user-profile)
+  - [Get User Profile](#get-user-profile)
+  - [Get All Users](#get-all-users)
+  - [Delete User](#delete-user)
+- [Errors](#error-handling)
+
+---
+
 ## Base URL
 
 The base URL for all endpoints is:
