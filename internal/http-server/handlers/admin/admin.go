@@ -32,7 +32,7 @@ type GetResponse struct {
 
 type AdminHandler interface {
 	UpdateField(field string, id int, val any) (int64, error)
-	GetAll() ([]u.TableUser, error)
+	GetAll(search, order string, blocked bool, limit, offset int) ([]u.TableUser, error)
 	Remove(id int) (int64, error)
 	Get(id int) (u.TableUser, error)
 	UpdateUser(u u.User, id int) (int64, error)
@@ -212,7 +212,25 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		users, err := user.GetAll()
+		search := r.URL.Query().Get("search")
+		order := r.URL.Query().Get("order")
+		blockedStr := r.URL.Query().Get("blocked")
+		limitStr := r.URL.Query().Get("limit")
+		offsetStr := r.URL.Query().Get("offset")
+
+		if search == "" || order == "" || blockedStr == "" || limitStr == "" || offsetStr == "" {
+			log.Info("one or more parameters are empty")
+
+			render.JSON(w, r, resp.Error("one or more parameters are empty"))
+
+			return
+		}
+
+		limit, _ := strconv.Atoi(limitStr)
+		offset, _ := strconv.Atoi(offsetStr)
+		blocked, _ := strconv.ParseBool(offsetStr)
+
+		users, err := user.GetAll(search, order, blocked, limit, offset)
 		if err != nil {
 			if users == nil {
 				log.Info("no users found")

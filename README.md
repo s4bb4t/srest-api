@@ -222,8 +222,10 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
 
 ## Get All Users
 
-- **Endpoint:** `GET /admin/users/all`
-- **Description:** Retrieves a list of all users.
+- **Endpoint:** `GET /admin/users?search={search_term}&order={asc}&blocked={false}&limit={10}&offset={0}`
+- **Description:** Retrieves a list of all users. Supports filtering by name or email, sorting by email, pagination, and filtering by blocked/unblocked status. The query parameters `search`, `order`, `blocked`, `limit`, and `offset` can be used for these purposes. 
+- **Note:** If any of the required query parameters (`search`, `order`, `blocked`, `limit`, `offset`) are missing or empty, the request will return an error.
+
 - **Response:**
   ```json
   {

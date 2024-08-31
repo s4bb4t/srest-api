@@ -68,7 +68,7 @@ func main() {
 		r.Get("/users/profile/user={id}", admin.Profile(log, storage)) //
 
 		// get array of all users with whole information
-		r.Get("/users/all", admin.GetAll(log, storage))
+		r.Get("/users", admin.GetAll(log, storage))
 
 		// delete user with following username
 		r.Delete("/users/user={id}", admin.Remove(log, storage))
