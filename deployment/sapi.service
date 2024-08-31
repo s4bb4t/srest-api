@@ -1,0 +1,15 @@
+[Unit]
+Description=Url Shortener
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/apps/sapi
+ExecStart=/root/apps/sapi/sapi
+Restart=always
+RestartSec=4
+StandardOutput=inherit
+EnvironmentFile=/root/apps/sapi/config.env
+
+[Install]
+WantedBy=multi-user.target
