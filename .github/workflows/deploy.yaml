@@ -11,7 +11,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      HOST: root@84.201.146.216
+      HOST: testuser@51.250.113.72
       DEPLOY_DIRECTORY: /root/apps/srest-api
       CONFIG_PATH: /root/apps/srest-api/config/prod.yaml
       ENV_FILE_PATH: /root/apps/srest-api/config.env
