@@ -35,7 +35,15 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 			date TEXT,
 			block BOOLEAN NOT NULL DEFAULT FALSE,
 			admin BOOLEAN NOT NULL DEFAULT FALSE
-		)
+		);
+
+		CREATE SEQUENCE IF NOT EXISTS users_id_seq;
+
+		ALTER TABLE public.users ALTER COLUMN id SET DEFAULT nextval('users_id_seq');
+
+		ALTER SEQUENCE users_id_seq OWNED BY public.users.id;
+
+		SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM public.users), 0));
 	`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", op, err)
