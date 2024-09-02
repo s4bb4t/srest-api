@@ -17,7 +17,7 @@ import (
 
 type AuthResponse struct {
 	resp.Response
-	token string
+	tkn string
 }
 
 type RegisterResponse struct {
