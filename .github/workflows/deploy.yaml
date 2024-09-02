@@ -9,12 +9,14 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04  # Фиксируем версию среды
     env:
       HOST: testuser@51.250.113.72
       DEPLOY_DIRECTORY: /root/apps/srest-api
       CONFIG_PATH: /root/apps/srest-api/config/prod.yaml
       ENV_FILE_PATH: /root/apps/srest-api/config.env
+      AWS_DEFAULT_REGION: us-east-1  # Добавляем регион AWS
 
     steps:
       - name: Checkout repository
@@ -44,10 +46,11 @@ jobs:
           chmod 600 deploy_key.pem
           echo "HOST: ${{ env.HOST }}"
           echo "DEPLOY_DIRECTORY: ${{ env.DEPLOY_DIRECTORY }}"
-          ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mkdir -p ${{ env.DEPLOY_DIRECTORY }}"
-          rsync -avz -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' --exclude='.git' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
+          ssh -vvv -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mkdir -p ${{ env.DEPLOY_DIRECTORY }}"
+          rsync -avz -e 'ssh -vvv -i deploy_key.pem -o StrictHostKeyChecking=no' --exclude='.git' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }} || echo "Rsync failed"
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+
       # - name: Deploy to VM
       #   run: |
       #     sudo apt-get install -y ssh rsync
@@ -57,6 +60,7 @@ jobs:
       #     rsync -avz -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' --exclude='.git' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
       #   env:
       #     DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      
       - name: Remove old systemd service file
         run: |
           ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "rm -f /etc/systemd/system/sapi.service"
