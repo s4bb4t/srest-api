@@ -35,21 +35,41 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 			date TEXT,
 			block BOOLEAN NOT NULL DEFAULT FALSE,
 			admin BOOLEAN NOT NULL DEFAULT FALSE
-		);
-
-		CREATE SEQUENCE IF NOT EXISTS users_id_seq;
-
-		ALTER TABLE public.users ALTER COLUMN id SET DEFAULT nextval('users_id_seq');
-
-		ALTER SEQUENCE users_id_seq OWNED BY public.users.id;
-
-		SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM public.users), 0));
+		)
 	`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
 	if _, err = stmt.Exec(); err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
+	_, err = db.Exec(`
+		CREATE SEQUENCE IF NOT EXISTS users_id_seq;
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
+	_, err = db.Exec(`
+		ALTER TABLE public.users ALTER COLUMN id SET DEFAULT nextval('users_id_seq');
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
+	_, err = db.Exec(`
+		ALTER SEQUENCE users_id_seq OWNED BY public.users.id;
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
+	_, err = db.Exec(`
+		SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM public.users), 0));
+	`)
+	if err != nil {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
