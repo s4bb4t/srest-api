@@ -69,6 +69,8 @@ func (s *Storage) Add(u u.User) (int64, error) {
 
 	if !maxID.Valid {
 		maxID.Int64 = 1
+	} else {
+		maxID.Int64 += 1
 	}
 
 	res, err := stmt.Exec(maxID.Int64, u.Login, u.Username, u.Email, u.Password, time.Now().Format("2006-01-02 15:04:05"))
