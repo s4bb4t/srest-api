@@ -11,12 +11,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # runs-on: ubuntu-20.04  # Фиксируем версию среды
-    env:
-      HOST: admin@easydev.club
-      DEPLOY_DIRECTORY: /root/apps/srest-api
-      CONFIG_PATH: /root/apps/srest-api/config/prod.yaml
-      ENV_FILE_PATH: /root/apps/srest-api/config.env
-      AWS_DEFAULT_REGION: us-east-1  # Добавляем регион AWS
+  env:
+    HOST: admin@easydev.club
+    DEPLOY_DIRECTORY: /home/admin/apps/srest-api
+    CONFIG_PATH: /home/admin/apps/srest-api/config/prod.yaml
+    ENV_FILE_PATH: /home/admin/apps/srest-api/config.env
 
     steps:
       - name: Checkout repository
