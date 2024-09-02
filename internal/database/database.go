@@ -45,34 +45,6 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
-	_, err = db.Exec(`
-		CREATE SEQUENCE IF NOT EXISTS users_id_seq;
-	`)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", op, err)
-	}
-
-	_, err = db.Exec(`
-		ALTER TABLE public.users ALTER COLUMN id SET DEFAULT nextval('users_id_seq');
-	`)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", op, err)
-	}
-
-	_, err = db.Exec(`
-		ALTER SEQUENCE users_id_seq OWNED BY public.users.id;
-	`)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", op, err)
-	}
-
-	_, err = db.Exec(`
-		SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM public.users), 0));
-	`)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", op, err)
-	}
-
 	return &Storage{db: db}, nil
 }
 
@@ -81,14 +53,25 @@ func (s *Storage) Add(u u.User) (int64, error) {
 
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.users (
-			login, username, email, password, date
-		) VALUES ($1, $2, $3, $4, $5)
+			id, login, username, email, password, date
+		) VALUES ($1, $2, $3, $4, $5, $6)
 	`)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	res, err := stmt.Exec(u.Login, u.Username, u.Email, u.Password, time.Now().Format("2006-01-02 15:04:05"))
+	var maxID sql.NullInt64
+
+	err = s.db.QueryRow(`SELECT MAX(id) FROM public.users;`).Scan(&maxID)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %v", op, err)
+	}
+
+	if !maxID.Valid {
+		maxID.Int64 = 1
+	}
+
+	res, err := stmt.Exec(maxID.Int64, u.Login, u.Username, u.Email, u.Password, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" { // Код ошибки 23505 означает нарушение уникальности
 			return 0, fmt.Errorf("%s: user already exists", op)
@@ -96,12 +79,12 @@ func (s *Storage) Add(u u.User) (int64, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	id, err := res.RowsAffected()
+	n, err := res.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("%s, failed to get RowsAffected: %v", op, err)
 	}
 
-	return id, nil
+	return n, nil
 }
 
 func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, ID int, err error) {
