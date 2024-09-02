@@ -12,7 +12,7 @@ jobs:
     # runs-on: ubuntu-latest
     runs-on: ubuntu-20.04  # Фиксируем версию среды
     env:
-      HOST: testuser@51.250.113.72
+      HOST: moderator@easydev.club
       DEPLOY_DIRECTORY: /root/apps/srest-api
       CONFIG_PATH: /root/apps/srest-api/config/prod.yaml
       ENV_FILE_PATH: /root/apps/srest-api/config.env
