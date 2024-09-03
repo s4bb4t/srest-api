@@ -206,7 +206,7 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 		limitStr := r.URL.Query().Get("limit")
 		offsetStr := r.URL.Query().Get("offset")
 
-		if search == "" || order == "" || blockedStr == "" || limitStr == "" || offsetStr == "" {
+		if order == "" || blockedStr == "" || limitStr == "" || offsetStr == "" {
 			log.Info("one or more parameters are empty")
 
 			render.JSON(w, r, resp.Error("one or more parameters are empty"))
@@ -214,9 +214,9 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			return
 		}
 
+		blocked, _ := strconv.ParseBool(blockedStr)
 		limit, _ := strconv.Atoi(limitStr)
 		offset, _ := strconv.Atoi(offsetStr)
-		blocked, _ := strconv.ParseBool(offsetStr)
 
 		users, err := user.GetAll(search, order, blocked, limit, offset)
 		if err != nil {

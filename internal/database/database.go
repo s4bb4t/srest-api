@@ -190,7 +190,7 @@ func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) 
 
 	query := `
 		SELECT * FROM public.users
-		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' AND block = $2)
+		WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND block = $2)
 		ORDER BY CASE WHEN $3 = 'asc' THEN email END ASC,
 				 CASE WHEN $3 = 'desc' THEN email END DESC
 		LIMIT $4 OFFSET $5
