@@ -17,7 +17,7 @@ import (
 
 type UpdateRequest struct {
 	Field string
-	Value string
+	Value any
 }
 
 type GetAllResponse struct {
