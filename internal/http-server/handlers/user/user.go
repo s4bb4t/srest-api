@@ -137,7 +137,7 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		log.Info("request body decoded", slog.Any("request", req))
 
-		userContext, ok := r.Context().Value("userContext").(access.UserContext)
+		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {
 			http.Error(w, "User context not found", http.StatusUnauthorized)
 			return

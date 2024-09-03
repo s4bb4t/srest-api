@@ -334,7 +334,7 @@ func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 }
 
 func contextAdmin(w http.ResponseWriter, r *http.Request) (bool, error) {
-	userContext, ok := r.Context().Value("userContext").(access.UserContext)
+	userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 	if !ok {
 		http.Error(w, "User context not found", http.StatusUnauthorized)
 		return false, fmt.Errorf("Unauthorized")
