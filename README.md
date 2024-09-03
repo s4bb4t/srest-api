@@ -140,7 +140,7 @@ All endpoints, except `/signup` and `/signin`, require authentication. You must 
   ```json
   {
     "field": "string",
-    "value": "string"
+    "value": any
   }
   ```
 - **Authentication Required**
