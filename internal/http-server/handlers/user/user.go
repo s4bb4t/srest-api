@@ -112,7 +112,7 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			Name:     "token",
 			Value:    token,
 			Expires:  time.Now().Add(12 * time.Hour),
-			HttpOnly: true,
+			HttpOnly: false,
 		})
 
 		log.Info("successfully logged in")
@@ -170,7 +170,7 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		userContext, ok := r.Context().Value("userContext").(access.UserContext)
+		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {
 			http.Error(w, "User context not found", http.StatusUnauthorized)
 			return

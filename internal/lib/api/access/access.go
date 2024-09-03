@@ -10,7 +10,7 @@ import (
 
 var jwtKey = []byte("YouAreKissedSabbatsAss")
 
-type cxtKey string
+type CxtKey string
 
 type Claims struct {
 	Id      int    `json:"id"`
@@ -84,41 +84,7 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 			Login:   claims.Login,
 			IsAdmin: claims.IsAdmin,
 		}
-		ctx := context.WithValue(r.Context(), cxtKey("userContext"), userContext)
+		ctx := context.WithValue(r.Context(), CxtKey("userContext"), userContext)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
-
-// func AdminAuthMiddleware(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		cookie, err := r.Cookie("token")
-// 		if err != nil {
-// 			if err == http.ErrNoCookie {
-// 				http.Error(w, "Authorization cookie is missing", http.StatusUnauthorized)
-// 				return
-// 			}
-// 			http.Error(w, err.Error(), http.StatusBadRequest)
-// 			return
-// 		}
-
-// 		tokenString := cookie.Value
-// 		claims := &Claims{}
-
-// 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-// 			return jwtKey, nil
-// 		})
-
-// 		if err != nil || !token.Valid {
-// 			http.Error(w, "Invalid token", http.StatusUnauthorized)
-// 			return
-// 		}
-
-// 		if !claims.IsAdmin {
-// 			http.Error(w, "Unauthorized: Admin access required", http.StatusUnauthorized)
-// 			return
-// 		}
-
-// 		ctx := context.WithValue(r.Context(), "username", claims.Username)
-// 		next.ServeHTTP(w, r.WithContext(ctx))
-// 	})
-// }
