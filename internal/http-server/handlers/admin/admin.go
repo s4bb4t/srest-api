@@ -92,12 +92,6 @@ func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		var req UpdateRequest
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
-			return
-		}
-
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
 			InternalError(w, r, log, err)
@@ -114,7 +108,7 @@ func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", req.Field, req.Value))
+		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", "block", true))
 
 		render.JSON(w, r, resp.OK())
 	}
@@ -130,12 +124,6 @@ func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 		)
 
 		if !AdmCheck(w, r, log) {
-			return
-		}
-
-		var req UpdateRequest
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
 			return
 		}
 
@@ -155,7 +143,7 @@ func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", req.Field, req.Value))
+		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", "block", false))
 
 		render.JSON(w, r, resp.OK())
 	}
