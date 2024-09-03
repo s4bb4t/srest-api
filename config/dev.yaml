@@ -1,0 +1,7 @@
+  env: "dev" # local, dev, prod
+  dbstring: "host=pg3.sweb.ru port=5432 user=mentalrape password=M4UU96RwWYMZUCE_ dbname=mentalrape sslmode=disable"
+  http_server: 
+    address: "0.0.0.0:8082"
+    timeout: 4s 
+    idle_timeout: 60s
+    user: "s4bb4t"
