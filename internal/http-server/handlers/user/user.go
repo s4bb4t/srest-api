@@ -39,12 +39,21 @@ type GetResponse struct {
 
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
 		const op = "http-server.hanlders.user.Register"
 
 		log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
+		/// ----------------------------------------------------------------
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if r.Method == "OPTIONS" {
+			return
+		}
+		/// ----------------------------------------------------------------
 
 		var req u.User
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
