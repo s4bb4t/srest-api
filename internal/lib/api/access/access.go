@@ -3,6 +3,7 @@ package access
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -48,26 +49,30 @@ func GenerateJWT(id int, login string, admin bool) (string, error) {
 
 func JWTAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				http.Error(w, "Authorization cookie is missing", http.StatusUnauthorized)
-				return
-			}
-			http.Error(w, err.Error(), http.StatusBadRequest)
+		if r.Method == http.MethodOptions {
+			next.ServeHTTP(w, r)
 			return
 		}
+		// cookie, err := r.Cookie("token")
+		// if err != nil {
+		// 	if err == http.ErrNoCookie {
+		// 		http.Error(w, "Authorization cookie is missing", http.StatusUnauthorized)
+		// 		return
+		// 	}
+		// 	http.Error(w, err.Error(), http.StatusBadRequest)
+		// 	return
+		// }
 		// ----------------------------------------------------------------
 		// _ = cookie // в случае отмены токена в хедере => коммент
-		tokenString := cookie.Value // раскоммент
+		// tokenString := cookie.Value // раскоммент
 
 		// этот костыль ебучий для токена из хедера сделан специально
 		// чтобы студики учились работать с токеном
 		// но такой запрос появился уже после того как я сделал полноценную функцию jwt аутентификации
 
-		// tokenString := r.Header.Get("Authorization") // коммент
+		tokenString := r.Header.Get("Authorization") // коммент
 
-		// tokenString = strings.TrimPrefix(tokenString, "Bearer ") // коммент
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ") // коммент
 		// ----------------------------------------------------------------
 		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {

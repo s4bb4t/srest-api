@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
@@ -39,7 +38,6 @@ type GetResponse struct {
 
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		const op = "http-server.hanlders.user.Register"
 
 		log.With(
@@ -109,12 +107,13 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{
-			Name:     "token",
-			Value:    token,
-			Expires:  time.Now().Add(12 * time.Hour),
-			HttpOnly: false,
-		})
+		// http.SetCookie(w, &http.Cookie{
+		// 	Name:     "token",
+		// 	Value:    token,
+		// 	Expires:  time.Now().Add(12 * time.Hour),
+		// 	HttpOnly: true,
+		// 	SameSite: http.SameSiteLaxMode,
+		// })
 
 		log.Info("successfully logged in")
 		render.JSON(w, r, AuthResponse{resp.OK(), token})
@@ -171,6 +170,11 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			origin = "*"
+		}
+
 		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {
 			http.Error(w, "User context not found", http.StatusUnauthorized)
@@ -192,25 +196,6 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		log.Info("user successfully retrieved")
 		render.JSON(w, r, GetResponse{resp.OK(), user})
-	}
-}
-
-func Options(log *slog.Logger, user UserHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.user.Options"
-
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-
-		w.WriteHeader(http.StatusOK)
-
-		log.Info("OPTIONS OK")
-		// render.JSON(w, r, resp.OK())
 	}
 }
 
