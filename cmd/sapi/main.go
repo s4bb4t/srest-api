@@ -36,8 +36,13 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
+	// registration endpoint
 	router.Post("/signup", user.Register(log, storage))
+	router.Options("/signup", user.Options(log, storage))
+
+	// authentication endpoint
 	router.Post("/signin", user.Auth(log, storage))
+	router.Options("/signin", user.Options(log, storage))
 
 	router.Route("/user", func(u chi.Router) {
 		u.Use(access.JWTAuthMiddleware)
@@ -45,6 +50,8 @@ func main() {
 		u.Put("/profile", user.UpdateUser(log, storage))
 
 		u.Get("/profile", user.Profile(log, storage))
+
+		u.Options("/profile", user.Options(log, storage))
 	})
 
 	router.Route("/admin", func(r chi.Router) {
@@ -53,25 +60,33 @@ func main() {
 
 		// update user's rights admin & blocked
 		r.Post("/users/user={id}/rights", admin.Update(log, storage))
+		r.Options("/users/user={id}/rights", user.Options(log, storage))
 
 		// update user's rights admin & blocked
 		r.Post("/users/user={id}/block", admin.Block(log, storage))
+		r.Options("/users/user={id}/block", user.Options(log, storage))
 		r.Post("/users/user={id}/unblock", admin.Unblock(log, storage))
+		r.Options("/users/user={id}/unblock", user.Options(log, storage))
 
 		// create a new user
 		r.Post("/users/registrate/new", user.Register(log, storage)) //
+		r.Options("/users/registrate/new", user.Options(log, storage))
 
 		// update all user's fields
 		r.Put("/users/profile/user={id}", admin.UpdateUser(log, storage)) //
+		r.Options("/users/profile/user={id}", user.Options(log, storage))
 
 		// get whole user's information
 		r.Get("/users/profile/user={id}", admin.Profile(log, storage)) //
+		r.Options("/users/profile/user={id}", user.Options(log, storage))
 
 		// get array of all users with whole information
 		r.Get("/users", admin.GetAll(log, storage))
+		r.Options("/users", user.Options(log, storage))
 
 		// delete user with following username
 		r.Delete("/users/user={id}", admin.Remove(log, storage))
+		r.Options("/users/user={id}", user.Options(log, storage))
 	})
 
 	log.Info("starting server", slog.String("address", cfg.Address))

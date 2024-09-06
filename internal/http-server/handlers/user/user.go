@@ -46,11 +46,6 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
-		/// ----------------------------------------------------------------
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		/// ----------------------------------------------------------------
 
 		var req u.User
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
@@ -197,6 +192,25 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		log.Info("user successfully retrieved")
 		render.JSON(w, r, GetResponse{resp.OK(), user})
+	}
+}
+
+func Options(log *slog.Logger, user UserHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.user.Options"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+
+		w.WriteHeader(http.StatusOK)
+
+		log.Info("OPTIONS OK")
+		// render.JSON(w, r, resp.OK())
 	}
 }
 
