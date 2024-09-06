@@ -170,11 +170,6 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		origin := r.Header.Get("Origin")
-		if origin == "" {
-			origin = "*"
-		}
-
 		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {
 			http.Error(w, "User context not found", http.StatusUnauthorized)

@@ -11,6 +11,7 @@ import (
 	"github.com/sabbatD/srest-api/internal/config"
 	sdb "github.com/sabbatD/srest-api/internal/database"
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/admin"
+	"github.com/sabbatD/srest-api/internal/http-server/handlers/todo"
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/user"
 
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
@@ -75,6 +76,18 @@ func main() {
 
 		// delete user with following username
 		r.Delete("/users/user={id}", admin.Remove(log, storage))
+	})
+
+	router.Route("/todo", func(t chi.Router) {
+		t.Post("/create", todo.Create(log, storage))
+
+		t.Put("/todo={id}", todo.Update(log, storage))
+
+		t.Get("/todo={id}", todo.Get(log, storage))
+
+		t.Get("/todos", todo.GetAll(log, storage))
+
+		t.Delete("/todo={id}", todo.Delete(log, storage))
 	})
 
 	log.Info("starting server", slog.String("address", cfg.Address))

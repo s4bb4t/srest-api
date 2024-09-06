@@ -45,6 +45,22 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
+	stmt, err = db.Prepare(`
+		CREATE TABLE IF NOT EXISTS public.todos (
+			id INTEGER PRIMARY KEY UNIQUE,
+			title TEXT,
+			created TEXT,
+			isdone BOOLEAN NOT NULL DEFAULT FALSE
+		)
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
+	if _, err = stmt.Exec(); err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
 	return &Storage{db: db}, nil
 }
 
@@ -125,7 +141,7 @@ func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, ID int, err error) {
 }
 
 func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
-	const op = "database.postgres.UpdateField"
+	const op = "database.postgres.UpdateUserField"
 
 	switch field {
 	case "admin":
@@ -158,7 +174,7 @@ func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 }
 
 func (s *Storage) Remove(id int) (int64, error) {
-	const op = "database.postgres.Remove"
+	const op = "database.postgres.RemoveUser"
 
 	stmt, err := s.db.Prepare(`
 	DELETE FROM public.users 
@@ -186,7 +202,7 @@ func (s *Storage) Remove(id int) (int64, error) {
 }
 
 func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) ([]u.TableUser, error) {
-	const op = "database.postgres.GetAll"
+	const op = "database.postgres.GetAllUsers"
 
 	query := `
 		SELECT * FROM public.users
@@ -216,7 +232,7 @@ func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) 
 }
 
 func (s *Storage) Get(id int) (u.TableUser, error) {
-	const op = "database.postgres.Get"
+	const op = "database.postgres.GetUser"
 
 	rows, err := s.db.Query(`SELECT * FROM public.users WHERE id = $1`, id)
 	if err != nil {
@@ -282,9 +298,3 @@ func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
 
 	return n, nil
 }
-
-// TODO: forgot password help
-
-// func (s *Storage) GetPass(u u.Login) (string, error) {
-
-// }
