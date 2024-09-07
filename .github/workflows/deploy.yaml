@@ -27,7 +27,7 @@ jobs:
           echo "$DEPLOY_SSH_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
           ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mkdir -p ${{ env.DEPLOY_DIRECTORY }}"
-          rsync -avz -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' --delete ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
+          rsync -avz --delete -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
 
       - name: Run setup script
         run: |
