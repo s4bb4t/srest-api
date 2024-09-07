@@ -36,6 +36,18 @@ type GetResponse struct {
 	User u.TableUser `json:"user,omitempty"`
 }
 
+// @Summary Register user
+// @Description Register a new user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param login body string true "User login"
+// @Param username body string true "User name"
+// @Param password body string true "User password"
+// @Param email body string true "User email"
+// @Success 200 {object} RegisterResponse
+// @Failure 400 {object} ErrorResponse
+// @Router /signup [post]
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.Register"

@@ -1,0 +1,16 @@
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: 51.250.113.72:8082
+info:
+  contact:
+    email: s4bb4t@yandex.ru
+    name: s4bb4t
+  description: This is RESTful-API service for EasyDev.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: sAPI
+  version: v0.0.2
+paths: {}
+swagger: "2.0"

@@ -141,6 +141,14 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		render.JSON(w, r, GetResponse{resp.OK(), task})
 	}
 }
+
+// @Summary Get all todos
+// @Description Get all todos from the storage
+// @Tags todos
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} GetAllResponse
+// @Router /todos [get]
 func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.todo.GetAll"

@@ -30,7 +30,7 @@ Welcome to the sAPI RESTful API documentation! This guide provides a comprehensi
 The base URL for all endpoints is:
 
 ```
-http://localhost:8080
+http://51.250.113.72:8082
 ```
 
 ## Authentication

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	_ "cmd/sapi/docs"
 	"log/slog"
 
 	"github.com/go-chi/chi/v5"
@@ -13,11 +14,26 @@ import (
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/admin"
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/todo"
 	"github.com/sabbatD/srest-api/internal/http-server/handlers/user"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 )
 
+// @title           sAPI
+// @version         v0.0.2
+// @description     This is RESTful-API service for EasyDev.
+
+// @contact.name   s4bb4t
+// @contact.email  s4bb4t@yandex.ru
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      51.250.113.72:8082
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	cfg := config.MustLoad()
 
@@ -37,6 +53,9 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 	router.Use(CORSMiddleware)
+
+	// swagger endpoint
+	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	// registration endpoint
 	router.Post("/signup", user.Register(log, storage))
@@ -83,7 +102,9 @@ func main() {
 		t.Get("/{id}", todo.Get(log, storage))
 		t.Delete("/{id}", todo.Delete(log, storage))
 	})
+
 	router.Get("/todos", todo.GetAll(log, storage))
+
 	router.Post("/todos", todo.Create(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
