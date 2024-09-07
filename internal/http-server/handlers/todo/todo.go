@@ -15,7 +15,7 @@ import (
 
 type GetAllResponse struct {
 	resp.Response
-	Todos t.Todos
+	t.MetaResponse `json:"metaresponse,omitempty"`
 }
 
 type GetResponse struct {
@@ -28,7 +28,7 @@ type TodoHandler interface {
 	Update(id int, t t.TodoRequest) (int64, error)
 	Delete(id int) (int64, error)
 	GetTodo(id int) (t.Todo, error)
-	OutputAll(isDone bool) ([]t.Todo, error)
+	OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error)
 }
 
 // InternalError is a shortcut for internal error handling
@@ -130,7 +130,7 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		task, err := todo.GetTodo(id)
 		if err != nil {
 			if err.Error() == "database.postgres.GetTodo: no such task" {
-				render.JSON(w, r, resp.Error(err.Error()))
+				render.JSON(w, r, resp.Error("no such task"))
 				return
 			}
 			InternalError(w, r, log, err)
@@ -150,17 +150,30 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		filterstr := r.URL.Query().Get("filter")
-		filter, _ := strconv.ParseBool(filterstr)
+		filter := r.URL.Query().Get("filter")
 
-		todos, err := todo.OutputAll(filter)
+		todos, info, n, err := todo.OutputAll(filter)
 		if err != nil {
+			if err.Error() == "database.postgres.OutputAllTodos: unknown filter" {
+				render.JSON(w, r, resp.Error("unknown filter"))
+			}
 			InternalError(w, r, log, err)
 			return
 		}
 
+		response := GetAllResponse{
+			resp.OK(),
+			t.MetaResponse{
+				Data: todos,
+				Info: info,
+				Meta: t.Meta{
+					TotalAmount: n,
+				},
+			},
+		}
+
 		log.Info("successfully retrieved task")
-		render.JSON(w, r, GetAllResponse{resp.OK(), todos})
+		render.JSON(w, r, response)
 	}
 }
 

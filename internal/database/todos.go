@@ -13,8 +13,8 @@ func (s *Storage) Create(t t.TodoRequest) error {
 
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.todos (
-			id, title, created
-		) VALUES ($1, $2, $3)
+			id, title, created, isdone
+		) VALUES ($1, $2, $3, $4)
 	`)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
@@ -33,7 +33,7 @@ func (s *Storage) Create(t t.TodoRequest) error {
 		maxID.Int64 += 1
 	}
 
-	_, err = stmt.Exec(maxID.Int64, t.Title, time.Now().Format("2006-01-02 15:04:05"))
+	_, err = stmt.Exec(maxID.Int64, t.Title, time.Now().Format("2006-01-02 15:04:05"), t.IsDone)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
 	}
@@ -47,13 +47,14 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	stmt, err := s.db.Prepare(`
 		UPDATE public.todos 
 			SET title = $1
-			WHERE id = $2
+			SET isdone = $2
+			WHERE id = $3
 	`)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 
-	res, err := stmt.Exec(t.Title, id)
+	res, err := stmt.Exec(t.Title, t.IsDone, id)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
@@ -119,14 +120,26 @@ func (s *Storage) GetTodo(id int) (t.Todo, error) {
 	return todo, nil
 }
 
-func (s *Storage) OutputAll(isDone bool) ([]t.Todo, error) {
+func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 	const op = "database.postgres.OutputAllTodos"
 
-	query := `SELECT * FROM public.todos WHERE isDone = $1`
+	query := ``
+	switch filter {
+	case "":
+		query = `SELECT * FROM public.todos WHERE isDone = true`
+	case "all":
+		query = `SELECT * FROM public.todos`
+	case "completed":
+		query = `SELECT * FROM public.todos WHERE isDone = true`
+	case "inwork":
+		query = `SELECT * FROM public.todos WHERE isDone = false`
+	default:
+		return nil, t.TodoInfo{}, 0, fmt.Errorf("%s: %v", op, "unknown filter")
+	}
 
-	rows, err := s.db.Query(query, isDone)
+	rows, err := s.db.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", op, err)
+		return nil, t.TodoInfo{}, 0, fmt.Errorf("%s: %v", op, err)
 	}
 
 	var result []t.Todo
@@ -134,11 +147,34 @@ func (s *Storage) OutputAll(isDone bool) ([]t.Todo, error) {
 
 	for rows.Next() {
 		if err := rows.Scan(&todo.ID, &todo.Title, &todo.Created, &todo.IsDone); err != nil {
-			return nil, fmt.Errorf("%s: %v", op, err)
+			return nil, t.TodoInfo{}, 0, fmt.Errorf("%s: %v", op, err)
 		}
 
 		result = append(result, todo)
 	}
 
-	return result, nil
+	var info t.TodoInfo
+
+	query = `SELECT isdone FROM public.todos`
+
+	rows, err = s.db.Query(query)
+	if err != nil {
+		return nil, t.TodoInfo{}, 0, fmt.Errorf("%s: %v", op, err)
+	}
+
+	var done bool
+	for rows.Next() {
+		if err := rows.Scan(&done); err != nil {
+			return nil, t.TodoInfo{}, 0, fmt.Errorf("%s: %v", op, err)
+		}
+
+		if done {
+			info.Completed++
+		} else {
+			info.InWork++
+		}
+		info.All++
+	}
+
+	return result, info, info.All, nil
 }
