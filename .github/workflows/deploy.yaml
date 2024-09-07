@@ -1,83 +1,34 @@
 name: Deploy App
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to deploy'
-        required: true
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # runs-on: ubuntu-20.04  # Фиксируем версию среды
     env:
       HOST: admin@easydev.club
       DEPLOY_DIRECTORY: /home/admin/apps/srest-api
-      CONFIG_PATH: /home/admin/apps/srest-api/config/prod.yaml
-      ENV_FILE_PATH: /home/admin/apps/srest-api/config.env
-      AWS_DEFAULT_REGION: us-east-1  # Добавляем регион AWS
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.inputs.tag }}
-      - name: Check if tag exists
-        run: |
-          git fetch --all --tags
-          if ! git tag | grep -q "^${{ github.event.inputs.tag }}$"; then
-            echo "error: Tag '${{ github.event.inputs.tag }}' not found"
-            exit 1
-          fi
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21.8
-      - name: Build app
-        run: |
-          go mod download
-          go build -o sapi ./cmd/sapi
 
-      # - name: Deploy to VM
-      #   run: |
-      #     sudo apt-get install -y ssh rsync
-      #     echo "$DEPLOY_SSH_KEY" > deploy_key.pem
-      #     chmod 600 deploy_key.pem
-      #     echo "HOST: ${{ env.HOST }}"
-      #     echo "DEPLOY_DIRECTORY: ${{ env.DEPLOY_DIRECTORY }}"
-      #     ssh -vvv -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mkdir -p ${{ env.DEPLOY_DIRECTORY }}"
-      #     rsync -avz -e 'ssh -vvv -i deploy_key.pem -o StrictHostKeyChecking=no' --exclude='.git' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }} || echo "Rsync failed"
-      #   env:
-      #     DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      - name: Install SSH and Rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ssh rsync
 
       - name: Deploy to VM
         run: |
-          sudo apt-get install -y ssh rsync
           echo "$DEPLOY_SSH_KEY" > deploy_key.pem
           chmod 600 deploy_key.pem
           ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mkdir -p ${{ env.DEPLOY_DIRECTORY }}"
-          rsync -avz -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' --exclude='.git' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-      
-      - name: Remove old systemd service file
+          rsync -avz -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' --delete ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
+
+      - name: Run setup script
         run: |
-          ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "rm -f /etc/systemd/system/sapi.service"
-      - name: List workspace contents
-        run: |
-          echo "Listing deployment folder contents:"
-          ls -la ${{ github.workspace }}/deployment
-      - name: Create environment file on server
-        run: |
-          ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "\
-          touch ${{ env.ENV_FILE_PATH }} && \
-          chmod 600 ${{ env.ENV_FILE_PATH }} && \
-          echo 'CONFIG_PATH=${{ env.CONFIG_PATH }}' > ${{ env.ENV_FILE_PATH }} && \
-        # echo 'HTTP_SERVER_PASSWORD=${{ secrets.AUTH_PASS }}' >> ${{ env.ENV_FILE_PATH }}"
-      - name: Copy systemd service file
-        run: |
-          scp -i deploy_key.pem -o StrictHostKeyChecking=no ${{ github.workspace }}/deployment/sapi.service ${{ env.HOST }}:/tmp/sapi.service
-          ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mv /tmp/sapi.service /etc/systemd/system/sapi.service"
-      - name: Start application
-        run: |
-          ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "systemctl daemon-reload && systemctl restart sapi.service"
+          ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "bash /home/admin/apps/srest-api/setup_sapi.sh"

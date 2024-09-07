@@ -56,7 +56,9 @@ func main() {
 	router.Use(CORSMiddleware)
 
 	// swagger endpoint
-	router.Get("/swagger/*", httpSwagger.WrapHandler)
+	router.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://51.250.113.72:8082/swagger/doc.json"), //The url pointing to API definition
+	))
 
 	// registration endpoint
 	router.Post("/signup", user.Register(log, storage))
