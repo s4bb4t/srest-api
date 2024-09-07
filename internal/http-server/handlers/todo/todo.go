@@ -1,13 +1,12 @@
 package todo
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
@@ -21,7 +20,7 @@ type GetAllResponse struct {
 
 type GetResponse struct {
 	resp.Response
-	todo t.Todo
+	Todo t.Todo `json:"todo,omitempty"`
 }
 
 type TodoHandler interface {
@@ -123,25 +122,23 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		)
 
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		log.Debug(fmt.Sprintf("url: %s", r.URL.Path))
-		log.Debug(fmt.Sprintf("id: %d", id))
-		log.Debug(fmt.Sprintf("urlParam: %v", chi.URLParam(r, "id")))
 		if err != nil {
 			InternalError(w, r, log, err)
 			return
 		}
 
-		todo, err := todo.GetTodo(id)
+		task, err := todo.GetTodo(id)
 		if err != nil {
 			if err.Error() == "database.postgres.GetTodo: no such task" {
 				render.JSON(w, r, resp.Error(err.Error()))
+				return
 			}
 			InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("successfully retrieved task")
-		render.JSON(w, r, GetResponse{resp.OK(), todo})
+		render.JSON(w, r, GetResponse{resp.OK(), task})
 	}
 }
 func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
