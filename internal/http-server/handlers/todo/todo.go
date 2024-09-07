@@ -1,6 +1,7 @@
 package todo
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -122,6 +123,9 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		)
 
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		log.Debug(fmt.Sprintf("url: %s", r.URL.Path))
+		log.Debug(fmt.Sprintf("id: %d", id))
+		log.Debug(fmt.Sprintf("urlParam: %v", chi.URLParam(r, "id")))
 		if err != nil {
 			InternalError(w, r, log, err)
 			return

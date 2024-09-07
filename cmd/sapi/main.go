@@ -78,17 +78,13 @@ func main() {
 		r.Delete("/users/user={id}", admin.Remove(log, storage))
 	})
 
-	router.Route("/todo", func(t chi.Router) {
-		t.Post("/create", todo.Create(log, storage))
-
-		t.Put("/todo={id}", todo.Update(log, storage))
-
-		t.Get("/todo={id}", todo.Get(log, storage))
-
-		t.Get("/todos", todo.GetAll(log, storage))
-
-		t.Delete("/todo={id}", todo.Delete(log, storage))
+	router.Route("/todos", func(t chi.Router) {
+		t.Put("/{id}", todo.Update(log, storage))
+		t.Get("/{id}", todo.Get(log, storage))
+		t.Delete("/{id}", todo.Delete(log, storage))
 	})
+	router.Get("/todos", todo.GetAll(log, storage))
+	router.Post("/todos", todo.Create(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 	srv := &http.Server{
