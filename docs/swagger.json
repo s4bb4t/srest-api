@@ -1,0 +1,207 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is RESTful-API service for EasyDev.",
+        "title": "sAPI",
+        "contact": {
+            "name": "s4bb4t",
+            "email": "s4bb4t@yandex.ru"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "v0.0.2"
+    },
+    "host": "51.250.113.72:8082",
+    "paths": {
+        "/signup": {
+            "post": {
+                "description": "Register a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Register user",
+                "parameters": [
+                    {
+                        "description": "User login",
+                        "name": "login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "User name",
+                        "name": "username",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "User password",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "User email",
+                        "name": "email",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/todos": {
+            "get": {
+                "description": "Get all todos from the storage",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "todos"
+                ],
+                "summary": "Get all todos",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_http-server_handlers_todo.GetAllResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta": {
+            "type": "object",
+            "properties": {
+                "total_amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
+                    }
+                },
+                "info": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoInfo"
+                },
+                "meta": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isdone": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoInfo": {
+            "type": "object",
+            "properties": {
+                "all": {
+                    "type": "integer"
+                },
+                "completed": {
+                    "type": "integer"
+                },
+                "inwork": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_todo.GetAllResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "metaresponse": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_user.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "authdata": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}

@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	_ "cmd/sapi/docs"
 	"log/slog"
+
+	_ "github.com/sabbatD/srest-api/docs"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

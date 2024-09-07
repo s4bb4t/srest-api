@@ -1,0 +1,135 @@
+definitions:
+  github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta:
+    properties:
+      total_amount:
+        type: integer
+    type: object
+  github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo'
+        type: array
+      info:
+        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoInfo'
+      meta:
+        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta'
+    type: object
+  github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo:
+    properties:
+      created:
+        type: string
+      id:
+        type: integer
+      isdone:
+        type: boolean
+      title:
+        type: string
+    type: object
+  github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoInfo:
+    properties:
+      all:
+        type: integer
+      completed:
+        type: integer
+      inwork:
+        type: integer
+    type: object
+  github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  internal_http-server_handlers_todo.GetAllResponse:
+    properties:
+      error:
+        type: string
+      metaresponse:
+        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse'
+      status:
+        type: string
+    type: object
+  internal_http-server_handlers_user.RegisterResponse:
+    properties:
+      authdata:
+        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData'
+      error:
+        type: string
+      status:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: 51.250.113.72:8082
+info:
+  contact:
+    email: s4bb4t@yandex.ru
+    name: s4bb4t
+  description: This is RESTful-API service for EasyDev.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: sAPI
+  version: v0.0.2
+paths:
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User login
+        in: body
+        name: login
+        required: true
+        schema:
+          type: string
+      - description: User name
+        in: body
+        name: username
+        required: true
+        schema:
+          type: string
+      - description: User password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: User email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
+      summary: Register user
+      tags:
+      - users
+  /todos:
+    get:
+      consumes:
+      - application/json
+      description: Get all todos from the storage
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_http-server_handlers_todo.GetAllResponse'
+            type: array
+      summary: Get all todos
+      tags:
+      - todos
+swagger: "2.0"

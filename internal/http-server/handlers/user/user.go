@@ -46,7 +46,6 @@ type GetResponse struct {
 // @Param password body string true "User password"
 // @Param email body string true "User email"
 // @Success 200 {object} RegisterResponse
-// @Failure 400 {object} ErrorResponse
 // @Router /signup [post]
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
