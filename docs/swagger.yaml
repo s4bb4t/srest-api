@@ -149,10 +149,10 @@ paths:
           description: Returns a token if authentication succeeds.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.AuthResponse'
-        "500":
-          description: Returns an error message if authentication fails.
+        "401":
+          description: Authentication failed. Returns error message.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.AuthResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Authenticate user
       tags:
       - user
@@ -176,14 +176,10 @@ paths:
           description: Registration successful. Returns user authentication data.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
-        "400":
+        "401":
           description: Registration failed. Returns error message.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
-        "500":
-          description: Internal server error. Returns error message.
-          schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Register a new user
       tags:
       - user
@@ -212,10 +208,10 @@ paths:
           description: Returns the user profile data.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
-        "400":
-          description: Returns an error message if no user data is found.
+        "401":
+          description: Get profile failed. Returns error message.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Get user profile
       tags:
       - user
@@ -237,8 +233,8 @@ paths:
           description: Returns success if the update was successful.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
-        "400":
-          description: Returns an error message if the update fails.
+        "401":
+          description: Update failed. Returns error message.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Update user profile

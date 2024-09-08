@@ -24,16 +24,16 @@ type RegisterResponse struct {
 	Authdata u.AuthData `json:"authdata,omitempty"`
 }
 
+type GetResponse struct {
+	resp.Response
+	User u.TableUser `json:"user,omitempty"`
+}
+
 type UserHandler interface {
 	Add(u u.User) (int64, error)
 	Auth(u u.AuthData) (succsess, isAdmin bool, id int, err error)
 	Get(id int) (u.TableUser, error)
 	UpdateUser(u u.User, id int) (int64, error)
-}
-
-type GetResponse struct {
-	resp.Response
-	User u.TableUser `json:"user,omitempty"`
 }
 
 // Register godoc
@@ -44,8 +44,7 @@ type GetResponse struct {
 // @Produce json
 // @Param UserData body u.User true "Complete user data for registration"
 // @Success 200 {object} RegisterResponse "Registration successful. Returns user authentication data."
-// @Failure 400 {object} RegisterResponse "Registration failed. Returns error message."
-// @Failure 500 {object} RegisterResponse "Internal server error. Returns error message."
+// @Failure 401 {object} resp.Response "Registration failed. Returns error message."
 // @Router /signup [post]
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +89,7 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param AuthData body u.AuthData true "User login credentials"
 // @Success 200 {object} AuthResponse "Returns a token if authentication succeeds."
-// @Failure 500 {object} AuthResponse "Returns an error message if authentication fails."
+// @Failure 401 {object} resp.Response "Authentication failed. Returns error message."
 // @Router /signin [post]
 func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +140,7 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param Userdata body u.User true "Updated user data"
 // @Success 200 {object} resp.Response "Returns success if the update was successful."
-// @Failure 400 {object} resp.Response "Returns an error message if the update fails."
+// @Failure 401 {object} resp.Response "Update failed. Returns error message."
 // @Router /user/profile [post]
 func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -190,7 +189,7 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Tags user
 // @Produce json
 // @Success 200 {object} GetResponse "Returns the user profile data."
-// @Failure 400 {object} GetResponse "Returns an error message if no user data is found."
+// @Failure 401 {object} resp.Response "Get profile failed. Returns error message."
 // @Router /user/profile [get]
 func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

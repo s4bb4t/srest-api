@@ -53,10 +53,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
                         }
                     },
-                    "500": {
-                        "description": "Returns an error message if authentication fails.",
+                    "401": {
+                        "description": "Authentication failed. Returns error message.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
                     }
                 }
@@ -93,16 +93,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
                         }
                     },
-                    "400": {
+                    "401": {
                         "description": "Registration failed. Returns error message.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error. Returns error message.",
-                        "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
                     }
                 }
@@ -148,10 +142,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
                         }
                     },
-                    "400": {
-                        "description": "Returns an error message if no user data is found.",
+                    "401": {
+                        "description": "Get profile failed. Returns error message.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
                     }
                 }
@@ -186,8 +180,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
                     },
-                    "400": {
-                        "description": "Returns an error message if the update fails.",
+                    "401": {
+                        "description": "Update failed. Returns error message.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
