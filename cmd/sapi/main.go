@@ -66,6 +66,7 @@ func main() {
 	// authentication endpoint
 	router.Post("/signin", user.Auth(log, storage))
 
+	// authenticated user endpoints
 	router.Route("/user", func(u chi.Router) {
 		u.Use(access.JWTAuthMiddleware)
 
