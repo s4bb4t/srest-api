@@ -33,8 +33,8 @@ import (
 
 // @host      51.250.113.72:8082
 
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
+// @externalDocs.description  Readme.md from github
+// @externalDocs.url          https://github.com/sabbatD/srest-api
 func main() {
 	cfg := config.MustLoad()
 

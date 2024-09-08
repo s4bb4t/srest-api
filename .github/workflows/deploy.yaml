@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      HOST: admin@easydev.club
+      HOST: admin@51.250.113.72
       DEPLOY_DIRECTORY: /home/admin/apps/srest-api
       DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
 

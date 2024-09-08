@@ -38,14 +38,12 @@ type GetResponse struct {
 
 // @Summary Register user
 // @Description Register a new user
-// @Tags users
+// @Tags user
 // @Accept json
 // @Produce json
-// @Param login body string true "User login"
-// @Param username body string true "User name"
-// @Param password body string true "User password"
-// @Param email body string true "User email"
-// @Success 200 {object} RegisterResponse
+// @Param UserData body u.User true "User whole data"
+// @Success 200 {object} RegisterResponse "Error might be empty"
+// @Failure 200 {object} RegisterResponse "AuthData might be empty"
 // @Router /signup [post]
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -82,6 +80,15 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	}
 }
 
+// @Summary Authentication
+// @Description auth user wuth AuthData
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param AuthData body u.AuthData true "User auth data"
+// @Success 200 {object} AuthResponse "Error might be empty"
+// @Failure 200 {object} AuthResponse "Token might be empty"
+// @Router /signin [post]
 func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.Auth"
@@ -118,19 +125,20 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		// http.SetCookie(w, &http.Cookie{
-		// 	Name:     "token",
-		// 	Value:    token,
-		// 	Expires:  time.Now().Add(12 * time.Hour),
-		// 	HttpOnly: true,
-		// 	SameSite: http.SameSiteLaxMode,
-		// })
-
 		log.Info("successfully logged in")
 		render.JSON(w, r, AuthResponse{resp.OK(), token})
 	}
 }
 
+// @Summary Update
+// @Description updates whole user data
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param Userdataa body u.User true "User data"
+// @Success 200 {object} resp.Response "Error might be empty"
+// @Failure 200 {object} resp.Response
+// @Router /user/profile [post]
 func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.UpdateUser"
@@ -172,6 +180,13 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 }
 
+// @Summary Profile
+// @Description returns whole user data
+// @Tags user
+// @Produce json
+// @Success 200 {object} GetResponse "Error might be empty"
+// @Failure 200 {object} GetResponse "User data might be empty"
+// @Router /user/profile [get]
 func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.Profile"

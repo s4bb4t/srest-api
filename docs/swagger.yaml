@@ -1,4 +1,11 @@
 definitions:
+  github_com_sabbatD_srest-api_internal_lib_api_response.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+    type: object
   github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta:
     properties:
       total_amount:
@@ -42,6 +49,36 @@ definitions:
       password:
         type: string
     type: object
+  github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser:
+    properties:
+      admin:
+        type: boolean
+      block:
+        type: boolean
+      date:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      login:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  github_com_sabbatD_srest-api_internal_lib_userConfig.User:
+    properties:
+      email:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
   internal_http-server_handlers_todo.GetAllResponse:
     properties:
       error:
@@ -50,6 +87,24 @@ definitions:
         $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse'
       status:
         type: string
+    type: object
+  internal_http-server_handlers_user.AuthResponse:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+      token:
+        type: string
+    type: object
+  internal_http-server_handlers_user.GetResponse:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
     type: object
   internal_http-server_handlers_user.RegisterResponse:
     properties:
@@ -61,8 +116,8 @@ definitions:
         type: string
     type: object
 externalDocs:
-  description: OpenAPI
-  url: https://swagger.io/resources/open-api/
+  description: Readme.md from github
+  url: https://github.com/sabbatD/srest-api
 host: 51.250.113.72:8082
 info:
   contact:
@@ -75,46 +130,50 @@ info:
   title: sAPI
   version: v0.0.2
 paths:
+  /signin:
+    post:
+      consumes:
+      - application/json
+      description: auth user wuth AuthData
+      parameters:
+      - description: User auth data
+        in: body
+        name: AuthData
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token might be empty
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_user.AuthResponse'
+      summary: Authentication
+      tags:
+      - user
   /signup:
     post:
       consumes:
       - application/json
       description: Register a new user
       parameters:
-      - description: User login
+      - description: User whole data
         in: body
-        name: login
+        name: UserData
         required: true
         schema:
-          type: string
-      - description: User name
-        in: body
-        name: username
-        required: true
-        schema:
-          type: string
-      - description: User password
-        in: body
-        name: password
-        required: true
-        schema:
-          type: string
-      - description: User email
-        in: body
-        name: email
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: AuthData might be empty
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
       summary: Register user
       tags:
-      - users
+      - user
   /todos:
     get:
       consumes:
@@ -132,4 +191,38 @@ paths:
       summary: Get all todos
       tags:
       - todos
+  /user/profile:
+    get:
+      description: returns whole user data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data might be empty
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
+      summary: Profile
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: updates whole user data
+      parameters:
+      - description: User data
+        in: body
+        name: Userdataa
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Update
+      tags:
+      - user
 swagger: "2.0"

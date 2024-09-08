@@ -22,6 +22,40 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/signin": {
+            "post": {
+                "description": "auth user wuth AuthData",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Authentication",
+                "parameters": [
+                    {
+                        "description": "User auth data",
+                        "name": "AuthData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Token might be empty",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/signup": {
             "post": {
                 "description": "Register a new user",
@@ -32,50 +66,23 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "user"
                 ],
                 "summary": "Register user",
                 "parameters": [
                     {
-                        "description": "User login",
-                        "name": "login",
+                        "description": "User whole data",
+                        "name": "UserData",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "User name",
-                        "name": "username",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "User password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "User email",
-                        "name": "email",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "AuthData might be empty",
                         "schema": {
                             "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
                         }
@@ -108,9 +115,72 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/profile": {
+            "get": {
+                "description": "returns whole user data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Profile",
+                "responses": {
+                    "200": {
+                        "description": "User data might be empty",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "updates whole user data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "Userdataa",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "github_com_sabbatD_srest-api_internal_lib_api_response.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta": {
             "type": "object",
             "properties": {
@@ -178,6 +248,52 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "block": {
+                    "type": "boolean"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_http-server_handlers_todo.GetAllResponse": {
             "type": "object",
             "properties": {
@@ -189,6 +305,34 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_user.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_user.GetResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                 }
             }
         },
@@ -208,8 +352,8 @@ const docTemplate = `{
         }
     },
     "externalDocs": {
-        "description": "OpenAPI",
-        "url": "https://swagger.io/resources/open-api/"
+        "description": "Readme.md from github",
+        "url": "https://github.com/sabbatD/srest-api"
     }
 }`
 
