@@ -59,7 +59,7 @@ func main() {
 
 		// swagger endpoint
 		router.Get("/swagger/*", httpSwagger.Handler(
-			httpSwagger.URL("http://51.250.113.72:8082/swagger/doc.json"),
+			httpSwagger.URL("http://51.250.113.72:8082/api/v1/swagger/doc.json"),
 		))
 
 		// Unknown users handlers
