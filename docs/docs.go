@@ -24,7 +24,7 @@ const docTemplate = `{
     "paths": {
         "/signin": {
             "post": {
-                "description": "auth user wuth AuthData",
+                "description": "This endpoint authenticates a user by accepting their login credentials.",
                 "consumes": [
                     "application/json"
                 ],
@@ -34,10 +34,10 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Authentication",
+                "summary": "Authenticate user",
                 "parameters": [
                     {
-                        "description": "User auth data",
+                        "description": "User login credentials",
                         "name": "AuthData",
                         "in": "body",
                         "required": true,
@@ -48,7 +48,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Token might be empty",
+                        "description": "Returns a token if authentication succeeds.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Returns an error message if authentication fails.",
                         "schema": {
                             "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
                         }
@@ -58,7 +64,7 @@ const docTemplate = `{
         },
         "/signup": {
             "post": {
-                "description": "Register a new user",
+                "description": "Handles the registration of a new user by accepting a JSON payload containing user data.",
                 "consumes": [
                     "application/json"
                 ],
@@ -68,10 +74,10 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Register user",
+                "summary": "Register a new user",
                 "parameters": [
                     {
-                        "description": "User whole data",
+                        "description": "Complete user data for registration",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
@@ -82,7 +88,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "AuthData might be empty",
+                        "description": "Registration successful. Returns user authentication data.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Registration failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error. Returns error message.",
                         "schema": {
                             "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
                         }
@@ -107,10 +125,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/internal_http-server_handlers_todo.GetAllResponse"
-                            }
+                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetAllResponse"
                         }
                     }
                 }
@@ -118,17 +133,23 @@ const docTemplate = `{
         },
         "/user/profile": {
             "get": {
-                "description": "returns whole user data",
+                "description": "Retrieves the full user profile data.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "user"
                 ],
-                "summary": "Profile",
+                "summary": "Get user profile",
                 "responses": {
                     "200": {
-                        "description": "User data might be empty",
+                        "description": "Returns the user profile data.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Returns an error message if no user data is found.",
                         "schema": {
                             "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
                         }
@@ -136,7 +157,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "updates whole user data",
+                "description": "Updates the entire user profile with the new data provided.",
                 "consumes": [
                     "application/json"
                 ],
@@ -146,11 +167,11 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Update",
+                "summary": "Update user profile",
                 "parameters": [
                     {
-                        "description": "User data",
-                        "name": "Userdataa",
+                        "description": "Updated user data",
+                        "name": "Userdata",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -160,7 +181,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Returns success if the update was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Returns an error message if the update fails.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }

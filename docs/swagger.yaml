@@ -134,9 +134,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: auth user wuth AuthData
+      description: This endpoint authenticates a user by accepting their login credentials.
       parameters:
-      - description: User auth data
+      - description: User login credentials
         in: body
         name: AuthData
         required: true
@@ -146,19 +146,24 @@ paths:
       - application/json
       responses:
         "200":
-          description: Token might be empty
+          description: Returns a token if authentication succeeds.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.AuthResponse'
-      summary: Authentication
+        "500":
+          description: Returns an error message if authentication fails.
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_user.AuthResponse'
+      summary: Authenticate user
       tags:
       - user
   /signup:
     post:
       consumes:
       - application/json
-      description: Register a new user
+      description: Handles the registration of a new user by accepting a JSON payload
+        containing user data.
       parameters:
-      - description: User whole data
+      - description: Complete user data for registration
         in: body
         name: UserData
         required: true
@@ -168,10 +173,18 @@ paths:
       - application/json
       responses:
         "200":
-          description: AuthData might be empty
+          description: Registration successful. Returns user authentication data.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
-      summary: Register user
+        "400":
+          description: Registration failed. Returns error message.
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
+        "500":
+          description: Internal server error. Returns error message.
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
+      summary: Register a new user
       tags:
       - user
   /todos:
@@ -185,33 +198,35 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/internal_http-server_handlers_todo.GetAllResponse'
-            type: array
+            $ref: '#/definitions/internal_http-server_handlers_todo.GetAllResponse'
       summary: Get all todos
       tags:
       - todos
   /user/profile:
     get:
-      description: returns whole user data
+      description: Retrieves the full user profile data.
       produces:
       - application/json
       responses:
         "200":
-          description: User data might be empty
+          description: Returns the user profile data.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
-      summary: Profile
+        "400":
+          description: Returns an error message if no user data is found.
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
+      summary: Get user profile
       tags:
       - user
     post:
       consumes:
       - application/json
-      description: updates whole user data
+      description: Updates the entire user profile with the new data provided.
       parameters:
-      - description: User data
+      - description: Updated user data
         in: body
-        name: Userdataa
+        name: Userdata
         required: true
         schema:
           $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
@@ -219,10 +234,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Returns success if the update was successful.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
-      summary: Update
+        "400":
+          description: Returns an error message if the update fails.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Update user profile
       tags:
       - user
 swagger: "2.0"

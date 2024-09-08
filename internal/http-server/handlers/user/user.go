@@ -36,14 +36,16 @@ type GetResponse struct {
 	User u.TableUser `json:"user,omitempty"`
 }
 
-// @Summary Register user
-// @Description Register a new user
+// Register godoc
+// @Summary Register a new user
+// @Description Handles the registration of a new user by accepting a JSON payload containing user data.
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param UserData body u.User true "User whole data"
-// @Success 200 {object} RegisterResponse "Error might be empty"
-// @Failure 200 {object} RegisterResponse "AuthData might be empty"
+// @Param UserData body u.User true "Complete user data for registration"
+// @Success 200 {object} RegisterResponse "Registration successful. Returns user authentication data."
+// @Failure 400 {object} RegisterResponse "Registration failed. Returns error message."
+// @Failure 500 {object} RegisterResponse "Internal server error. Returns error message."
 // @Router /signup [post]
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -80,14 +82,15 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	}
 }
 
-// @Summary Authentication
-// @Description auth user wuth AuthData
+// Auth handles user authentication.
+// @Summary Authenticate user
+// @Description This endpoint authenticates a user by accepting their login credentials.
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param AuthData body u.AuthData true "User auth data"
-// @Success 200 {object} AuthResponse "Error might be empty"
-// @Failure 200 {object} AuthResponse "Token might be empty"
+// @Param AuthData body u.AuthData true "User login credentials"
+// @Success 200 {object} AuthResponse "Returns a token if authentication succeeds."
+// @Failure 500 {object} AuthResponse "Returns an error message if authentication fails."
 // @Router /signin [post]
 func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -130,14 +133,15 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	}
 }
 
-// @Summary Update
-// @Description updates whole user data
+// UpdateUser handles user profile updates.
+// @Summary Update user profile
+// @Description Updates the entire user profile with the new data provided.
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param Userdataa body u.User true "User data"
-// @Success 200 {object} resp.Response "Error might be empty"
-// @Failure 200 {object} resp.Response
+// @Param Userdata body u.User true "Updated user data"
+// @Success 200 {object} resp.Response "Returns success if the update was successful."
+// @Failure 400 {object} resp.Response "Returns an error message if the update fails."
 // @Router /user/profile [post]
 func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -180,12 +184,13 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 }
 
-// @Summary Profile
-// @Description returns whole user data
+// Profile returns the user profile data.
+// @Summary Get user profile
+// @Description Retrieves the full user profile data.
 // @Tags user
 // @Produce json
-// @Success 200 {object} GetResponse "Error might be empty"
-// @Failure 200 {object} GetResponse "User data might be empty"
+// @Success 200 {object} GetResponse "Returns the user profile data."
+// @Failure 400 {object} GetResponse "Returns an error message if no user data is found."
 // @Router /user/profile [get]
 func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

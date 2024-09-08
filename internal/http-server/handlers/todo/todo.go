@@ -147,7 +147,7 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Tags todos
 // @Accept  json
 // @Produce  json
-// @Success 200 {array} GetAllResponse
+// @Success 200 {object} GetAllResponse
 // @Router /todos [get]
 func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
