@@ -27,9 +27,9 @@ jobs:
           echo "${{ env.DEPLOY_SSH_KEY }}" > deploy_key.pem
           chmod 600 deploy_key.pem
 
-      - name: Verify SSH connection
+      - name: Test SSH connection
         run: |
-          ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "echo SSH connection successful"
+          ssh -i deploy_key.pem -o StrictHostKeyChecking=no -v ${{ env.HOST }} "echo SSH connection successful"
 
       - name: Deploy to VM
         run: |
