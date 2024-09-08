@@ -22,6 +22,248 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/users": {
+            "get": {
+                "description": "Gets users by accepting a url query payload containing filters.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get user's rights",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "order asc or desc",
+                        "name": "order",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "block status",
+                        "name": "blocked",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit of users for query",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "offset",
+                        "name": "offset",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieve successful. Returns users.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetAllResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Retrieve failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}": {
+            "get": {
+                "description": "Retrieves user's profile by id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Retrieve user's profile",
+                "responses": {
+                    "200": {
+                        "description": "Retrieve successful. Returns user.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Retrieve failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Removes user by id in url.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Remove user",
+                "responses": {
+                    "200": {
+                        "description": "Remove successful. Returns user ok.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Remove failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/block": {
+            "post": {
+                "description": "Blocks user by id in url.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Block user",
+                "responses": {
+                    "200": {
+                        "description": "Block successful. Returns user ok.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Block failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/rights": {
+            "put": {
+                "description": "Updates user by id by accepting a JSON payload containing user's rights.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update user's rights",
+                "parameters": [
+                    {
+                        "description": "Complete user data",
+                        "name": "UserData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update successful. Returns user ok.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Update failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Updates user by id by accepting a JSON payload containing user's rights.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update user's rights",
+                "parameters": [
+                    {
+                        "description": "Complete user data",
+                        "name": "UserData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_admin.UpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update successful. Returns user ok.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Update failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{id}/unlock": {
+            "post": {
+                "description": "Unlocks user by id in url.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Unlock user",
+                "responses": {
+                    "200": {
+                        "description": "Unlock successful. Returns user ok.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unlock failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/signin": {
             "post": {
                 "description": "This endpoint authenticates a user by accepting their login credentials.",
@@ -109,7 +351,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "todo"
                 ],
                 "summary": "Get all tasks",
                 "parameters": [
@@ -145,7 +387,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "todo"
                 ],
                 "summary": "Create a new task",
                 "parameters": [
@@ -182,7 +424,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "todo"
                 ],
                 "summary": "Get task",
                 "responses": {
@@ -209,7 +451,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "todo"
                 ],
                 "summary": "Update task",
                 "parameters": [
@@ -244,7 +486,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "todo"
                 ],
                 "summary": "Delete task",
                 "responses": {
@@ -462,6 +704,46 @@ const docTemplate = `{
                 "username": {
                     "type": "string"
                 }
+            }
+        },
+        "internal_http-server_handlers_admin.GetAllResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
+                    }
+                }
+            }
+        },
+        "internal_http-server_handlers_admin.GetResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
+                }
+            }
+        },
+        "internal_http-server_handlers_admin.UpdateRequest": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "value": {}
             }
         },
         "internal_http-server_handlers_todo.GetAllResponse": {

@@ -86,6 +86,32 @@ definitions:
       username:
         type: string
     type: object
+  internal_http-server_handlers_admin.GetAllResponse:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
+        type: array
+    type: object
+  internal_http-server_handlers_admin.GetResponse:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
+    type: object
+  internal_http-server_handlers_admin.UpdateRequest:
+    properties:
+      field:
+        type: string
+      value: {}
+    type: object
   internal_http-server_handlers_todo.GetAllResponse:
     properties:
       error:
@@ -146,6 +172,168 @@ info:
   title: sAPI
   version: v0.0.2
 paths:
+  /admin/users:
+    get:
+      description: Gets users by accepting a url query payload containing filters.
+      parameters:
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: order asc or desc
+        in: query
+        name: order
+        required: true
+        type: string
+      - description: block status
+        in: query
+        name: blocked
+        required: true
+        type: boolean
+      - description: limit of users for query
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieve successful. Returns users.
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_admin.GetAllResponse'
+        "401":
+          description: Retrieve failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Get user's rights
+      tags:
+      - admin
+  /admin/users/{id}:
+    delete:
+      description: Removes user by id in url.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Remove successful. Returns user ok.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Remove failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Remove user
+      tags:
+      - admin
+    get:
+      description: Retrieves user's profile by id.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieve successful. Returns user.
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
+        "401":
+          description: Retrieve failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Retrieve user's profile
+      tags:
+      - admin
+  /admin/users/{id}/block:
+    post:
+      description: Blocks user by id in url.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Block successful. Returns user ok.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Block failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Block user
+      tags:
+      - admin
+  /admin/users/{id}/rights:
+    post:
+      consumes:
+      - application/json
+      description: Updates user by id by accepting a JSON payload containing user's
+        rights.
+      parameters:
+      - description: Complete user data
+        in: body
+        name: UserData
+        required: true
+        schema:
+          $ref: '#/definitions/internal_http-server_handlers_admin.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update successful. Returns user ok.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Update failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Update user's rights
+      tags:
+      - admin
+    put:
+      consumes:
+      - application/json
+      description: Updates user by id by accepting a JSON payload containing user's
+        rights.
+      parameters:
+      - description: Complete user data
+        in: body
+        name: UserData
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update successful. Returns user ok.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Update failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Update user's rights
+      tags:
+      - admin
+  /admin/users/{id}/unlock:
+    post:
+      description: Unlocks user by id in url.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unlock successful. Returns user ok.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Unlock failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Unlock user
+      tags:
+      - admin
   /signin:
     post:
       consumes:
@@ -221,7 +409,7 @@ paths:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Get all tasks
       tags:
-      - user
+      - todo
     post:
       consumes:
       - application/json
@@ -247,7 +435,7 @@ paths:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Create a new task
       tags:
-      - user
+      - todo
   /todos/{id}:
     delete:
       description: Delete task by id in url.
@@ -264,7 +452,7 @@ paths:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Delete task
       tags:
-      - user
+      - todo
     get:
       description: Gets a task by id in url and return a JSON containing task data.
       produces:
@@ -280,7 +468,7 @@ paths:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Get task
       tags:
-      - user
+      - todo
     put:
       consumes:
       - application/json
@@ -306,7 +494,7 @@ paths:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Update task
       tags:
-      - user
+      - todo
   /user/profile:
     get:
       description: Retrieves the full user profile data.

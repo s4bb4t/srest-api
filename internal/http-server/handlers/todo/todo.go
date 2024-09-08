@@ -50,7 +50,7 @@ func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, e
 // Register godoc
 // @Summary Create a new task
 // @Description Handles the creation of a new task by accepting a JSON payload containing task data.
-// @Tags user
+// @Tags todo
 // @Accept json
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for creation"
@@ -88,7 +88,7 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // Register godoc
 // @Summary Update task
 // @Description Handles the upd of a task by accepting a JSON payload containing task data.
-// @Tags user
+// @Tags todo
 // @Accept json
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for creation"
@@ -135,7 +135,7 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // Register godoc
 // @Summary Get task
 // @Description Gets a task by id in url and return a JSON containing task data.
-// @Tags user
+// @Tags todo
 // @Produce json
 // @Success 200 {object} GetResponse "Retrieved successfully. Returns status code OK."
 // @Failure 401 {object} resp.Response "Retrieving failed. Returns error message."
@@ -173,7 +173,7 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // Register godoc
 // @Summary Get all tasks
 // @Description Gets all tasks and return a JSON containing tasks data.
-// @Tags user
+// @Tags todo
 // @Produce json
 // @Param filter query string true "all, completed or inwork"
 // @Success 200 {object} GetAllResponse "Retrieved successfully. Returns status code OK."
@@ -218,7 +218,7 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // Register godoc
 // @Summary Delete task
 // @Description Delete task by id in url.
-// @Tags user
+// @Tags todo
 // @Produce json
 // @Success 200 {object} resp.Response "Creation successful. Returns status code OK."
 // @Failure 401 {object} resp.Response "Creation failed. Returns error message."

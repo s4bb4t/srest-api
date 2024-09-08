@@ -38,6 +38,16 @@ type AdminHandler interface {
 	UpdateUser(u u.User, id int) (int64, error)
 }
 
+// Register godoc
+// @Summary Update user's rights
+// @Description Updates user by id by accepting a JSON payload containing user's rights.
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param UserData body UpdateRequest true "Complete user data"
+// @Success 200 {object} resp.Response "Update successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Update failed. Returns error message."
+// @Router /admin/users/{id}/rights [post]
 func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.admin.Update"
@@ -79,6 +89,14 @@ func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
+// Register godoc
+// @Summary Block user
+// @Description Blocks user by id in url.
+// @Tags admin
+// @Produce json
+// @Success 200 {object} resp.Response "Block successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Block failed. Returns error message."
+// @Router /admin/users/{id}/block [post]
 func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.admin.Block"
@@ -114,6 +132,14 @@ func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
+// Register godoc
+// @Summary Unlock user
+// @Description Unlocks user by id in url.
+// @Tags admin
+// @Produce json
+// @Success 200 {object} resp.Response "Unlock successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Unlock failed. Returns error message."
+// @Router /admin/users/{id}/unlock [post]
 func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.admin.Block"
@@ -149,6 +175,14 @@ func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
+// Register godoc
+// @Summary Remove user
+// @Description Removes user by id in url.
+// @Tags admin
+// @Produce json
+// @Success 200 {object} resp.Response "Remove successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Remove failed. Returns error message."
+// @Router /admin/users/{id} [delete]
 func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.admin.Remove"
@@ -187,6 +221,19 @@ func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
+// Register godoc
+// @Summary Get user's rights
+// @Description Gets users by accepting a url query payload containing filters.
+// @Tags admin
+// @Produce json
+// @Param search query string false "Search term"
+// @Param order query string true "order asc or desc"
+// @Param blocked query bool true "block status"
+// @Param limit query int true "limit of users for query"
+// @Param offset query int true "offset"
+// @Success 200 {object} GetAllResponse "Retrieve successful. Returns users."
+// @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
+// @Router /admin/users [get]
 func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.admin.GetAll"
@@ -237,6 +284,14 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
+// Register godoc
+// @Summary Retrieve user's profile
+// @Description Retrieves user's profile by id.
+// @Tags admin
+// @Produce json
+// @Success 200 {object} GetResponse "Retrieve successful. Returns user."
+// @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
+// @Router /admin/users/{id} [get]
 func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.Profile"
@@ -274,6 +329,16 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
+// Register godoc
+// @Summary Update user's rights
+// @Description Updates user by id by accepting a JSON payload containing user's rights.
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param UserData body u.User true "Complete user data"
+// @Success 200 {object} resp.Response "Update successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Update failed. Returns error message."
+// @Router /admin/users/{id}/rights [put]
 func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.admin.UpdateUser"

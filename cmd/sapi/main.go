@@ -79,26 +79,26 @@ func main() {
 		r.Use(access.JWTAuthMiddleware)
 
 		// update user's rights admin & blocked
-		r.Post("/users/user={id}/rights", admin.Update(log, storage))
+		r.Post("/users/{id}/rights", admin.Update(log, storage))
 
 		// update user's rights admin & blocked
-		r.Post("/users/user={id}/block", admin.Block(log, storage))
-		r.Post("/users/user={id}/unblock", admin.Unblock(log, storage))
+		r.Post("/users/{id}/block", admin.Block(log, storage))
+		r.Post("/users/{id}/unblock", admin.Unblock(log, storage))
 
 		// create a new user
-		r.Post("/users/registrate/new", user.Register(log, storage))
-
-		// update all user's fields
-		r.Put("/users/profile/user={id}", admin.UpdateUser(log, storage))
-
-		// get whole user's information
-		r.Get("/users/profile/user={id}", admin.Profile(log, storage))
+		r.Post("/users/registrate", user.Register(log, storage))
 
 		// get array of all users with whole information
 		r.Get("/users", admin.GetAll(log, storage))
 
+		// update all user's fields
+		r.Put("/users/id}", admin.UpdateUser(log, storage))
+
+		// get whole user's information
+		r.Get("/users/{id}", admin.Profile(log, storage))
+
 		// delete user with following username
-		r.Delete("/users/user={id}", admin.Remove(log, storage))
+		r.Delete("/users/{id}", admin.Remove(log, storage))
 	})
 
 	router.Route("/todos", func(t chi.Router) {
