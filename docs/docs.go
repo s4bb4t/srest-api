@@ -530,7 +530,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "post": {
+            "put": {
                 "description": "Updates the entire user profile with the new data provided.",
                 "consumes": [
                     "application/json"
@@ -825,8 +825,8 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "v0.0.2",
-	Host:             "51.250.113.72:8082",
+	Version:          "v0.1.1",
+	Host:             "51.250.113.72:8082/api/v1",
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "sAPI",

@@ -160,7 +160,7 @@ definitions:
 externalDocs:
   description: Readme.md from github
   url: https://github.com/sabbatD/srest-api
-host: 51.250.113.72:8082
+host: 51.250.113.72:8082/api/v1
 info:
   contact:
     email: s4bb4t@yandex.ru
@@ -170,7 +170,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: sAPI
-  version: v0.0.2
+  version: v0.1.1
 paths:
   /admin/users:
     get:
@@ -512,7 +512,7 @@ paths:
       summary: Get user profile
       tags:
       - user
-    post:
+    put:
       consumes:
       - application/json
       description: Updates the entire user profile with the new data provided.

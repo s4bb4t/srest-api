@@ -11,9 +11,9 @@
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "version": "v0.0.2"
+        "version": "v0.1.1"
     },
-    "host": "51.250.113.72:8082",
+    "host": "51.250.113.72:8082/api/v1",
     "paths": {
         "/admin/users": {
             "get": {
@@ -523,7 +523,7 @@
                     }
                 }
             },
-            "post": {
+            "put": {
                 "description": "Updates the entire user profile with the new data provided.",
                 "consumes": [
                     "application/json"
@@ -567,10 +567,10 @@
         "github_com_sabbatD_srest-api_internal_lib_api_response.Response": {
             "type": "object",
             "properties": {
-                "error": {
+                "status": {
                     "type": "string"
                 },
-                "status": {
+                "error": {
                     "type": "string"
                 }
             }
@@ -603,17 +603,17 @@
         "github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo": {
             "type": "object",
             "properties": {
-                "created": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
-                "isdone": {
-                    "type": "boolean"
-                },
                 "title": {
                     "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "isdone": {
+                    "type": "boolean"
                 }
             }
         },
@@ -656,20 +656,11 @@
         "github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser": {
             "type": "object",
             "properties": {
-                "admin": {
-                    "type": "boolean"
-                },
-                "block": {
-                    "type": "boolean"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
+                },
+                "username": {
+                    "type": "string"
                 },
                 "login": {
                     "type": "string"
@@ -677,24 +668,33 @@
                 "password": {
                     "type": "string"
                 },
-                "username": {
+                "email": {
                     "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "boolean"
+                },
+                "admin": {
+                    "type": "boolean"
                 }
             }
         },
         "github_com_sabbatD_srest-api_internal_lib_userConfig.User": {
             "type": "object",
             "properties": {
-                "email": {
+                "login": {
                     "type": "string"
                 },
-                "login": {
+                "username": {
                     "type": "string"
                 },
                 "password": {
                     "type": "string"
                 },
-                "username": {
+                "email": {
                     "type": "string"
                 }
             }
@@ -702,9 +702,6 @@
         "internal_http-server_handlers_admin.GetAllResponse": {
             "type": "object",
             "properties": {
-                "error": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -719,9 +716,6 @@
         "internal_http-server_handlers_admin.GetResponse": {
             "type": "object",
             "properties": {
-                "error": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -736,29 +730,25 @@
                 "field": {
                     "type": "string"
                 },
-                "value": {}
+                "value": {
+                    "type": "any"
+                }
             }
         },
         "internal_http-server_handlers_todo.GetAllResponse": {
             "type": "object",
             "properties": {
-                "error": {
+                "status": {
                     "type": "string"
                 },
                 "metaresponse": {
                     "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         },
         "internal_http-server_handlers_todo.GetResponse": {
             "type": "object",
             "properties": {
-                "error": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -770,9 +760,6 @@
         "internal_http-server_handlers_user.AuthResponse": {
             "type": "object",
             "properties": {
-                "error": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -784,9 +771,6 @@
         "internal_http-server_handlers_user.GetResponse": {
             "type": "object",
             "properties": {
-                "error": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
                 },
@@ -798,14 +782,11 @@
         "internal_http-server_handlers_user.RegisterResponse": {
             "type": "object",
             "properties": {
-                "authdata": {
-                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData"
-                },
-                "error": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "string"
+                },
+                "authdata": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData"
                 }
             }
         }

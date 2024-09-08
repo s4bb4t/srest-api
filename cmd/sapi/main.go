@@ -22,7 +22,7 @@ import (
 )
 
 // @title           sAPI
-// @version         v0.0.2
+// @version         v0.1.1
 // @description     This is RESTful-API service for EasyDev.
 
 // @contact.name   s4bb4t
@@ -31,7 +31,7 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      51.250.113.72:8082
+// @host      51.250.113.72:8082/api/v1
 
 // @externalDocs.description  Readme.md from github
 // @externalDocs.url          https://github.com/sabbatD/srest-api
@@ -48,73 +48,67 @@ func main() {
 		os.Exit(1)
 	}
 
-	router := chi.NewRouter()
-	router.Use(middleware.RequestID)
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
-	router.Use(middleware.URLFormat)
-	router.Use(CORSMiddleware)
+	route := chi.NewRouter()
+	route.Route("/api/v1", func(router chi.Router) {
 
-	// swagger endpoint
-	router.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://51.250.113.72:8082/swagger/doc.json"), //The url pointing to API definition
-	))
+		router.Use(middleware.RequestID)
+		router.Use(middleware.Logger)
+		router.Use(middleware.Recoverer)
+		router.Use(middleware.URLFormat)
+		router.Use(CORSMiddleware)
 
-	// registration endpoint
-	router.Post("/signup", user.Register(log, storage))
+		// swagger endpoint
+		router.Get("/swagger/*", httpSwagger.Handler(
+			httpSwagger.URL("http://51.250.113.72:8082/swagger/doc.json"),
+		))
 
-	// authentication endpoint
-	router.Post("/signin", user.Auth(log, storage))
+		// Unknown users handlers
+		router.Post("/signup", user.Register(log, storage))
+		router.Post("/signin", user.Auth(log, storage))
 
-	// authenticated user endpoints
-	router.Route("/user", func(u chi.Router) {
-		u.Use(access.JWTAuthMiddleware)
+		// Authenticated user handlers
+		// JWTAuthMiddleware used for authenticating users with jwt token from heade with prefix "Bearer "
+		router.Route("/user", func(u chi.Router) {
+			u.Use(access.JWTAuthMiddleware)
 
-		u.Put("/profile", user.UpdateUser(log, storage))
+			u.Get("/profile", user.Profile(log, storage))
+			u.Put("/profile", user.UpdateUser(log, storage))
+		})
 
-		u.Get("/profile", user.Profile(log, storage))
+		// Authenticated admin handlers
+		// JWTAuthMiddleware used for authenticating users with jwt token from heade with prefix "Bearer "
+		// All of handlers use AdmCheck.
+		router.Route("/admin", func(r chi.Router) {
+			r.Use(access.JWTAuthMiddleware)
+
+			r.Get("/users", admin.GetAll(log, storage))
+
+			r.Get("/users/{id}", admin.Profile(log, storage))
+			r.Put("/users/{id}", admin.UpdateUser(log, storage))
+			r.Delete("/users/{id}", admin.Remove(log, storage))
+
+			r.Post("/users/{id}/block", admin.Block(log, storage))
+			r.Post("/users/{id}/unblock", admin.Unblock(log, storage))
+			r.Post("/users/{id}/rights", admin.Update(log, storage))
+
+			r.Post("/users/registrate", user.Register(log, storage))
+		})
+
+		// Todo handlers
+		router.Post("/todos", todo.Create(log, storage))
+		router.Get("/todos", todo.GetAll(log, storage))
+
+		router.Route("/todos", func(t chi.Router) {
+			t.Get("/{id}", todo.Get(log, storage))
+			t.Put("/{id}", todo.Update(log, storage))
+			t.Delete("/{id}", todo.Delete(log, storage))
+		})
 	})
-
-	router.Route("/admin", func(r chi.Router) {
-		r.Use(access.JWTAuthMiddleware)
-
-		// update user's rights admin & blocked
-		r.Post("/users/{id}/rights", admin.Update(log, storage))
-
-		// update user's rights admin & blocked
-		r.Post("/users/{id}/block", admin.Block(log, storage))
-		r.Post("/users/{id}/unblock", admin.Unblock(log, storage))
-
-		// create a new user
-		r.Post("/users/registrate", user.Register(log, storage))
-
-		// get array of all users with whole information
-		r.Get("/users", admin.GetAll(log, storage))
-
-		// update all user's fields
-		r.Put("/users/id}", admin.UpdateUser(log, storage))
-
-		// get whole user's information
-		r.Get("/users/{id}", admin.Profile(log, storage))
-
-		// delete user with following username
-		r.Delete("/users/{id}", admin.Remove(log, storage))
-	})
-
-	router.Route("/todos", func(t chi.Router) {
-		t.Put("/{id}", todo.Update(log, storage))
-		t.Get("/{id}", todo.Get(log, storage))
-		t.Delete("/{id}", todo.Delete(log, storage))
-	})
-
-	router.Get("/todos", todo.GetAll(log, storage))
-
-	router.Post("/todos", todo.Create(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 	srv := &http.Server{
 		Addr:         cfg.Address,
-		Handler:      router,
+		Handler:      route,
 		ReadTimeout:  cfg.Timeout,
 		WriteTimeout: cfg.Timeout,
 		IdleTimeout:  cfg.IdleTimeout,

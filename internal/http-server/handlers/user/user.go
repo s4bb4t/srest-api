@@ -141,7 +141,7 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Param Userdata body u.User true "Updated user data"
 // @Success 200 {object} resp.Response "Returns success if the update was successful."
 // @Failure 401 {object} resp.Response "Update failed. Returns error message."
-// @Router /user/profile [post]
+// @Router /user/profile [put]
 func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.UpdateUser"
