@@ -39,189 +39,6 @@ type AdminHandler interface {
 }
 
 // Register godoc
-// @Summary Update user's rights
-// @Description Updates user by id by accepting a JSON payload containing user's rights.
-// @Tags admin
-// @Accept json
-// @Produce json
-// @Param UserData body UpdateRequest true "Complete user data"
-// @Success 200 {object} resp.Response "Update successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Update failed. Returns error message."
-// @Router /admin/users/{id}/rights [post]
-func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.Update"
-
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		if !AdmCheck(w, r, log) {
-			return
-		}
-
-		var req UpdateRequest
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
-			return
-		}
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
-
-		if n, err := user.UpdateField(req.Field, id, req.Value); err != nil {
-			if n == 0 {
-				log.Info(err.Error())
-
-				render.JSON(w, r, resp.Error(err.Error()))
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", req.Field, req.Value))
-
-		render.JSON(w, r, resp.OK())
-	}
-}
-
-// Register godoc
-// @Summary Block user
-// @Description Blocks user by id in url.
-// @Tags admin
-// @Produce json
-// @Success 200 {object} resp.Response "Block successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Block failed. Returns error message."
-// @Router /admin/users/{id}/block [post]
-func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.Block"
-
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		if !AdmCheck(w, r, log) {
-			return
-		}
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
-
-		if n, err := user.UpdateField("block", id, true); err != nil {
-			if n == 0 {
-				log.Info(err.Error())
-
-				render.JSON(w, r, resp.Error(err.Error()))
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", "block", true))
-
-		render.JSON(w, r, resp.OK())
-	}
-}
-
-// Register godoc
-// @Summary Unlock user
-// @Description Unlocks user by id in url.
-// @Tags admin
-// @Produce json
-// @Success 200 {object} resp.Response "Unlock successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Unlock failed. Returns error message."
-// @Router /admin/users/{id}/unlock [post]
-func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.Block"
-
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		if !AdmCheck(w, r, log) {
-			return
-		}
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
-
-		if n, err := user.UpdateField("block", id, false); err != nil {
-			if n == 0 {
-				log.Info(err.Error())
-
-				render.JSON(w, r, resp.Error(err.Error()))
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", "block", false))
-
-		render.JSON(w, r, resp.OK())
-	}
-}
-
-// Register godoc
-// @Summary Remove user
-// @Description Removes user by id in url.
-// @Tags admin
-// @Produce json
-// @Success 200 {object} resp.Response "Remove successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Remove failed. Returns error message."
-// @Router /admin/users/{id} [delete]
-func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.Remove"
-
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		if !AdmCheck(w, r, log) {
-			return
-		}
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
-
-		n, err := user.Remove(id)
-		if err != nil {
-			if n == 0 {
-				log.Info(err.Error())
-
-				render.JSON(w, r, resp.Error(err.Error()))
-
-				return
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info("user successfully removed")
-
-		render.JSON(w, r, resp.OK())
-	}
-}
-
-// Register godoc
 // @Summary Get user's rights
 // @Description Gets users by accepting a url query payload containing filters.
 // @Tags admin
@@ -381,6 +198,189 @@ func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 		}
 
 		log.Info(fmt.Sprintf("Successfully updated user: %v to %v with password %v and email %v", id, req.Username, req.Password, req.Email))
+
+		render.JSON(w, r, resp.OK())
+	}
+}
+
+// Register godoc
+// @Summary Remove user
+// @Description Removes user by id in url.
+// @Tags admin
+// @Produce json
+// @Success 200 {object} resp.Response "Remove successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Remove failed. Returns error message."
+// @Router /admin/users/{id} [delete]
+func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.admin.Remove"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		if !AdmCheck(w, r, log) {
+			return
+		}
+
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
+
+		n, err := user.Remove(id)
+		if err != nil {
+			if n == 0 {
+				log.Info(err.Error())
+
+				render.JSON(w, r, resp.Error(err.Error()))
+
+				return
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info("user successfully removed")
+
+		render.JSON(w, r, resp.OK())
+	}
+}
+
+// Register godoc
+// @Summary Block user
+// @Description Blocks user by id in url.
+// @Tags admin
+// @Produce json
+// @Success 200 {object} resp.Response "Block successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Block failed. Returns error message."
+// @Router /admin/users/{id}/block [post]
+func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.admin.Block"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		if !AdmCheck(w, r, log) {
+			return
+		}
+
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
+
+		if n, err := user.UpdateField("block", id, true); err != nil {
+			if n == 0 {
+				log.Info(err.Error())
+
+				render.JSON(w, r, resp.Error(err.Error()))
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", "block", true))
+
+		render.JSON(w, r, resp.OK())
+	}
+}
+
+// Register godoc
+// @Summary Unlock user
+// @Description Unlocks user by id in url.
+// @Tags admin
+// @Produce json
+// @Success 200 {object} resp.Response "Unlock successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Unlock failed. Returns error message."
+// @Router /admin/users/{id}/unlock [post]
+func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.admin.Block"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		if !AdmCheck(w, r, log) {
+			return
+		}
+
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
+
+		if n, err := user.UpdateField("block", id, false); err != nil {
+			if n == 0 {
+				log.Info(err.Error())
+
+				render.JSON(w, r, resp.Error(err.Error()))
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", "block", false))
+
+		render.JSON(w, r, resp.OK())
+	}
+}
+
+// Register godoc
+// @Summary Update user's rights
+// @Description Updates user by id by accepting a JSON payload containing user's rights.
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param UserData body UpdateRequest true "Complete user data"
+// @Success 200 {object} resp.Response "Update successful. Returns user ok."
+// @Failure 401 {object} resp.Response "Update failed. Returns error message."
+// @Router /admin/users/{id}/rights [post]
+func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.admin.Update"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		if !AdmCheck(w, r, log) {
+			return
+		}
+
+		var req UpdateRequest
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			JsonDecodeError(w, r, log, err)
+			return
+		}
+
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
+
+		if n, err := user.UpdateField(req.Field, id, req.Value); err != nil {
+			if n == 0 {
+				log.Info(err.Error())
+
+				render.JSON(w, r, resp.Error(err.Error()))
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", req.Field, req.Value))
 
 		render.JSON(w, r, resp.OK())
 	}

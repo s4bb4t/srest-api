@@ -132,6 +132,47 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	}
 }
 
+// Profile returns the user profile data.
+// @Summary Get user profile
+// @Description Retrieves the full user profile data.
+// @Tags user
+// @Produce json
+// @Success 200 {object} GetResponse "Returns the user profile data."
+// @Failure 401 {object} resp.Response "Get profile failed. Returns error message."
+// @Router /user/profile [get]
+func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.user.Profile"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
+		if !ok {
+			http.Error(w, "User context not found", http.StatusUnauthorized)
+			return
+		}
+
+		user, err := user.Get(userContext.Id)
+		if err != nil {
+			if err.Error() == "database.postgres.Get: no such user" {
+				log.Info(err.Error())
+
+				render.JSON(w, r, resp.Error("No such user"))
+
+				return
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info("user successfully retrieved")
+		render.JSON(w, r, GetResponse{resp.OK(), user})
+	}
+}
+
 // UpdateUser handles user profile updates.
 // @Summary Update user profile
 // @Description Updates the entire user profile with the new data provided.
@@ -180,50 +221,7 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		render.JSON(w, r, resp.OK())
 	}
-
 }
-
-// Profile returns the user profile data.
-// @Summary Get user profile
-// @Description Retrieves the full user profile data.
-// @Tags user
-// @Produce json
-// @Success 200 {object} GetResponse "Returns the user profile data."
-// @Failure 401 {object} resp.Response "Get profile failed. Returns error message."
-// @Router /user/profile [get]
-func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.user.Profile"
-
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
-		if !ok {
-			http.Error(w, "User context not found", http.StatusUnauthorized)
-			return
-		}
-
-		user, err := user.Get(userContext.Id)
-		if err != nil {
-			if err.Error() == "database.postgres.Get: no such user" {
-				log.Info(err.Error())
-
-				render.JSON(w, r, resp.Error("No such user"))
-
-				return
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info("user successfully retrieved")
-		render.JSON(w, r, GetResponse{resp.OK(), user})
-	}
-}
-
 func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
 	log.Debug(err.Error())
 

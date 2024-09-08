@@ -86,6 +86,89 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 }
 
 // Register godoc
+// @Summary Get all tasks
+// @Description Gets all tasks and return a JSON containing tasks data.
+// @Tags todo
+// @Produce json
+// @Param filter query string true "all, completed or inwork"
+// @Success 200 {object} GetAllResponse "Retrieved successfully. Returns status code OK."
+// @Failure 401 {object} resp.Response "Retrieving failed. Returns error message."
+// @Router /todos [get]
+func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.todo.GetAll"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		filter := r.URL.Query().Get("filter")
+
+		todos, info, n, err := todo.OutputAll(filter)
+		if err != nil {
+			if err.Error() == "database.postgres.OutputAllTodos: unknown filter" {
+				render.JSON(w, r, resp.Error("unknown filter"))
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		response := GetAllResponse{
+			resp.OK(),
+			t.MetaResponse{
+				Data: todos,
+				Info: info,
+				Meta: t.Meta{
+					TotalAmount: n,
+				},
+			},
+		}
+
+		log.Info("successfully retrieved task")
+		render.JSON(w, r, response)
+	}
+}
+
+// Register godoc
+// @Summary Get task
+// @Description Gets a task by id in url and return a JSON containing task data.
+// @Tags todo
+// @Produce json
+// @Success 200 {object} GetResponse "Retrieved successfully. Returns status code OK."
+// @Failure 401 {object} resp.Response "Retrieving failed. Returns error message."
+// @Router /todos/{id} [get]
+func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.hanlders.todo.Get"
+
+		log.With(
+			slog.String("op", op),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			InternalError(w, r, log, err)
+			return
+		}
+
+		task, err := todo.GetTodo(id)
+		if err != nil {
+			if err.Error() == "database.postgres.GetTodo: no such task" {
+				render.JSON(w, r, resp.Error("no such task"))
+				return
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info("successfully retrieved task")
+		render.JSON(w, r, GetResponse{resp.OK(), task})
+	}
+}
+
+// Register godoc
 // @Summary Update task
 // @Description Handles the upd of a task by accepting a JSON payload containing task data.
 // @Tags todo
@@ -129,89 +212,6 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 
 		log.Info("successfully updated task")
 		render.JSON(w, r, resp.OK())
-	}
-}
-
-// Register godoc
-// @Summary Get task
-// @Description Gets a task by id in url and return a JSON containing task data.
-// @Tags todo
-// @Produce json
-// @Success 200 {object} GetResponse "Retrieved successfully. Returns status code OK."
-// @Failure 401 {object} resp.Response "Retrieving failed. Returns error message."
-// @Router /todos/{id} [get]
-func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.todo.Get"
-
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
-
-		task, err := todo.GetTodo(id)
-		if err != nil {
-			if err.Error() == "database.postgres.GetTodo: no such task" {
-				render.JSON(w, r, resp.Error("no such task"))
-				return
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info("successfully retrieved task")
-		render.JSON(w, r, GetResponse{resp.OK(), task})
-	}
-}
-
-// Register godoc
-// @Summary Get all tasks
-// @Description Gets all tasks and return a JSON containing tasks data.
-// @Tags todo
-// @Produce json
-// @Param filter query string true "all, completed or inwork"
-// @Success 200 {object} GetAllResponse "Retrieved successfully. Returns status code OK."
-// @Failure 401 {object} resp.Response "Retrieving failed. Returns error message."
-// @Router /todos [get]
-func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.todo.GetAll"
-
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		filter := r.URL.Query().Get("filter")
-
-		todos, info, n, err := todo.OutputAll(filter)
-		if err != nil {
-			if err.Error() == "database.postgres.OutputAllTodos: unknown filter" {
-				render.JSON(w, r, resp.Error("unknown filter"))
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		response := GetAllResponse{
-			resp.OK(),
-			t.MetaResponse{
-				Data: todos,
-				Info: info,
-				Meta: t.Meta{
-					TotalAmount: n,
-				},
-			},
-		}
-
-		log.Info("successfully retrieved task")
-		render.JSON(w, r, response)
 	}
 }
 
