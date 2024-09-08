@@ -104,7 +104,40 @@ const docTemplate = `{
         },
         "/todos": {
             "get": {
-                "description": "Get all todos from the storage",
+                "description": "Gets all tasks and return a JSON containing tasks data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get all tasks",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "all, completed or inwork",
+                        "name": "filter",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved successfully. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetAllResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Retrieving failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Handles the creation of a new task by accepting a JSON payload containing task data.",
                 "consumes": [
                     "application/json"
                 ],
@@ -112,14 +145,119 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "todos"
+                    "user"
                 ],
-                "summary": "Get all todos",
+                "summary": "Create a new task",
+                "parameters": [
+                    {
+                        "description": "Complete task data for creation",
+                        "name": "UserData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Creation successful. Returns status code OK.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetAllResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Creation failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/todos/{id}": {
+            "get": {
+                "description": "Gets a task by id in url and return a JSON containing task data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get task",
+                "responses": {
+                    "200": {
+                        "description": "Retrieved successfully. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Retrieving failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Handles the upd of a task by accepting a JSON payload containing task data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update task",
+                "parameters": [
+                    {
+                        "description": "Complete task data for creation",
+                        "name": "UserData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Creation successful. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Creation failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete task by id in url.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Delete task",
+                "responses": {
+                    "200": {
+                        "description": "Creation successful. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Creation failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
                     }
                 }
@@ -258,6 +396,17 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest": {
+            "type": "object",
+            "properties": {
+                "isdone": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData": {
             "type": "object",
             "properties": {
@@ -326,6 +475,20 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_todo.GetResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "todo": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
                 }
             }
         },

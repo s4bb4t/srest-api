@@ -42,6 +42,13 @@ definitions:
       inwork:
         type: integer
     type: object
+  github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest:
+    properties:
+      isdone:
+        type: string
+      title:
+        type: string
+    type: object
   github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData:
     properties:
       login:
@@ -87,6 +94,15 @@ definitions:
         $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse'
       status:
         type: string
+    type: object
+  internal_http-server_handlers_todo.GetResponse:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+      todo:
+        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo'
     type: object
   internal_http-server_handlers_user.AuthResponse:
     properties:
@@ -185,19 +201,112 @@ paths:
       - user
   /todos:
     get:
-      consumes:
-      - application/json
-      description: Get all todos from the storage
+      description: Gets all tasks and return a JSON containing tasks data.
+      parameters:
+      - description: all, completed or inwork
+        in: query
+        name: filter
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Retrieved successfully. Returns status code OK.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_todo.GetAllResponse'
-      summary: Get all todos
+        "401":
+          description: Retrieving failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Get all tasks
       tags:
-      - todos
+      - user
+    post:
+      consumes:
+      - application/json
+      description: Handles the creation of a new task by accepting a JSON payload
+        containing task data.
+      parameters:
+      - description: Complete task data for creation
+        in: body
+        name: UserData
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Creation successful. Returns status code OK.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Creation failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Create a new task
+      tags:
+      - user
+  /todos/{id}:
+    delete:
+      description: Delete task by id in url.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Creation successful. Returns status code OK.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Creation failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Delete task
+      tags:
+      - user
+    get:
+      description: Gets a task by id in url and return a JSON containing task data.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved successfully. Returns status code OK.
+          schema:
+            $ref: '#/definitions/internal_http-server_handlers_todo.GetResponse'
+        "401":
+          description: Retrieving failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Get task
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Handles the upd of a task by accepting a JSON payload containing
+        task data.
+      parameters:
+      - description: Complete task data for creation
+        in: body
+        name: UserData
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Creation successful. Returns status code OK.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Creation failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Update task
+      tags:
+      - user
   /user/profile:
     get:
       description: Retrieves the full user profile data.

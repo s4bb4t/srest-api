@@ -1,369 +1,535 @@
 {
     "swagger": "2.0",
     "info": {
-      "description": "This is RESTful-API service for EasyDev.",
-      "title": "sAPI",
-      "contact": {
-        "name": "s4bb4t",
-        "email": "s4bb4t@yandex.ru"
-      },
-      "license": {
-        "name": "Apache 2.0",
-        "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-      },
-      "version": "v0.0.2"
+        "description": "This is RESTful-API service for EasyDev.",
+        "title": "sAPI",
+        "contact": {
+            "name": "s4bb4t",
+            "email": "s4bb4t@yandex.ru"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "v0.0.2"
     },
     "host": "51.250.113.72:8082",
     "paths": {
-      "/signin": {
-        "post": {
-          "description": "This endpoint authenticates a user by accepting their login credentials.",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "user"
-          ],
-          "summary": "Authenticate user",
-          "parameters": [
-            {
-              "description": "User login credentials",
-              "name": "AuthData",
-              "in": "body",
-              "required": true,
-              "schema": {
-                "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData"
-              }
+        "/signin": {
+            "post": {
+                "description": "This endpoint authenticates a user by accepting their login credentials.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Authenticate user",
+                "parameters": [
+                    {
+                        "description": "User login credentials",
+                        "name": "AuthData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a token if authentication succeeds.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "Returns a token if authentication succeeds.",
-              "schema": {
-                "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
-              }
-            },
-            "401": {
-              "description": "Authentication failed. Returns error message.",
-              "schema": {
-                "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
-              }
-            }
-          }
-        }
-      },
-      "/signup": {
-        "post": {
-          "description": "Handles the registration of a new user by accepting a JSON payload containing user data.",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "user"
-          ],
-          "summary": "Register a new user",
-          "parameters": [
-            {
-              "description": "Complete user data for registration",
-              "name": "UserData",
-              "in": "body",
-              "required": true,
-              "schema": {
-                "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Registration successful. Returns user authentication data.",
-              "schema": {
-                "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
-              }
-            },
-            "401": {
-              "description": "Registration failed. Returns error message.",
-              "schema": {
-                "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
-              }
-            }
-          }
-        }
-      },
-      "/todos": {
-        "get": {
-          "description": "Get all todos from the storage",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "todos"
-          ],
-          "summary": "Get all todos",
-          "responses": {
-            "200": {
-              "description": "OK",
-              "schema": {
-                "$ref": "#/definitions/internal_http-server_handlers_todo.GetAllResponse"
-              }
-            }
-          }
-        }
-      },
-      "/user/profile": {
-        "get": {
-          "description": "Retrieves the full user profile data.",
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "user"
-          ],
-          "summary": "Get user profile",
-          "responses": {
-            "200": {
-              "description": "Returns the user profile data.",
-              "schema": {
-                "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
-              }
-            },
-            "401": {
-              "description": "Get profile failed. Returns error message.",
-              "schema": {
-                "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
-              }
-            }
-          }
         },
-        "post": {
-          "description": "Updates the entire user profile with the new data provided.",
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "tags": [
-            "user"
-          ],
-          "summary": "Update user profile",
-          "parameters": [
-            {
-              "description": "Updated user data",
-              "name": "Userdata",
-              "in": "body",
-              "required": true,
-              "schema": {
-                "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
-              }
+        "/signup": {
+            "post": {
+                "description": "Handles the registration of a new user by accepting a JSON payload containing user data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Complete user data for registration",
+                        "name": "UserData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration successful. Returns user authentication data.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Registration failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "Returns success if the update was successful.",
-              "schema": {
-                "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
-              }
+        },
+        "/todos": {
+            "get": {
+                "description": "Gets all tasks and return a JSON containing tasks data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get all tasks",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "all, completed or inwork",
+                        "name": "filter",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retrieved successfully. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetAllResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Retrieving failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
             },
-            "401": {
-              "description": "Update failed. Returns error message.",
-              "schema": {
-                "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
-              }
+            "post": {
+                "description": "Handles the creation of a new task by accepting a JSON payload containing task data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create a new task",
+                "parameters": [
+                    {
+                        "description": "Complete task data for creation",
+                        "name": "UserData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Creation successful. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Creation failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
             }
-          }
+        },
+        "/todos/{id}": {
+            "get": {
+                "description": "Gets a task by id in url and return a JSON containing task data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get task",
+                "responses": {
+                    "200": {
+                        "description": "Retrieved successfully. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Retrieving failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Handles the upd of a task by accepting a JSON payload containing task data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update task",
+                "parameters": [
+                    {
+                        "description": "Complete task data for creation",
+                        "name": "UserData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Creation successful. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Creation failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete task by id in url.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Delete task",
+                "responses": {
+                    "200": {
+                        "description": "Creation successful. Returns status code OK.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Creation failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profile": {
+            "get": {
+                "description": "Retrieves the full user profile data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user profile",
+                "responses": {
+                    "200": {
+                        "description": "Returns the user profile data.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Get profile failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Updates the entire user profile with the new data provided.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user profile",
+                "parameters": [
+                    {
+                        "description": "Updated user data",
+                        "name": "Userdata",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns success if the update was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Update failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
         }
-      }
     },
     "definitions": {
-      "github_com_sabbatD_srest-api_internal_lib_api_response.Response": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          }
-        }
-      },
-      "github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta": {
-        "type": "object",
-        "properties": {
-          "total_amount": {
-            "type": "integer"
-          }
-        }
-      },
-      "github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
+        "github_com_sabbatD_srest-api_internal_lib_api_response.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
             }
-          },
-          "info": {
-            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoInfo"
-          },
-          "meta": {
-            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta"
-          }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta": {
+            "type": "object",
+            "properties": {
+                "total_amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
+                    }
+                },
+                "info": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoInfo"
+                },
+                "meta": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isdone": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoInfo": {
+            "type": "object",
+            "properties": {
+                "all": {
+                    "type": "integer"
+                },
+                "completed": {
+                    "type": "integer"
+                },
+                "inwork": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest": {
+            "type": "object",
+            "properties": {
+                "isdone": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData": {
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "block": {
+                    "type": "boolean"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_todo.GetAllResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "metaresponse": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_todo.GetResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "todo": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
+                }
+            }
+        },
+        "internal_http-server_handlers_user.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_user.GetResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
+                }
+            }
+        },
+        "internal_http-server_handlers_user.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "authdata": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
         }
-      },
-      "github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo": {
-        "type": "object",
-        "properties": {
-          "created": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "isdone": {
-            "type": "boolean"
-          },
-          "title": {
-            "type": "string"
-          }
-        }
-      },
-      "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoInfo": {
-        "type": "object",
-        "properties": {
-          "all": {
-            "type": "integer"
-          },
-          "completed": {
-            "type": "integer"
-          },
-          "inwork": {
-            "type": "integer"
-          }
-        }
-      },
-      "github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData": {
-        "type": "object",
-        "properties": {
-          "login": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser": {
-        "type": "object",
-        "properties": {
-          "admin": {
-            "type": "boolean"
-          },
-          "block": {
-            "type": "boolean"
-          },
-          "date": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "login": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          }
-        }
-      },
-      "github_com_sabbatD_srest-api_internal_lib_userConfig.User": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "login": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          }
-        }
-      },
-      "internal_http-server_handlers_todo.GetAllResponse": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "string"
-          },
-          "metaresponse": {
-            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse"
-          },
-          "status": {
-            "type": "string"
-          }
-        }
-      },
-      "internal_http-server_handlers_user.AuthResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
-          },
-          "status": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string"
-          }
-        }
-      },
-      "internal_http-server_handlers_user.GetResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
-          },
-          "error": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          }
-        }
-      },
-      "internal_http-server_handlers_user.RegisterResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
-          },
-          "error": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          }
-        }
-      }
+    },
+    "externalDocs": {
+        "description": "Readme.md from github",
+        "url": "https://github.com/sabbatD/srest-api"
     }
-  }
-  
+}
