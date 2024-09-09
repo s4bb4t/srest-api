@@ -211,7 +211,7 @@ paths:
           description: Retrieve failed. Returns error message.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
-      summary: Get user's rights
+      summary: Get all users
       tags:
       - admin
   /admin/users/{id}:
@@ -294,8 +294,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Updates user by id by accepting a JSON payload containing user's
-        rights.
+      description: Updates user by id by accepting a JSON payload containing user.
       parameters:
       - description: Complete user data
         in: body
@@ -314,7 +313,7 @@ paths:
           description: Update failed. Returns error message.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
-      summary: Update user's rights
+      summary: Update user' fields
       tags:
       - admin
   /admin/users/{id}/unlock:
@@ -338,7 +337,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: This endpoint authenticates a user by accepting their login credentials.
+      description: Authenticates a user by accepting their login credentials (login
+        and password) in JSON format.
       parameters:
       - description: User login credentials
         in: body
@@ -350,11 +350,11 @@ paths:
       - application/json
       responses:
         "200":
-          description: Returns a token if authentication succeeds.
+          description: Authentication successful. Returns a JWT token.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.AuthResponse'
-        "401":
-          description: Authentication failed. Returns error message.
+        "400":
+          description: Invalid input. Returns error message for improper data structure.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Authenticate user
@@ -380,8 +380,8 @@ paths:
           description: Registration successful. Returns user authentication data.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
-        "401":
-          description: Registration failed. Returns error message.
+        "400":
+          description: Invalid input. Returns error message for improper data structure.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Register a new user
@@ -389,9 +389,9 @@ paths:
       - user
   /todos:
     get:
-      description: Gets all tasks and return a JSON containing tasks data.
+      description: Gets all tasks and returns a JSON containing task data.
       parameters:
-      - description: all, completed or inwork
+      - description: all, completed, or inwork
         in: query
         name: filter
         required: true
@@ -438,23 +438,24 @@ paths:
       - todo
   /todos/{id}:
     delete:
-      description: Delete task by id in url.
+      description: Deletes a task by ID in the URL.
       produces:
       - application/json
       responses:
         "200":
-          description: Creation successful. Returns status code OK.
+          description: Deletion successful. Returns status code OK.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
         "401":
-          description: Creation failed. Returns error message.
+          description: Deletion failed. Returns error message.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Delete task
       tags:
       - todo
     get:
-      description: Gets a task by id in url and return a JSON containing task data.
+      description: Gets a task by ID in the URL and returns a JSON containing task
+        data.
       produces:
       - application/json
       responses:
@@ -472,10 +473,10 @@ paths:
     put:
       consumes:
       - application/json
-      description: Handles the upd of a task by accepting a JSON payload containing
+      description: Handles the update of a task by accepting a JSON payload containing
         task data.
       parameters:
-      - description: Complete task data for creation
+      - description: Complete task data for update
         in: body
         name: UserData
         required: true
@@ -485,11 +486,11 @@ paths:
       - application/json
       responses:
         "200":
-          description: Creation successful. Returns status code OK.
+          description: Update successful. Returns status code OK.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
         "401":
-          description: Creation failed. Returns error message.
+          description: Update failed. Returns error message.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Update task
@@ -497,7 +498,7 @@ paths:
       - todo
   /user/profile:
     get:
-      description: Retrieves the full user profile data.
+      description: Retrieves the full profile of the currently authenticated user.
       produces:
       - application/json
       responses:
@@ -505,8 +506,8 @@ paths:
           description: Returns the user profile data.
           schema:
             $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
-        "401":
-          description: Get profile failed. Returns error message.
+        "400":
+          description: Invalid input. Returns error message for improper data structure.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Get user profile
@@ -515,7 +516,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Updates the entire user profile with the new data provided.
+      description: Updates the user profile with new data provided in the JSON payload.
       parameters:
       - description: Updated user data
         in: body
@@ -527,11 +528,11 @@ paths:
       - application/json
       responses:
         "200":
-          description: Returns success if the update was successful.
+          description: Profile successfully updated.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
-        "401":
-          description: Update failed. Returns error message.
+        "400":
+          description: Invalid input. Returns error message for improper data structure.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Update user profile

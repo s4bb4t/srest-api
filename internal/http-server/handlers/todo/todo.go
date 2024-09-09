@@ -47,7 +47,7 @@ func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, e
 	render.JSON(w, r, resp.Error("failed to decode request"))
 }
 
-// Register godoc
+// Create godoc
 // @Summary Create a new task
 // @Description Handles the creation of a new task by accepting a JSON payload containing task data.
 // @Tags todo
@@ -85,12 +85,12 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Get All godoc
 // @Summary Get all tasks
-// @Description Gets all tasks and return a JSON containing tasks data.
+// @Description Gets all tasks and returns a JSON containing task data.
 // @Tags todo
 // @Produce json
-// @Param filter query string true "all, completed or inwork"
+// @Param filter query string true "all, completed, or inwork"
 // @Success 200 {object} GetAllResponse "Retrieved successfully. Returns status code OK."
 // @Failure 401 {object} resp.Response "Retrieving failed. Returns error message."
 // @Router /todos [get]
@@ -130,9 +130,9 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Get godoc
 // @Summary Get task
-// @Description Gets a task by id in url and return a JSON containing task data.
+// @Description Gets a task by ID in the URL and returns a JSON containing task data.
 // @Tags todo
 // @Produce json
 // @Success 200 {object} GetResponse "Retrieved successfully. Returns status code OK."
@@ -168,15 +168,15 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Update godoc
 // @Summary Update task
-// @Description Handles the upd of a task by accepting a JSON payload containing task data.
+// @Description Handles the update of a task by accepting a JSON payload containing task data.
 // @Tags todo
 // @Accept json
 // @Produce json
-// @Param UserData body t.TodoRequest true "Complete task data for creation"
-// @Success 200 {object} resp.Response "Creation successful. Returns status code OK."
-// @Failure 401 {object} resp.Response "Creation failed. Returns error message."
+// @Param UserData body t.TodoRequest true "Complete task data for update"
+// @Success 200 {object} resp.Response "Update successful. Returns status code OK."
+// @Failure 401 {object} resp.Response "Update failed. Returns error message."
 // @Router /todos/{id} [put]
 func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -215,13 +215,13 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Delete godoc
 // @Summary Delete task
-// @Description Delete task by id in url.
+// @Description Deletes a task by ID in the URL.
 // @Tags todo
 // @Produce json
-// @Success 200 {object} resp.Response "Creation successful. Returns status code OK."
-// @Failure 401 {object} resp.Response "Creation failed. Returns error message."
+// @Success 200 {object} resp.Response "Deletion successful. Returns status code OK."
+// @Failure 401 {object} resp.Response "Deletion failed. Returns error message."
 // @Router /todos/{id} [delete]
 func Delete(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

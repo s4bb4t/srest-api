@@ -38,8 +38,8 @@ type AdminHandler interface {
 	UpdateUser(u u.User, id int) (int64, error)
 }
 
-// Register godoc
-// @Summary Get user's rights
+// Get godoc
+// @Summary Get all users
 // @Description Gets users by accepting a url query payload containing filters.
 // @Tags admin
 // @Produce json
@@ -101,7 +101,7 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Profile godoc
 // @Summary Retrieve user's profile
 // @Description Retrieves user's profile by id.
 // @Tags admin
@@ -146,9 +146,9 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
-// @Summary Update user's rights
-// @Description Updates user by id by accepting a JSON payload containing user's rights.
+// UpdateUser godoc
+// @Summary Update user' fields
+// @Description Updates user by id by accepting a JSON payload containing user.
 // @Tags admin
 // @Accept json
 // @Produce json
@@ -203,7 +203,7 @@ func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Remove godoc
 // @Summary Remove user
 // @Description Removes user by id in url.
 // @Tags admin
@@ -249,7 +249,7 @@ func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Block godoc
 // @Summary Block user
 // @Description Blocks user by id in url.
 // @Tags admin
@@ -292,7 +292,7 @@ func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Unlock godoc
 // @Summary Unlock user
 // @Description Unlocks user by id in url.
 // @Tags admin
@@ -335,7 +335,7 @@ func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	}
 }
 
-// Register godoc
+// Update godoc
 // @Summary Update user's rights
 // @Description Updates user by id by accepting a JSON payload containing user's rights.
 // @Tags admin

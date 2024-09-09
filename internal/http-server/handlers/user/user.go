@@ -39,12 +39,13 @@ type UserHandler interface {
 // Register godoc
 // @Summary Register a new user
 // @Description Handles the registration of a new user by accepting a JSON payload containing user data.
+// This endpoint will create a new user if the username doesn't already exist in the system.
 // @Tags user
 // @Accept json
 // @Produce json
 // @Param UserData body u.User true "Complete user data for registration"
 // @Success 200 {object} RegisterResponse "Registration successful. Returns user authentication data."
-// @Failure 401 {object} resp.Response "Registration failed. Returns error message."
+// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /signup [post]
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -81,15 +82,16 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	}
 }
 
-// Auth handles user authentication.
+// Auth godoc
 // @Summary Authenticate user
-// @Description This endpoint authenticates a user by accepting their login credentials.
+// @Description Authenticates a user by accepting their login credentials (login and password) in JSON format.
+// Upon successful authentication, a JWT token will be generated and returned for subsequent API calls.
 // @Tags user
 // @Accept json
 // @Produce json
 // @Param AuthData body u.AuthData true "User login credentials"
-// @Success 200 {object} AuthResponse "Returns a token if authentication succeeds."
-// @Failure 401 {object} resp.Response "Authentication failed. Returns error message."
+// @Success 200 {object} AuthResponse "Authentication successful. Returns a JWT token."
+// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /signin [post]
 func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -132,13 +134,14 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	}
 }
 
-// Profile returns the user profile data.
+// Profile godoc
 // @Summary Get user profile
-// @Description Retrieves the full user profile data.
+// @Description Retrieves the full profile of the currently authenticated user.
+// The user must be logged in and provide a valid JWT token for authentication.
 // @Tags user
 // @Produce json
 // @Success 200 {object} GetResponse "Returns the user profile data."
-// @Failure 401 {object} resp.Response "Get profile failed. Returns error message."
+// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /user/profile [get]
 func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -173,15 +176,16 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	}
 }
 
-// UpdateUser handles user profile updates.
+// UpdateUser godoc
 // @Summary Update user profile
-// @Description Updates the entire user profile with the new data provided.
+// @Description Updates the user profile with new data provided in the JSON payload.
+// The user must be authenticated and provide a valid JWT token.
 // @Tags user
 // @Accept json
 // @Produce json
 // @Param Userdata body u.User true "Updated user data"
-// @Success 200 {object} resp.Response "Returns success if the update was successful."
-// @Failure 401 {object} resp.Response "Update failed. Returns error message."
+// @Success 200 {object} resp.Response "Profile successfully updated."
+// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /user/profile [put]
 func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

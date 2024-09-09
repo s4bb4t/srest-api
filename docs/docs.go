@@ -31,7 +31,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Get user's rights",
+                "summary": "Get all users",
                 "parameters": [
                     {
                         "type": "string",
@@ -162,7 +162,7 @@ const docTemplate = `{
         },
         "/admin/users/{id}/rights": {
             "put": {
-                "description": "Updates user by id by accepting a JSON payload containing user's rights.",
+                "description": "Updates user by id by accepting a JSON payload containing user.",
                 "consumes": [
                     "application/json"
                 ],
@@ -172,7 +172,7 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Update user's rights",
+                "summary": "Update user' fields",
                 "parameters": [
                     {
                         "description": "Complete user data",
@@ -266,7 +266,7 @@ const docTemplate = `{
         },
         "/signin": {
             "post": {
-                "description": "This endpoint authenticates a user by accepting their login credentials.",
+                "description": "Authenticates a user by accepting their login credentials (login and password) in JSON format.",
                 "consumes": [
                     "application/json"
                 ],
@@ -290,13 +290,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns a token if authentication succeeds.",
+                        "description": "Authentication successful. Returns a JWT token.",
                         "schema": {
                             "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
                         }
                     },
-                    "401": {
-                        "description": "Authentication failed. Returns error message.",
+                    "400": {
+                        "description": "Invalid input. Returns error message for improper data structure.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
@@ -335,8 +335,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
                         }
                     },
-                    "401": {
-                        "description": "Registration failed. Returns error message.",
+                    "400": {
+                        "description": "Invalid input. Returns error message for improper data structure.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
@@ -346,7 +346,7 @@ const docTemplate = `{
         },
         "/todos": {
             "get": {
-                "description": "Gets all tasks and return a JSON containing tasks data.",
+                "description": "Gets all tasks and returns a JSON containing task data.",
                 "produces": [
                     "application/json"
                 ],
@@ -357,7 +357,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "all, completed or inwork",
+                        "description": "all, completed, or inwork",
                         "name": "filter",
                         "in": "query",
                         "required": true
@@ -419,7 +419,7 @@ const docTemplate = `{
         },
         "/todos/{id}": {
             "get": {
-                "description": "Gets a task by id in url and return a JSON containing task data.",
+                "description": "Gets a task by ID in the URL and returns a JSON containing task data.",
                 "produces": [
                     "application/json"
                 ],
@@ -443,7 +443,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Handles the upd of a task by accepting a JSON payload containing task data.",
+                "description": "Handles the update of a task by accepting a JSON payload containing task data.",
                 "consumes": [
                     "application/json"
                 ],
@@ -456,7 +456,7 @@ const docTemplate = `{
                 "summary": "Update task",
                 "parameters": [
                     {
-                        "description": "Complete task data for creation",
+                        "description": "Complete task data for update",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
@@ -467,13 +467,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Creation successful. Returns status code OK.",
+                        "description": "Update successful. Returns status code OK.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
                     },
                     "401": {
-                        "description": "Creation failed. Returns error message.",
+                        "description": "Update failed. Returns error message.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
@@ -481,7 +481,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete task by id in url.",
+                "description": "Deletes a task by ID in the URL.",
                 "produces": [
                     "application/json"
                 ],
@@ -491,13 +491,13 @@ const docTemplate = `{
                 "summary": "Delete task",
                 "responses": {
                     "200": {
-                        "description": "Creation successful. Returns status code OK.",
+                        "description": "Deletion successful. Returns status code OK.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
                     },
                     "401": {
-                        "description": "Creation failed. Returns error message.",
+                        "description": "Deletion failed. Returns error message.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
@@ -507,7 +507,7 @@ const docTemplate = `{
         },
         "/user/profile": {
             "get": {
-                "description": "Retrieves the full user profile data.",
+                "description": "Retrieves the full profile of the currently authenticated user.",
                 "produces": [
                     "application/json"
                 ],
@@ -522,8 +522,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
                         }
                     },
-                    "401": {
-                        "description": "Get profile failed. Returns error message.",
+                    "400": {
+                        "description": "Invalid input. Returns error message for improper data structure.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
@@ -531,7 +531,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Updates the entire user profile with the new data provided.",
+                "description": "Updates the user profile with new data provided in the JSON payload.",
                 "consumes": [
                     "application/json"
                 ],
@@ -555,13 +555,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns success if the update was successful.",
+                        "description": "Profile successfully updated.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
                     },
-                    "401": {
-                        "description": "Update failed. Returns error message.",
+                    "400": {
+                        "description": "Invalid input. Returns error message for improper data structure.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
