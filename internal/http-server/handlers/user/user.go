@@ -11,6 +11,7 @@ import (
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
 	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
+	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
@@ -49,7 +50,16 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		log.With(util.SlogWith(op, r)...)
 
 		var req u.User
-		util.Unmarsh(w, r, &req, log)
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request body", sl.Err(err))
+
+			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
+		}
+
+		log.Info("request body decoded")
+		log.Debug("req: ", slog.Any("request", req))
 
 		id, err := user.Add(req)
 		if err != nil {
@@ -93,7 +103,16 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		log.With(util.SlogWith(op, r)...)
 
 		var req u.AuthData
-		util.Unmarsh(w, r, &req, log)
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request body", sl.Err(err))
+
+			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
+		}
+
+		log.Info("request body decoded")
+		log.Debug("req: ", slog.Any("request", req))
 
 		ok, isAdmin, id, err := user.Auth(req)
 		if err != nil {
@@ -178,7 +197,16 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		log.With(util.SlogWith(op, r)...)
 
 		var req u.User
-		util.Unmarsh(w, r, &req, log)
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request body", sl.Err(err))
+
+			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
+		}
+
+		log.Info("request body decoded")
+		log.Debug("req: ", slog.Any("request", req))
 
 		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {

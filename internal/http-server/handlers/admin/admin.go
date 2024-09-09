@@ -10,6 +10,7 @@ import (
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
 	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
+	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
@@ -160,7 +161,16 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		var req u.User
-		util.Unmarsh(w, r, &req, log)
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request body", sl.Err(err))
+
+			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
+		}
+
+		log.Info("request body decoded")
+		log.Debug("req: ", slog.Any("request", req))
 
 		id := util.GetUrlParam(w, r, log)
 
@@ -277,7 +287,16 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		// }
 
 		var req UpdateRequest
-		util.Unmarsh(w, r, &req, log)
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request body", sl.Err(err))
+
+			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
+		}
+
+		log.Info("request body decoded")
+		log.Debug("req: ", slog.Any("request", req))
 
 		id := util.GetUrlParam(w, r, log)
 

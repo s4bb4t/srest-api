@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/render"
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
+	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	t "github.com/sabbatD/srest-api/internal/lib/todoConfig"
 )
 
@@ -46,7 +47,16 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		log.With(util.SlogWith(op, r)...)
 
 		var req t.TodoRequest
-		util.Unmarsh(w, r, &req, log)
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request body", sl.Err(err))
+
+			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
+		}
+
+		log.Info("request body decoded")
+		log.Debug("req: ", slog.Any("request", req))
 
 		id, err := todo.Create(req)
 		if err != nil {
@@ -158,7 +168,16 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		)
 
 		var req t.TodoRequest
-		util.Unmarsh(w, r, &req, log)
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request body", sl.Err(err))
+
+			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
+		}
+
+		log.Info("request body decoded")
+		log.Debug("req: ", slog.Any("request", req))
 
 		id := util.GetUrlParam(w, r, log)
 
