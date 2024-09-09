@@ -46,8 +46,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 
 	stmt, err := s.db.Prepare(`
 		UPDATE public.todos 
-			SET title = $1
-			SET isdone = $2
+			SET title = $1, isdone = $2
 			WHERE id = $3
 	`)
 	if err != nil {
