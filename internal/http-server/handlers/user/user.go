@@ -77,6 +77,7 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		user, err := user.Get(id)
 		if err != nil {
 			util.InternalError(w, r, log, err)
+			return
 		}
 
 		log.Info("user successfully created")
@@ -228,6 +229,7 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		user, err := user.Get(userContext.Id)
 		if err != nil {
 			util.InternalError(w, r, log, err)
+			return
 		}
 
 		log.Info("Successfully updated user")

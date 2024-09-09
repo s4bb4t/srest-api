@@ -333,6 +333,7 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		user, err := User.Get(id)
 		if err != nil {
 			util.InternalError(w, r, log, err)
+			return
 		}
 
 		log.Info("Successfully updated user's rights")
@@ -397,6 +398,7 @@ func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User 
 	user, err := User.Get(id)
 	if err != nil {
 		util.InternalError(w, r, log, err)
+		return
 	}
 
 	log.Info(fmt.Sprintf("Successfully updated field: %v to %v", field, value))

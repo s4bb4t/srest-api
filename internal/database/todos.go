@@ -124,8 +124,6 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 
 	query := ``
 	switch filter {
-	case "":
-		query = `SELECT * FROM public.todos WHERE isDone = true`
 	case "all":
 		query = `SELECT * FROM public.todos`
 	case "completed":

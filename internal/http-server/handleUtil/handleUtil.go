@@ -23,6 +23,8 @@ func SlogWith(op string, r *http.Request) []any {
 
 // Shortcut for InternalError
 func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
+	log.Info("Internal Server Error")
+
 	log.Debug(err.Error())
 
 	render.JSON(w, r, resp.Error("Internal Server Error"))
@@ -31,7 +33,7 @@ func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err
 // Shortcut for GetUrlParam
 func GetUrlParam(w http.ResponseWriter, r *http.Request, log *slog.Logger) int {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
+	if err != nil || id < 1 {
 		InternalError(w, r, log, err)
 		return 0
 	}
