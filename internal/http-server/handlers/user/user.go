@@ -39,6 +39,18 @@ func SlogWith(op string, r *http.Request) []any {
 	}
 }
 
+func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
+	log.Debug(err.Error())
+
+	render.JSON(w, r, resp.Error("Internal Server Error"))
+}
+
+func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
+	log.Error("failed to decode request body", sl.Err(err))
+
+	render.JSON(w, r, resp.Error("failed to decode request"))
+}
+
 func Unmarsh[T any](w http.ResponseWriter, r *http.Request, req T, log *slog.Logger) {
 	if err := render.DecodeJSON(r.Body, &req); err != nil {
 		JsonDecodeError(w, r, log, err)
@@ -89,7 +101,6 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 		log.Info("user successfully created")
 		log.Debug(fmt.Sprintf("user: %v", user))
-
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
@@ -152,10 +163,7 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.Profile"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(SlogWith(op, r)...)
 
 		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {
@@ -177,6 +185,7 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		}
 
 		log.Info("user successfully retrieved")
+		log.Debug(fmt.Sprintf("user: %v", user))
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
@@ -196,18 +205,10 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.UpdateUser"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(SlogWith(op, r)...)
 
 		var req u.User
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
-			return
-		}
-
-		log.Info("request body decoded", slog.Any("request", req))
+		Unmarsh(w, r, &req, log)
 
 		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {
@@ -226,19 +227,8 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully updated user: %v to %v with password %v and email %v", userContext.Id, req.Username, req.Password, req.Email))
-
+		log.Info("Successfully updated user")
+		log.Debug(fmt.Sprintf("user: %v to %v with password %v and email %v", userContext.Id, req.Username, req.Password, req.Email))
 		render.JSON(w, r, resp.OK())
 	}
-}
-func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Debug(err.Error())
-
-	render.JSON(w, r, resp.Error("Internal Server Error"))
-}
-
-func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Error("failed to decode request body", sl.Err(err))
-
-	render.JSON(w, r, resp.Error("failed to decode request"))
 }
