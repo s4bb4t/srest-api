@@ -147,7 +147,7 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 }
 
 // UpdateUser godoc
-// @Summary Update user' fields
+// @Summary Update user's fields
 // @Description Updates user by id by accepting a JSON payload containing user.
 // @Tags admin
 // @Accept json
@@ -155,7 +155,7 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 // @Param UserData body u.User true "Complete user data"
 // @Success 200 {object} resp.Response "Update successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Update failed. Returns error message."
-// @Router /admin/users/{id}/rights [put]
+// @Router /admin/users/{id} [put]
 func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.admin.UpdateUser"
@@ -354,9 +354,9 @@ func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		if !AdmCheck(w, r, log) {
-			return
-		}
+		// if !AdmCheck(w, r, log) {
+		// 	return
+		// }
 
 		var req UpdateRequest
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
