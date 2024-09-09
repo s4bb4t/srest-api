@@ -37,7 +37,7 @@ type TodoHandler interface {
 // @Accept json
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for creation"
-// @Success 200 {object} resp.Response "Creation successful. Returns task with status code OK."
+// @Success 200 {object} GetResponse "Creation successful. Returns task with status code OK."
 // @Failure 401 {object} resp.Response "Creation failed. Returns error message."
 // @Router /todos [post]
 func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
