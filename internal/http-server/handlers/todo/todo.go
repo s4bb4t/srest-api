@@ -91,6 +91,9 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		log.With(util.SlogWith(op, r)...)
 
 		filter := r.URL.Query().Get("filter")
+		if filter == "" {
+			filter = "all"
+		}
 
 		todos, info, n, err := todo.OutputAll(filter)
 		if err != nil {
