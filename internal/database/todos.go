@@ -8,7 +8,7 @@ import (
 	t "github.com/sabbatD/srest-api/internal/lib/todoConfig"
 )
 
-func (s *Storage) Create(t t.TodoRequest) error {
+func (s *Storage) Create(t t.TodoRequest) (int64, error) {
 	const op = "database.postgres.CreateTodo"
 
 	stmt, err := s.db.Prepare(`
@@ -17,14 +17,14 @@ func (s *Storage) Create(t t.TodoRequest) error {
 		) VALUES ($1, $2, $3, $4)
 	`)
 	if err != nil {
-		return fmt.Errorf("%s: %v", op, err)
+		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
 	var maxID sql.NullInt64
 
 	err = s.db.QueryRow(`SELECT MAX(id) FROM public.todos;`).Scan(&maxID)
 	if err != nil {
-		return fmt.Errorf("%s: %v", op, err)
+		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
 	if !maxID.Valid {
@@ -35,10 +35,10 @@ func (s *Storage) Create(t t.TodoRequest) error {
 
 	_, err = stmt.Exec(maxID.Int64, t.Title, time.Now().Format("2006-01-02 15:04:05"), t.IsDone)
 	if err != nil {
-		return fmt.Errorf("%s: %v", op, err)
+		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	return nil
+	return maxID.Int64, nil
 }
 
 func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {

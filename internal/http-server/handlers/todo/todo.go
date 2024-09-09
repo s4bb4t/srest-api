@@ -24,7 +24,7 @@ type GetResponse struct {
 }
 
 type TodoHandler interface {
-	Create(t t.TodoRequest) error
+	Create(t t.TodoRequest) (int64, error)
 	Update(id int, t t.TodoRequest) (int64, error)
 	Delete(id int) (int64, error)
 	GetTodo(id int) (t.Todo, error)
@@ -54,7 +54,7 @@ func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, e
 // @Accept json
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for creation"
-// @Success 200 {object} resp.Response "Creation successful. Returns status code OK."
+// @Success 200 {object} resp.Response "Creation successful. Returns task with status code OK."
 // @Failure 401 {object} resp.Response "Creation failed. Returns error message."
 // @Router /todos [post]
 func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
@@ -74,14 +74,24 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 
 		log.Info("request body decoded", slog.Any("request", req))
 
-		err := todo.Create(req)
+		id, err := todo.Create(req)
 		if err != nil {
 			InternalError(w, r, log, err)
 			return
 		}
 
+		task, err := todo.GetTodo(int(id))
+		if err != nil {
+			if err.Error() == "database.postgres.GetTodo: no such task" {
+				render.JSON(w, r, resp.Error("no such task"))
+				return
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
 		log.Info("successfully created task")
-		render.JSON(w, r, resp.OK())
+		render.JSON(w, r, GetResponse{resp.OK(), task})
 	}
 }
 
@@ -135,7 +145,7 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Description Gets a task by ID in the URL and returns a JSON containing task data.
 // @Tags todo
 // @Produce json
-// @Success 200 {object} GetResponse "Retrieved successfully. Returns status code OK."
+// @Success 200 {object} GetResponse "Retrieved successfully. Returns task and status code OK."
 // @Failure 401 {object} resp.Response "Retrieving failed. Returns error message."
 // @Router /todos/{id} [get]
 func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
@@ -175,7 +185,7 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for update"
-// @Success 200 {object} resp.Response "Update successful. Returns status code OK."
+// @Success 200 {object} GetResponse "Update successful. Returns task with status code OK."
 // @Failure 401 {object} resp.Response "Update failed. Returns error message."
 // @Router /todos/{id} [put]
 func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
@@ -210,8 +220,18 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 			return
 		}
 
+		task, err := todo.GetTodo(id)
+		if err != nil {
+			if err.Error() == "database.postgres.GetTodo: no such task" {
+				render.JSON(w, r, resp.Error("no such task"))
+				return
+			}
+			InternalError(w, r, log, err)
+			return
+		}
+
 		log.Info("successfully updated task")
-		render.JSON(w, r, resp.OK())
+		render.JSON(w, r, GetResponse{resp.OK(), task})
 	}
 }
 
