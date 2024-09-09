@@ -9,7 +9,7 @@ import (
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
-func (s *Storage) Add(u u.User) (int64, error) {
+func (s *Storage) Add(u u.User) (int, error) {
 	const op = "database.postgres.Add"
 
 	stmt, err := s.db.Prepare(`
@@ -43,11 +43,11 @@ func (s *Storage) Add(u u.User) (int64, error) {
 	}
 
 	n, err := res.RowsAffected()
-	if err != nil {
+	if err != nil || n == 0 {
 		return 0, fmt.Errorf("%s, failed to get RowsAffected: %v", op, err)
 	}
 
-	return n, nil
+	return int(maxID.Int64), nil
 }
 
 func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, ID int, err error) {

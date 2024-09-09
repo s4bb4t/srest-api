@@ -19,21 +19,34 @@ type AuthResponse struct {
 	Token string `json:"token,omitempty"`
 }
 
-type RegisterResponse struct {
-	resp.Response
-	Authdata u.AuthData `json:"authdata,omitempty"`
-}
-
 type GetResponse struct {
 	resp.Response
 	User u.TableUser `json:"user,omitempty"`
 }
 
 type UserHandler interface {
-	Add(u u.User) (int64, error)
+	Add(u u.User) (int, error)
 	Auth(u u.AuthData) (succsess, isAdmin bool, id int, err error)
 	Get(id int) (u.TableUser, error)
 	UpdateUser(u u.User, id int) (int64, error)
+}
+
+func SlogWith(op string, r *http.Request) []any {
+	return []any{
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+		slog.String("\n", ""),
+	}
+}
+
+func Unmarsh[T any](w http.ResponseWriter, r *http.Request, req T, log *slog.Logger) {
+	if err := render.DecodeJSON(r.Body, &req); err != nil {
+		JsonDecodeError(w, r, log, err)
+		return
+	}
+
+	log.Info("request body decoded")
+	log.Debug("req: ", slog.Any("request", req))
 }
 
 // Register godoc
@@ -44,27 +57,19 @@ type UserHandler interface {
 // @Accept json
 // @Produce json
 // @Param UserData body u.User true "Complete user data for registration"
-// @Success 200 {object} RegisterResponse "Registration successful. Returns user authentication data."
+// @Success 200 {object} GetResponse "Registration successful. Returns user data."
 // @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /signup [post]
 func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.user.Register"
+		const op = "http-server.handlers.user.Register"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(SlogWith(op, r)...)
 
 		var req u.User
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
-			return
-		}
+		Unmarsh(w, r, &req, log)
 
-		log.Info("request body decoded", slog.Any("request", req))
-
-		_, err := user.Add(req)
+		id, err := user.Add(req)
 		if err != nil {
 			if err.Error() == "database.postgres.Add: user already exists" {
 				log.Info(err.Error())
@@ -77,8 +82,15 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
+		user, err := user.Get(id)
+		if err != nil {
+			InternalError(w, r, log, err)
+		}
+
 		log.Info("user successfully created")
-		render.JSON(w, r, RegisterResponse{resp.OK(), u.AuthData{Login: req.Login, Password: req.Password}})
+		log.Debug(fmt.Sprintf("user: %v", user))
+
+		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
 
@@ -97,18 +109,10 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.user.Auth"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(SlogWith(op, r)...)
 
 		var req u.AuthData
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
-			return
-		}
-
-		log.Info("request body decoded", slog.Any("request", req))
+		Unmarsh(w, r, &req, log)
 
 		ok, isAdmin, id, err := user.Auth(req)
 		if err != nil {
@@ -130,6 +134,7 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		}
 
 		log.Info("successfully logged in")
+		log.Debug(fmt.Sprintf("user: %v", req))
 		render.JSON(w, r, AuthResponse{resp.OK(), token})
 	}
 }
