@@ -11,7 +11,7 @@ type Todos []Todo
 
 type TodoRequest struct {
 	Title  string `json:"title"`
-	IsDone string `json:"isdone"`
+	IsDone bool   `json:"isdone"`
 }
 
 type TodoInfo struct {

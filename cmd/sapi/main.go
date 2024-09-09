@@ -94,15 +94,15 @@ func main() {
 			r.Post("/users/registrate", user.Register(log, storage))
 		})
 
-		// Todo handlers
-		router.Post("/todos", todo.Create(log, storage))
-		router.Get("/todos", todo.GetAll(log, storage))
-
 		router.Route("/todos", func(t chi.Router) {
 			t.Get("/{id}", todo.Get(log, storage))
 			t.Put("/{id}", todo.Update(log, storage))
 			t.Delete("/{id}", todo.Delete(log, storage))
 		})
+
+		// Todo handlers
+		router.Post("/todos", todo.Create(log, storage))
+		router.Get("/todos", todo.GetAll(log, storage))
 	})
 
 	log.Info("starting server", slog.String("address", cfg.Address))

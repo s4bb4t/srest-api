@@ -403,7 +403,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Creation successful. Returns status code OK.",
+                        "description": "Creation successful. Returns task with status code OK.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
@@ -429,7 +429,7 @@ const docTemplate = `{
                 "summary": "Get task",
                 "responses": {
                     "200": {
-                        "description": "Retrieved successfully. Returns status code OK.",
+                        "description": "Retrieved successfully. Returns task and status code OK.",
                         "schema": {
                             "$ref": "#/definitions/internal_http-server_handlers_todo.GetResponse"
                         }
@@ -467,9 +467,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Update successful. Returns status code OK.",
+                        "description": "Update successful. Returns task with status code OK.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetResponse"
                         }
                     },
                     "401": {
