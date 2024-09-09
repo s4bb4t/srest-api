@@ -45,7 +45,7 @@ definitions:
   github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest:
     properties:
       isdone:
-        type: string
+        type: boolean
       title:
         type: string
     type: object
@@ -247,6 +247,31 @@ paths:
       summary: Retrieve user's profile
       tags:
       - admin
+    put:
+      consumes:
+      - application/json
+      description: Updates user by id by accepting a JSON payload containing user.
+      parameters:
+      - description: Complete user data
+        in: body
+        name: UserData
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update successful. Returns user ok.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+        "401":
+          description: Update failed. Returns error message.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+      summary: Update user's fields
+      tags:
+      - admin
   /admin/users/{id}/block:
     post:
       description: Blocks user by id in url.
@@ -289,31 +314,6 @@ paths:
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
       summary: Update user's rights
-      tags:
-      - admin
-    put:
-      consumes:
-      - application/json
-      description: Updates user by id by accepting a JSON payload containing user.
-      parameters:
-      - description: Complete user data
-        in: body
-        name: UserData
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Update successful. Returns user ok.
-          schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
-        "401":
-          description: Update failed. Returns error message.
-          schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
-      summary: Update user' fields
       tags:
       - admin
   /admin/users/{id}/unlock:

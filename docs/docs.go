@@ -109,6 +109,44 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "Updates user by id by accepting a JSON payload containing user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Update user's fields",
+                "parameters": [
+                    {
+                        "description": "Complete user data",
+                        "name": "UserData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Update successful. Returns user ok.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Update failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Removes user by id in url.",
                 "produces": [
@@ -161,44 +199,6 @@ const docTemplate = `{
             }
         },
         "/admin/users/{id}/rights": {
-            "put": {
-                "description": "Updates user by id by accepting a JSON payload containing user.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin"
-                ],
-                "summary": "Update user' fields",
-                "parameters": [
-                    {
-                        "description": "Complete user data",
-                        "name": "UserData",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Update successful. Returns user ok.",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "Update failed. Returns error message.",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Updates user by id by accepting a JSON payload containing user's rights.",
                 "consumes": [
@@ -642,7 +642,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "isdone": {
-                    "type": "string"
+                    "type": "boolean"
                 },
                 "title": {
                     "type": "string"
