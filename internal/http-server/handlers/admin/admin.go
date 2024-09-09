@@ -120,6 +120,11 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		id := util.GetUrlParam(w, r, log)
+		if id == 0 {
+			log.Info("missing or wrong id")
+			render.JSON(w, r, resp.Error("missing or wrong id"))
+			return
+		}
 
 		user, err := User.Get(id)
 		if err != nil {
@@ -173,6 +178,11 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		log.Debug("req: ", slog.Any("request", req))
 
 		id := util.GetUrlParam(w, r, log)
+		if id == 0 {
+			log.Info("missing or wrong id")
+			render.JSON(w, r, resp.Error("missing or wrong id"))
+			return
+		}
 
 		n, err := User.UpdateUser(req, id)
 		if err != nil {
@@ -215,6 +225,11 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		id := util.GetUrlParam(w, r, log)
+		if id == 0 {
+			log.Info("missing or wrong id")
+			render.JSON(w, r, resp.Error("missing or wrong id"))
+			return
+		}
 
 		n, err := User.Remove(id)
 		if err != nil {
@@ -299,6 +314,11 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		log.Debug("req: ", slog.Any("request", req))
 
 		id := util.GetUrlParam(w, r, log)
+		if id == 0 {
+			log.Info("missing or wrong id")
+			render.JSON(w, r, resp.Error("missing or wrong id"))
+			return
+		}
 
 		if n, err := User.UpdateField(req.Field, id, req.Value); err != nil {
 			if n == 0 {
@@ -358,6 +378,11 @@ func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User 
 	}
 
 	id := util.GetUrlParam(w, r, log)
+	if id == 0 {
+		log.Info("missing or wrong id")
+		render.JSON(w, r, resp.Error("missing or wrong id"))
+		return
+	}
 
 	if n, err := User.UpdateField(field, id, value); err != nil {
 		if n == 0 {

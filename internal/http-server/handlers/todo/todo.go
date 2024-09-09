@@ -135,6 +135,11 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		log.With(util.SlogWith(op, r)...)
 
 		id := util.GetUrlParam(w, r, log)
+		if id == 0 {
+			log.Info("missing or wrong id")
+			render.JSON(w, r, resp.Error("missing or wrong id"))
+			return
+		}
 
 		task, err := todo.GetTodo(id)
 		if err != nil {
@@ -183,6 +188,11 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		log.Debug("req: ", slog.Any("request", req))
 
 		id := util.GetUrlParam(w, r, log)
+		if id == 0 {
+			log.Info("missing or wrong id")
+			render.JSON(w, r, resp.Error("missing or wrong id"))
+			return
+		}
 
 		n, err := todo.Update(id, req)
 		if err != nil {
@@ -219,6 +229,11 @@ func Delete(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		log.With(util.SlogWith(op, r)...)
 
 		id := util.GetUrlParam(w, r, log)
+		if id == 0 {
+			log.Info("missing or wrong id")
+			render.JSON(w, r, resp.Error("missing or wrong id"))
+			return
+		}
 
 		n, err := todo.Delete(id)
 		if err != nil {
