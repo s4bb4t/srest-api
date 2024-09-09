@@ -3,13 +3,11 @@ package todo
 import (
 	"log/slog"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
-	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	t "github.com/sabbatD/srest-api/internal/lib/todoConfig"
 )
 
@@ -31,22 +29,6 @@ type TodoHandler interface {
 	OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error)
 }
 
-// InternalError is a shortcut for internal error handling
-// InternalError always returns an error to debug logs and JSON ERROR
-func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Debug(err.Error())
-
-	render.JSON(w, r, resp.Error("Internal Server Error"))
-}
-
-// JsonDecodeError is a shortcut for json.UnmarshalError
-// InternalError always returns an error and JSON ERROR
-func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Error("failed to decode request body", sl.Err(err))
-
-	render.JSON(w, r, resp.Error("failed to decode request"))
-}
-
 // Create godoc
 // @Summary Create a new task
 // @Description Handles the creation of a new task by accepting a JSON payload containing task data.
@@ -61,32 +43,20 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.todo.Create"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
 		var req t.TodoRequest
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
-			return
-		}
-
-		log.Info("request body decoded", slog.Any("request", req))
+		util.Unmarsh(w, r, &req, log)
 
 		id, err := todo.Create(req)
 		if err != nil {
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
 		task, err := todo.GetTodo(int(id))
 		if err != nil {
-			if err.Error() == "database.postgres.GetTodo: no such task" {
-				render.JSON(w, r, resp.Error("no such task"))
-				return
-			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
@@ -108,10 +78,7 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.todo.GetAll"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
 		filter := r.URL.Query().Get("filter")
 
@@ -120,7 +87,7 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 			if err.Error() == "database.postgres.OutputAllTodos: unknown filter" {
 				render.JSON(w, r, resp.Error("unknown filter"))
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
@@ -152,16 +119,9 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.todo.Get"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
+		id := util.GetUrlParam(w, r, log)
 
 		task, err := todo.GetTodo(id)
 		if err != nil {
@@ -169,7 +129,7 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 				render.JSON(w, r, resp.Error("no such task"))
 				return
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
@@ -198,35 +158,22 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		)
 
 		var req t.TodoRequest
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
-			return
-		}
+		util.Unmarsh(w, r, &req, log)
 
-		log.Info("request body decoded", slog.Any("request", req))
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
+		id := util.GetUrlParam(w, r, log)
 
 		n, err := todo.Update(id, req)
 		if err != nil {
 			if n == 0 {
 				render.JSON(w, r, resp.Error(err.Error()))
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
 		task, err := todo.GetTodo(id)
 		if err != nil {
-			if err.Error() == "database.postgres.GetTodo: no such task" {
-				render.JSON(w, r, resp.Error("no such task"))
-				return
-			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
@@ -247,23 +194,16 @@ func Delete(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.hanlders.todo.Delete"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
+		id := util.GetUrlParam(w, r, log)
 
 		n, err := todo.Delete(id)
 		if err != nil {
 			if n == 0 {
 				render.JSON(w, r, resp.Error(err.Error()))
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 

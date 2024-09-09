@@ -136,7 +136,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Update successful. Returns user ok.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
                         }
                     },
                     "401": {
@@ -186,7 +186,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Block successful. Returns user ok.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
                         }
                     },
                     "401": {
@@ -252,7 +252,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Unlock successful. Returns user ok.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
                         }
                     },
                     "401": {
@@ -330,9 +330,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Registration successful. Returns user authentication data.",
+                        "description": "Registration successful. Returns user data.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.RegisterResponse"
+                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
                         }
                     },
                     "400": {
@@ -557,7 +557,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Profile successfully updated.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
                         }
                     },
                     "400": {
@@ -799,20 +799,6 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
-                }
-            }
-        },
-        "internal_http-server_handlers_user.RegisterResponse": {
-            "type": "object",
-            "properties": {
-                "authdata": {
-                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData"
-                },
-                "error": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         }

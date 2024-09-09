@@ -6,12 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
 	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
-	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
@@ -51,14 +49,11 @@ type AdminHandler interface {
 // @Success 200 {object} GetAllResponse "Retrieve successful. Returns users."
 // @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
 // @Router /admin/users [get]
-func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.GetAll"
+		const op = "http-server.handlers.admin.GetAll"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
 		if !AdmCheck(w, r, log) {
 			return
@@ -70,19 +65,24 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 		limitStr := r.URL.Query().Get("limit")
 		offsetStr := r.URL.Query().Get("offset")
 
-		if order == "" || blockedStr == "" || limitStr == "" || offsetStr == "" {
-			log.Info("one or more parameters are empty")
-
-			render.JSON(w, r, resp.Error("one or more parameters are empty"))
-
-			return
+		if order == "" {
+			order = "asc"
+		}
+		if blockedStr == "" {
+			blockedStr = "false"
+		}
+		if limitStr == "" {
+			limitStr = "30"
+		}
+		if offsetStr == "" {
+			offsetStr = "0"
 		}
 
 		blocked, _ := strconv.ParseBool(blockedStr)
 		limit, _ := strconv.Atoi(limitStr)
 		offset, _ := strconv.Atoi(offsetStr)
 
-		users, err := user.GetAll(search, order, blocked, limit, offset)
+		users, err := User.GetAll(search, order, blocked, limit, offset)
 		if err != nil {
 			if users == nil {
 				log.Info("no users found")
@@ -91,12 +91,11 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 
 				return
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("users successfully retrieved")
-
 		render.JSON(w, r, GetAllResponse{resp.OK(), users})
 	}
 }
@@ -109,26 +108,19 @@ func GetAll(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 // @Success 200 {object} GetResponse "Retrieve successful. Returns user."
 // @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
 // @Router /admin/users/{id} [get]
-func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.user.Profile"
+		const op = "http-server.handlers.user.Profile"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
 		if !AdmCheck(w, r, log) {
 			return
 		}
 
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
+		id := util.GetUrlParam(w, r, log)
 
-		user, err := user.Get(id)
+		user, err := User.Get(id)
 		if err != nil {
 			if err.Error() == "database.postgres.Get: no such user" {
 				log.Info(err.Error())
@@ -137,11 +129,12 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 
 				return
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("user successfully retrieved")
+		log.Debug(fmt.Sprintf("user: %v", user))
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
@@ -153,53 +146,43 @@ func Profile(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param UserData body u.User true "Complete user data"
-// @Success 200 {object} resp.Response "Update successful. Returns user ok."
+// @Success 200 {object} GetResponse "Update successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Update failed. Returns error message."
 // @Router /admin/users/{id} [put]
-func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.UpdateUser"
+		const op = "http-server.handlers.admin.UpdateUser"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
 		if !AdmCheck(w, r, log) {
 			return
 		}
 
 		var req u.User
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
+		util.Unmarsh(w, r, &req, log)
 
-			render.JSON(w, r, resp.Error("failed to decode request"))
+		id := util.GetUrlParam(w, r, log)
 
-			return
-		}
-
-		log.Info("request body decoded", slog.Any("request", req))
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
-
-		n, err := user.UpdateUser(req, id)
+		n, err := User.UpdateUser(req, id)
 		if err != nil {
 			if n == 0 {
 				log.Info(err.Error())
 
 				render.JSON(w, r, resp.Error(err.Error()))
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully updated user: %v to %v with password %v and email %v", id, req.Username, req.Password, req.Email))
+		user, err := User.Get(id)
+		if err != nil {
+			util.InternalError(w, r, log, err)
+		}
 
-		render.JSON(w, r, resp.OK())
+		log.Info("Successfully updated user")
+		log.Debug(fmt.Sprintf("user: %v", user))
+		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
 
@@ -211,26 +194,19 @@ func UpdateUser(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 // @Success 200 {object} resp.Response "Remove successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Remove failed. Returns error message."
 // @Router /admin/users/{id} [delete]
-func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.Remove"
+		const op = "http-server.handlers.admin.Remove"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
 		if !AdmCheck(w, r, log) {
 			return
 		}
 
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
+		id := util.GetUrlParam(w, r, log)
 
-		n, err := user.Remove(id)
+		n, err := User.Remove(id)
 		if err != nil {
 			if n == 0 {
 				log.Info(err.Error())
@@ -239,12 +215,11 @@ func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 
 				return
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("user successfully removed")
-
 		render.JSON(w, r, resp.OK())
 	}
 }
@@ -254,41 +229,14 @@ func Remove(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 // @Description Blocks user by id in url.
 // @Tags admin
 // @Produce json
-// @Success 200 {object} resp.Response "Block successful. Returns user ok."
+// @Success 200 {object} GetResponse "Block successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Block failed. Returns error message."
 // @Router /admin/users/{id}/block [post]
-func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.Block"
+		const op = "http-server.handlers.admin.Block"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		if !AdmCheck(w, r, log) {
-			return
-		}
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
-
-		if n, err := user.UpdateField("block", id, true); err != nil {
-			if n == 0 {
-				log.Info(err.Error())
-
-				render.JSON(w, r, resp.Error(err.Error()))
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", "block", true))
-
-		render.JSON(w, r, resp.OK())
+		changeField(w, r, log, User, op, "block", true)
 	}
 }
 
@@ -297,41 +245,14 @@ func Block(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 // @Description Unlocks user by id in url.
 // @Tags admin
 // @Produce json
-// @Success 200 {object} resp.Response "Unlock successful. Returns user ok."
+// @Success 200 {object} GetResponse "Unlock successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Unlock failed. Returns error message."
 // @Router /admin/users/{id}/unlock [post]
-func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.Block"
+		const op = "http-server.handlers.admin.Unblock"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
-
-		if !AdmCheck(w, r, log) {
-			return
-		}
-
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
-
-		if n, err := user.UpdateField("block", id, false); err != nil {
-			if n == 0 {
-				log.Info(err.Error())
-
-				render.JSON(w, r, resp.Error(err.Error()))
-			}
-			InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", "block", false))
-
-		render.JSON(w, r, resp.OK())
+		changeField(w, r, log, User, op, "block", false)
 	}
 }
 
@@ -345,44 +266,39 @@ func Unblock(log *slog.Logger, user AdminHandler) http.HandlerFunc {
 // @Success 200 {object} resp.Response "Update successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Update failed. Returns error message."
 // @Router /admin/users/{id}/rights [post]
-func Update(log *slog.Logger, user AdminHandler) http.HandlerFunc {
+func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.admin.Update"
+		const op = "http-server.handlers.admin.Update"
 
-		log.With(
-			slog.String("op", op),
-			slog.String("request_id", middleware.GetReqID(r.Context())),
-		)
+		log.With(util.SlogWith(op, r)...)
 
 		// if !AdmCheck(w, r, log) {
 		// 	return
 		// }
 
 		var req UpdateRequest
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			JsonDecodeError(w, r, log, err)
-			return
-		}
+		util.Unmarsh(w, r, &req, log)
 
-		id, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			InternalError(w, r, log, err)
-			return
-		}
+		id := util.GetUrlParam(w, r, log)
 
-		if n, err := user.UpdateField(req.Field, id, req.Value); err != nil {
+		if n, err := User.UpdateField(req.Field, id, req.Value); err != nil {
 			if n == 0 {
 				log.Info(err.Error())
 
 				render.JSON(w, r, resp.Error(err.Error()))
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully updated field: %v to %v", req.Field, req.Value))
+		user, err := User.Get(id)
+		if err != nil {
+			util.InternalError(w, r, log, err)
+		}
 
-		render.JSON(w, r, resp.OK())
+		log.Info("Successfully updated user's rights")
+		log.Debug(fmt.Sprintf("user: %v", user))
+		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
 
@@ -415,14 +331,31 @@ func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) bool {
 	return true
 }
 
-func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Debug(err.Error())
+func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User AdminHandler, op, field string, value bool) {
+	log.With(util.SlogWith(op, r)...)
 
-	render.JSON(w, r, resp.Error("Internal Server Error"))
-}
+	if !AdmCheck(w, r, log) {
+		return
+	}
 
-func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Error("failed to decode request body", sl.Err(err))
+	id := util.GetUrlParam(w, r, log)
 
-	render.JSON(w, r, resp.Error("failed to decode request"))
+	if n, err := User.UpdateField(field, id, value); err != nil {
+		if n == 0 {
+			log.Info(err.Error())
+
+			render.JSON(w, r, resp.Error(err.Error()))
+		}
+		util.InternalError(w, r, log, err)
+		return
+	}
+
+	user, err := User.Get(id)
+	if err != nil {
+		util.InternalError(w, r, log, err)
+	}
+
+	log.Info(fmt.Sprintf("Successfully updated field: %v to %v", field, value))
+	log.Debug(fmt.Sprintf("user: %v", user))
+	render.JSON(w, r, GetResponse{resp.OK(), user})
 }

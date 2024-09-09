@@ -4,7 +4,6 @@ go 1.21.8
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/render v1.0.3
 	github.com/ilyakaznacheev/cleanenv v1.5.0

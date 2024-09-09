@@ -148,15 +148,6 @@ definitions:
       user:
         $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
     type: object
-  internal_http-server_handlers_user.RegisterResponse:
-    properties:
-      authdata:
-        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData'
-      error:
-        type: string
-      status:
-        type: string
-    type: object
 externalDocs:
   description: Readme.md from github
   url: https://github.com/sabbatD/srest-api
@@ -264,7 +255,7 @@ paths:
         "200":
           description: Update successful. Returns user ok.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
         "401":
           description: Update failed. Returns error message.
           schema:
@@ -281,7 +272,7 @@ paths:
         "200":
           description: Block successful. Returns user ok.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
         "401":
           description: Block failed. Returns error message.
           schema:
@@ -325,7 +316,7 @@ paths:
         "200":
           description: Unlock successful. Returns user ok.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
         "401":
           description: Unlock failed. Returns error message.
           schema:
@@ -377,9 +368,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: Registration successful. Returns user authentication data.
+          description: Registration successful. Returns user data.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.RegisterResponse'
+            $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
         "400":
           description: Invalid input. Returns error message for improper data structure.
           schema:
@@ -530,7 +521,7 @@ paths:
         "200":
           description: Profile successfully updated.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
         "400":
           description: Invalid input. Returns error message for improper data structure.
           schema:

@@ -1,3 +1,4 @@
+// This package provides CRUD operations with User
 package user
 
 import (
@@ -5,12 +6,11 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
 
+	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
 	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
-	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
@@ -31,36 +31,6 @@ type UserHandler interface {
 	UpdateUser(u u.User, id int) (int64, error)
 }
 
-func SlogWith(op string, r *http.Request) []any {
-	return []any{
-		slog.String("op", op),
-		slog.String("request_id", middleware.GetReqID(r.Context())),
-		slog.String("\n", ""),
-	}
-}
-
-func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Debug(err.Error())
-
-	render.JSON(w, r, resp.Error("Internal Server Error"))
-}
-
-func JsonDecodeError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Error("failed to decode request body", sl.Err(err))
-
-	render.JSON(w, r, resp.Error("failed to decode request"))
-}
-
-func Unmarsh[T any](w http.ResponseWriter, r *http.Request, req T, log *slog.Logger) {
-	if err := render.DecodeJSON(r.Body, &req); err != nil {
-		JsonDecodeError(w, r, log, err)
-		return
-	}
-
-	log.Info("request body decoded")
-	log.Debug("req: ", slog.Any("request", req))
-}
-
 // Register godoc
 // @Summary Register a new user
 // @Description Handles the registration of a new user by accepting a JSON payload containing user data.
@@ -76,10 +46,10 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Register"
 
-		log.With(SlogWith(op, r)...)
+		log.With(util.SlogWith(op, r)...)
 
 		var req u.User
-		Unmarsh(w, r, &req, log)
+		util.Unmarsh(w, r, &req, log)
 
 		id, err := user.Add(req)
 		if err != nil {
@@ -90,13 +60,13 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 				return
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
 		user, err := user.Get(id)
 		if err != nil {
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 		}
 
 		log.Info("user successfully created")
@@ -118,12 +88,12 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Router /signin [post]
 func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.user.Auth"
+		const op = "http-server.handlers.user.Auth"
 
-		log.With(SlogWith(op, r)...)
+		log.With(util.SlogWith(op, r)...)
 
 		var req u.AuthData
-		Unmarsh(w, r, &req, log)
+		util.Unmarsh(w, r, &req, log)
 
 		ok, isAdmin, id, err := user.Auth(req)
 		if err != nil {
@@ -134,13 +104,13 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 				return
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
 		token, err := access.GenerateJWT(id, req.Login, isAdmin)
 		if err != nil {
-			InternalError(w, r, log, fmt.Errorf("could not generate JWT Token"))
+			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT Token"))
 			return
 		}
 
@@ -161,9 +131,9 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Router /user/profile [get]
 func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.user.Profile"
+		const op = "http-server.handlers.user.Profile"
 
-		log.With(SlogWith(op, r)...)
+		log.With(util.SlogWith(op, r)...)
 
 		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {
@@ -180,11 +150,11 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 				return
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
 		}
 
-		log.Info("user successfully retrieved")
+		log.Info("User successfully retrieved")
 		log.Debug(fmt.Sprintf("user: %v", user))
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
@@ -198,17 +168,17 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param Userdata body u.User true "Updated user data"
-// @Success 200 {object} resp.Response "Profile successfully updated."
+// @Success 200 {object} GetResponse "Profile successfully updated."
 // @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /user/profile [put]
 func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "http-server.hanlders.user.UpdateUser"
+		const op = "http-server.handlers.user.UpdateUser"
 
-		log.With(SlogWith(op, r)...)
+		log.With(util.SlogWith(op, r)...)
 
 		var req u.User
-		Unmarsh(w, r, &req, log)
+		util.Unmarsh(w, r, &req, log)
 
 		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 		if !ok {
@@ -223,12 +193,17 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 
 				render.JSON(w, r, resp.Error(err.Error()))
 			}
-			InternalError(w, r, log, err)
+			util.InternalError(w, r, log, err)
 			return
+		}
+
+		user, err := user.Get(userContext.Id)
+		if err != nil {
+			util.InternalError(w, r, log, err)
 		}
 
 		log.Info("Successfully updated user")
 		log.Debug(fmt.Sprintf("user: %v to %v with password %v and email %v", userContext.Id, req.Username, req.Password, req.Email))
-		render.JSON(w, r, resp.OK())
+		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
