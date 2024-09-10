@@ -13,7 +13,7 @@ func (s *Storage) Create(t t.TodoRequest) (int64, error) {
 
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.todos (
-			id, title, created, isdone
+			id, title, created, is_done
 		) VALUES ($1, $2, $3, $4)
 	`)
 	if err != nil {
@@ -46,7 +46,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 
 	stmt, err := s.db.Prepare(`
 		UPDATE public.todos 
-			SET title = $1, isdone = $2
+			SET title = $1, is_done = $2
 			WHERE id = $3
 	`)
 	if err != nil {
@@ -127,9 +127,9 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 	case "all":
 		query = `SELECT * FROM public.todos`
 	case "completed":
-		query = `SELECT * FROM public.todos WHERE isDone = true`
+		query = `SELECT * FROM public.todos WHERE is_done = true`
 	case "inwork":
-		query = `SELECT * FROM public.todos WHERE isDone = false`
+		query = `SELECT * FROM public.todos WHERE is_done = false`
 	default:
 		return nil, t.TodoInfo{}, 0, fmt.Errorf("%s: %v", op, "unknown filter")
 	}
@@ -152,7 +152,7 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 
 	var info t.TodoInfo
 
-	query = `SELECT isdone FROM public.todos`
+	query = `SELECT is_done FROM public.todos`
 
 	rows, err = s.db.Query(query)
 	if err != nil {

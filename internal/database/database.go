@@ -47,7 +47,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 			id INTEGER PRIMARY KEY UNIQUE,
 			title TEXT,
 			created TEXT,
-			isdone BOOLEAN NOT NULL DEFAULT FALSE
+			is_done BOOLEAN NOT NULL DEFAULT FALSE
 		)
 	`)
 	if err != nil {
@@ -60,7 +60,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 	// tz
 	stmt, err = db.Prepare(`
 		CREATE TABLE IF NOT EXISTS public.tokens (
-			userid INTEGER PRIMARY KEY UNIQUE,
+			user_id INTEGER PRIMARY KEY UNIQUE,
 			token TEXT,
 			date TIMESTAMP DEFAULT NOW() + INTERVAL '1 day' 
 		)

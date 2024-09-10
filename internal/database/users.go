@@ -259,7 +259,7 @@ func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
 func (s *Storage) SaveRefreshToken(token string, id int) error {
 	const op = "database.postgres.SaveRefreshToken"
 
-	stmt, err := s.db.Prepare(`INSERT INTO public.tokens (token, id) VALUES ($1, $2)`)
+	stmt, err := s.db.Prepare(`INSERT INTO public.tokens (token, user_id) VALUES ($1, $2)`)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
 	}
@@ -274,7 +274,7 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 func (s *Storage) RefreshToken(token string) (string, int, error) {
 	const op = "database.postgres.SaveRefreshToken"
 
-	stmt, err := s.db.Prepare(`SELECT userid, token FROM public.tokens WHERE token = $1 and date < Now()`)
+	stmt, err := s.db.Prepare(`SELECT user_id, token FROM public.tokens WHERE token = $1 and date < Now()`)
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
