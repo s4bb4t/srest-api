@@ -151,10 +151,11 @@ func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) 
 
 	query := ``
 	if order == "none" {
+		order = "id"
 		query = `
 			SELECT * FROM public.users
 			WHERE ($1 = '' OR login ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' OR username ILIKE '%' || $1 || '%') AND block = $2
-			ORDER BY id ASC
+			ORDER BY $3 ASC
 			LIMIT $4 OFFSET $5
 		`
 	} else {
