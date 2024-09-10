@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/render"
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
@@ -63,12 +64,14 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		search := r.URL.Query().Get("search")
-		order := r.URL.Query().Get("order")
+		order := strings.ToLower(r.URL.Query().Get("order"))
 		blockedStr := r.URL.Query().Get("blocked")
 		limitStr := r.URL.Query().Get("limit")
 		offsetStr := r.URL.Query().Get("offset")
 
-		if order == "" {
+		switch order {
+		case "asc", "desc", "none":
+		default:
 			order = "none"
 		}
 		if blockedStr == "" {
