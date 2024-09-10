@@ -50,7 +50,7 @@ func (s *Storage) Add(u u.User) (int, error) {
 	return int(maxID.Int64), nil
 }
 
-func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, ID int, err error) {
+func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 	const op = "database.postgres.Auth"
 
 	stmt, err := s.db.Prepare(`
@@ -60,29 +60,30 @@ func (s *Storage) Auth(u u.AuthData) (succsess, admin bool, ID int, err error) {
 		)
 	`)
 	if err != nil {
-		return true, false, -1, fmt.Errorf("%s: %v", op, err)
+		return user, fmt.Errorf("%s: %v", op, err)
 	}
 
 	var exists bool
 	if err = stmt.QueryRow(u.Login, u.Password).Scan(&exists); err != nil {
-		return false, false, -1, fmt.Errorf("%s: %v", op, err)
+		return user, fmt.Errorf("%s: %v", op, err)
 	}
 
-	stmt, err = s.db.Prepare(`SELECT id, admin, block FROM public.users WHERE login = $1`)
-	if err != nil {
-		return true, false, -1, fmt.Errorf("%s: %v", op, err)
+	if exists {
+		stmt, err = s.db.Prepare(`SELECT * FROM public.users WHERE login = $1`)
+		if err != nil {
+			return user, fmt.Errorf("%s: %v", op, err)
+		}
+
+		err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Login, &user.Password, &user.Email, &user.Date, &user.Block, &user.Admin)
+		if err != nil {
+			return user, fmt.Errorf("%s: %v", op, err)
+		}
+		if user.Block {
+			user.Admin = false
+		}
 	}
 
-	var isAdmin, isBlocked bool
-	var id int
-	err = stmt.QueryRow(u.Login).Scan(&id, &isAdmin, &isBlocked)
-	if err != nil {
-		return true, false, -1, fmt.Errorf("%s: %v", op, err)
-	}
-	if isBlocked {
-		isAdmin = false
-	}
-	return exists, isAdmin, id, nil
+	return user, nil
 }
 
 func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
@@ -253,4 +254,20 @@ func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
 	}
 
 	return n, nil
+}
+
+func (s *Storage) SaveRefreshToken(token string, id int) error {
+	const op = "database.postgres.SaveRefreshToken"
+
+	stmt, err := s.db.Prepare(`INSERT INTO public.tokens (token, id) VALUES ($1, $2)`)
+	if err != nil {
+		return fmt.Errorf("%s: %v", op, err)
+	}
+
+	_, err = stmt.Exec(token, id)
+	if err != nil {
+		return fmt.Errorf("%s: %v", op, err)
+	}
+
+	return nil
 }

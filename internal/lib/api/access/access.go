@@ -27,8 +27,8 @@ type UserContext struct {
 	IsBlocked bool   `json:"isblocked"`
 }
 
-func GenerateJWT(id int, login string, admin bool) (string, error) {
-	expirationTime := time.Now().Add(12 * time.Hour)
+func NewAccessToken(id int, login string, admin bool) (string, error) {
+	expirationTime := time.Now().Add(2 * time.Hour)
 	claims := &Claims{
 		Id:      id,
 		Login:   login,
@@ -45,6 +45,16 @@ func GenerateJWT(id int, login string, admin bool) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func NewRefreshToken() string {
+	token := jwt.New(jwt.SigningMethodHS256)
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		return ""
+	}
+
+	return tokenString
 }
 
 func JWTAuthMiddleware(next http.Handler) http.Handler {

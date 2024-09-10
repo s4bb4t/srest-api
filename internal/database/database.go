@@ -57,5 +57,19 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
+	stmt, err = db.Prepare(`
+		CREATE TABLE IF NOT EXISTS public.tokens (
+			id INTEGER PRIMARY KEY UNIQUE,
+			token TEXT
+		)
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
+	if _, err = stmt.Exec(); err != nil {
+		return nil, fmt.Errorf("%s: %v", op, err)
+	}
+
 	return &Storage{db: db}, nil
 }

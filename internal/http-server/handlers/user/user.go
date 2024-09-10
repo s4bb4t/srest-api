@@ -15,9 +15,14 @@ import (
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
+type Tokens struct {
+	AccessToken  string `json:"access"`
+	RefreshToken string `json:"refresh"`
+}
+
 type AuthResponse struct {
 	resp.Response
-	Token string `json:"token,omitempty"`
+	Tokens `json:"tokens,omitempty"`
 }
 
 type GetResponse struct {
@@ -27,9 +32,10 @@ type GetResponse struct {
 
 type UserHandler interface {
 	Add(u u.User) (int, error)
-	Auth(u u.AuthData) (succsess, isAdmin bool, id int, err error)
+	Auth(u u.AuthData) (user u.TableUser, err error)
 	Get(id int) (u.TableUser, error)
 	UpdateUser(u u.User, id int) (int64, error)
+	SaveRefreshToken(token string, id int) error
 }
 
 // Register godoc
@@ -43,7 +49,7 @@ type UserHandler interface {
 // @Success 200 {object} GetResponse "Registration successful. Returns user data."
 // @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /signup [post]
-func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
+func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Register"
 
@@ -61,7 +67,7 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
 
-		id, err := user.Add(req)
+		id, err := User.Add(req)
 		if err != nil {
 			if err.Error() == "database.postgres.Add: user already exists" {
 				log.Info(err.Error())
@@ -74,7 +80,7 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		user, err := user.Get(id)
+		user, err := User.Get(id)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
@@ -97,7 +103,7 @@ func Register(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Success 200 {object} AuthResponse "Authentication successful. Returns a JWT token."
 // @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /signin [post]
-func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
+func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Auth"
 
@@ -115,28 +121,40 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
 
-		ok, isAdmin, id, err := user.Auth(req)
+		user, err := User.Auth(req)
 		if err != nil {
-			if !ok {
-				log.Info(err.Error())
-
-				render.JSON(w, r, resp.Error("wrong login or password"))
-
-				return
-			}
 			util.InternalError(w, r, log, err)
 			return
 		}
+		if user.ID == 0 {
+			log.Info("wrong login or password")
 
-		token, err := access.GenerateJWT(id, req.Login, isAdmin)
+			render.JSON(w, r, resp.Error("wrong login or password"))
+
+			return
+		}
+
+		// TODO: 2 tokens
+		accessToken, err := access.NewAccessToken(user.ID, user.Login, user.Admin)
 		if err != nil {
-			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT Token"))
+			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
+			return
+		}
+
+		refreshToken := access.NewRefreshToken()
+		if refreshToken == "" {
+			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT refreshToken"))
+			return
+		}
+
+		if err := User.SaveRefreshToken(refreshToken, user.ID); err != nil {
+			util.InternalError(w, r, log, fmt.Errorf("could not save JWT refreshToken"))
 			return
 		}
 
 		log.Info("successfully logged in")
 		log.Debug(fmt.Sprintf("user: %v", req))
-		render.JSON(w, r, AuthResponse{resp.OK(), token})
+		render.JSON(w, r, AuthResponse{resp.OK(), Tokens{accessToken, refreshToken}})
 	}
 }
 
@@ -149,7 +167,7 @@ func Auth(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Success 200 {object} GetResponse "Returns the user profile data."
 // @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /user/profile [get]
-func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
+func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Profile"
 
@@ -161,7 +179,7 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		user, err := user.Get(userContext.Id)
+		user, err := User.Get(userContext.Id)
 		if err != nil {
 			if err.Error() == "database.postgres.Get: no such user" {
 				log.Info(err.Error())
@@ -191,7 +209,7 @@ func Profile(log *slog.Logger, user UserHandler) http.HandlerFunc {
 // @Success 200 {object} GetResponse "Profile successfully updated."
 // @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /user/profile [put]
-func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
+func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.UpdateUser"
 
@@ -215,7 +233,7 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		n, err := user.UpdateUser(req, userContext.Id)
+		n, err := User.UpdateUser(req, userContext.Id)
 		if err != nil {
 			if n == 0 {
 				log.Info(err.Error())
@@ -226,7 +244,7 @@ func UpdateUser(log *slog.Logger, user UserHandler) http.HandlerFunc {
 			return
 		}
 
-		user, err := user.Get(userContext.Id)
+		user, err := User.Get(userContext.Id)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
