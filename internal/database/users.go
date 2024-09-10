@@ -150,23 +150,21 @@ func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) 
 	const op = "database.postgres.GetAllUsers"
 
 	query := ``
-
-	switch order {
-	case "none":
+	if order == "none" {
 		query = `
-		SELECT * FROM public.users
-		WHERE ($1 = '' OR login ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' OR username ILIKE '%' || $1 || '%') AND block = $2
-		ORDER BY id ASC
-		LIMIT $4 OFFSET $5
+			SELECT * FROM public.users
+			WHERE ($1 = '' OR login ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' OR username ILIKE '%' || $1 || '%') AND block = $2
+			ORDER BY id ASC
+			LIMIT $4 OFFSET $5
 		`
-	default:
+	} else {
 		query = `
-		SELECT * FROM public.users
-		WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND block = $2)
-		ORDER BY CASE WHEN $3 = 'asc' THEN email END ASC,
-				 CASE WHEN $3 = 'desc' THEN email END DESC
-		LIMIT $4 OFFSET $5
-	`
+			SELECT * FROM public.users
+			WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND block = $2)
+			ORDER BY CASE WHEN $3 = 'asc' THEN email END ASC,
+					CASE WHEN $3 = 'desc' THEN email END DESC
+			LIMIT $4 OFFSET $5
+		`
 	}
 
 	rows, err := s.db.Query(query, search, blocked, order, limit, offset)
