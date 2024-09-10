@@ -80,7 +80,7 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Description Gets all tasks and returns a JSON containing task data.
 // @Tags todo
 // @Produce json
-// @Param filter query string true "all, completed, or inwork"
+// @Param filter query string false "all, completed, or inwork"
 // @Success 200 {object} GetAllResponse "Retrieved successfully. Returns status code OK."
 // @Failure 401 {object} resp.Response "Retrieving failed. Returns error message."
 // @Router /todos [get]

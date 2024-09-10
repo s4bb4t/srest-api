@@ -43,29 +43,25 @@ const docTemplate = `{
                         "type": "string",
                         "description": "order asc or desc",
                         "name": "order",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "boolean",
                         "description": "block status",
                         "name": "blocked",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "limit of users for query",
                         "name": "limit",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "offset",
                         "name": "offset",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -359,8 +355,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "all, completed, or inwork",
                         "name": "filter",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {

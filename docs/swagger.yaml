@@ -174,22 +174,18 @@ paths:
       - description: order asc or desc
         in: query
         name: order
-        required: true
         type: string
       - description: block status
         in: query
         name: blocked
-        required: true
         type: boolean
       - description: limit of users for query
         in: query
         name: limit
-        required: true
         type: integer
       - description: offset
         in: query
         name: offset
-        required: true
         type: integer
       produces:
       - application/json
@@ -385,7 +381,6 @@ paths:
       - description: all, completed, or inwork
         in: query
         name: filter
-        required: true
         type: string
       produces:
       - application/json

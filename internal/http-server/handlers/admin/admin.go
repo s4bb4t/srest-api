@@ -43,10 +43,10 @@ type AdminHandler interface {
 // @Tags admin
 // @Produce json
 // @Param search query string false "Search term"
-// @Param order query string true "order asc or desc"
-// @Param blocked query bool true "block status"
-// @Param limit query int true "limit of users for query"
-// @Param offset query int true "offset"
+// @Param order query string false "order asc or desc"
+// @Param blocked query bool false "block status"
+// @Param limit query int false "limit of users for query"
+// @Param offset query int false "offset"
 // @Success 200 {object} GetAllResponse "Retrieve successful. Returns users."
 // @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
 // @Router /admin/users [get]
@@ -97,6 +97,7 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		log.Info("users successfully retrieved")
+		log.Debug(fmt.Sprintf("params: %v, %v, %v, %v, %v", search, order, blocked, limit, offset))
 		render.JSON(w, r, GetAllResponse{resp.OK(), users})
 	}
 }
