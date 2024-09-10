@@ -161,17 +161,18 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: sAPI
-  version: v0.1.1
+  version: v0.2.0
 paths:
   /admin/users:
     get:
       description: Gets users by accepting a url query payload containing filters.
       parameters:
-      - description: Search term
+      - description: Search in login or username or email
         in: query
         name: search
         type: string
-      - description: order asc or desc
+      - description: order asc or desc or none (asc, decs - order by email, none -
+          order by id)
         in: query
         name: order
         type: string
@@ -187,6 +188,11 @@ paths:
         in: query
         name: offset
         type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -204,6 +210,12 @@ paths:
   /admin/users/{id}:
     delete:
       description: Removes user by id in url.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -220,6 +232,12 @@ paths:
       - admin
     get:
       description: Retrieves user's profile by id.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -245,6 +263,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -262,6 +285,12 @@ paths:
   /admin/users/{id}/block:
     post:
       description: Blocks user by id in url.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -306,6 +335,12 @@ paths:
   /admin/users/{id}/unlock:
     post:
       description: Unlocks user by id in url.
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:

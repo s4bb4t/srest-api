@@ -35,13 +35,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Search term",
+                        "description": "Search in login or username or email",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "order asc or desc",
+                        "description": "order asc or desc or none (asc, decs - order by email, none - order by id)",
                         "name": "order",
                         "in": "query"
                     },
@@ -62,6 +62,13 @@ const docTemplate = `{
                         "description": "offset",
                         "name": "offset",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -90,6 +97,15 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Retrieve user's profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Retrieve successful. Returns user.",
@@ -126,6 +142,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -152,6 +175,15 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Remove user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Remove successful. Returns user ok.",
@@ -178,6 +210,15 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Block user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Block successful. Returns user ok.",
@@ -244,6 +285,15 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Unlock user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Unlock successful. Returns user ok.",
@@ -806,7 +856,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "v0.1.1",
+	Version:          "v0.2.0",
 	Host:             "51.250.113.72:8082/api/v1",
 	BasePath:         "",
 	Schemes:          []string{},
