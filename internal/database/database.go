@@ -61,7 +61,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		CREATE TABLE IF NOT EXISTS public.tokens (
 			userid INTEGER PRIMARY KEY UNIQUE,
 			token TEXT,
-			date TIMESTAMPTZ DEFAULT Now()+1
+			date TIMESTAMPT DEFAULT NOW()+1
 		)
 	`)
 	if err != nil {
