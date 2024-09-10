@@ -259,7 +259,12 @@ func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
 func (s *Storage) SaveRefreshToken(token string, id int) error {
 	const op = "database.postgres.SaveRefreshToken"
 
-	stmt, err := s.db.Prepare(`INSERT INTO public.tokens (user_id, token) VALUES ($1, $2)`)
+	stmt, err := s.db.Prepare(`
+		INSERT INTO public.tokens (user_id, token) 
+		VALUES ($1, $2) 
+		ON CONFLICT (user_id) 
+		DO UPDATE SET token = EXCLUDED.token
+	`)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
 	}
