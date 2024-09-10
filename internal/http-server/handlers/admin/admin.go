@@ -49,7 +49,7 @@ type AdminHandler interface {
 // @Param blocked query bool false "block status"
 // @Param limit query int false "limit of users for query"
 // @Param offset query int false "offset"
-// @Param Authorization header string true "Use token with prefix 'Bearer '"
+// @Security BearerAuth
 // @Success 200 {object} GetAllResponse "Retrieve successful. Returns users."
 // @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
 // @Router /admin/users [get]
@@ -113,7 +113,7 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
-// @Param Authorization header string true "Use token with prefix 'Bearer '"
+// @Security BearerAuth
 // @Success 200 {object} GetResponse "Retrieve successful. Returns user."
 // @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
 // @Router /admin/users/{id} [get]
@@ -161,7 +161,7 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param UserData body u.User true "Complete user data"
-// @Param Authorization header string true "Use token with prefix 'Bearer '"
+// @Security BearerAuth
 // @Success 200 {object} GetResponse "Update successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Update failed. Returns error message."
 // @Router /admin/users/{id} [put]
@@ -222,7 +222,7 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
-// @Param Authorization header string true "Use token with prefix 'Bearer '"
+// @Security BearerAuth
 // @Success 200 {object} resp.Response "Remove successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Remove failed. Returns error message."
 // @Router /admin/users/{id} [delete]
@@ -267,7 +267,7 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
-// @Param Authorization header string true "Use token with prefix 'Bearer '"
+// @Security BearerAuth
 // @Success 200 {object} GetResponse "Block successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Block failed. Returns error message."
 // @Router /admin/users/{id}/block [post]
@@ -285,7 +285,7 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
-// @Param Authorization header string true "Use token with prefix 'Bearer '"
+// @Security BearerAuth
 // @Success 200 {object} GetResponse "Unlock successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Unlock failed. Returns error message."
 // @Router /admin/users/{id}/unlock [post]

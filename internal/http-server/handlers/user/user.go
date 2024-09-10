@@ -15,9 +15,16 @@ import (
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
+type AccessToken struct {
+	Token string `json:"access"`
+}
+type RefreshToken struct {
+	Token string `json:"refresh"`
+}
+
 type Tokens struct {
-	AccessToken  string `json:"access"`
-	RefreshToken string `json:"refresh"`
+	AccessToken
+	RefreshToken
 }
 
 type AuthResponse struct {
@@ -35,6 +42,7 @@ type UserHandler interface {
 	Auth(u u.AuthData) (user u.TableUser, err error)
 	Get(id int) (u.TableUser, error)
 	UpdateUser(u u.User, id int) (int64, error)
+	RefreshToken(token string) (string, int, error)
 	SaveRefreshToken(token string, id int) error
 }
 
@@ -134,7 +142,6 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		// TODO: 2 tokens
 		accessToken, err := access.NewAccessToken(user.ID, user.Login, user.Admin)
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
@@ -154,7 +161,67 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("successfully logged in")
 		log.Debug(fmt.Sprintf("user: %v", req))
-		render.JSON(w, r, AuthResponse{resp.OK(), Tokens{accessToken, refreshToken}})
+		render.JSON(w, r, AuthResponse{resp.OK(), Tokens{AccessToken{accessToken}, RefreshToken{refreshToken}}})
+	}
+}
+
+// Refresh godoc
+// @Summary Refresh user's access token
+// @Description Recieve a user's refresh token in JSON format.
+// Upon successful refresh token compare, an access JWT token will be generated and returned for subsequent API calls.
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param AuthData body RefreshToken true "User's refresh token"
+// @Success 200 {object} AuthResponse "Authentication successful. Returns a JWT token."
+// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
+// @Router /auth/refresh [post]
+func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.handlers.user.Refresh"
+
+		log.With(util.SlogWith(op, r)...)
+
+		var req RefreshToken
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request body", sl.Err(err))
+
+			render.JSON(w, r, resp.Error("failed to decode request"))
+
+			return
+		}
+
+		log.Info("request body decoded")
+		log.Debug("req: ", slog.Any("request", req))
+
+		token, id, err := User.RefreshToken(req.Token)
+		if err != nil {
+			util.InternalError(w, r, log, err)
+			return
+		}
+		if token == "expired" {
+			log.Info("token is expired")
+
+			render.JSON(w, r, resp.Error("token is expired: must auth again"))
+
+			return
+		}
+
+		user, err := User.Get(id)
+		if err != nil {
+			util.InternalError(w, r, log, err)
+			return
+		}
+
+		accessToken, err := access.NewAccessToken(user.ID, user.Login, user.Admin)
+		if err != nil {
+			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
+			return
+		}
+
+		log.Info("successfully refreshed access token")
+		log.Debug(fmt.Sprintf("user: %v", req))
+		render.JSON(w, r, AuthResponse{resp.OK(), Tokens{AccessToken{accessToken}, RefreshToken{req.Token}}})
 	}
 }
 
@@ -164,6 +231,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // The user must be logged in and provide a valid JWT token for authentication.
 // @Tags user
 // @Produce json
+// @Security BearerAuth
 // @Success 200 {object} GetResponse "Returns the user profile data."
 // @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /user/profile [get]
@@ -206,6 +274,7 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param Userdata body u.User true "Updated user data"
+// @Security BearerAuth
 // @Success 200 {object} GetResponse "Profile successfully updated."
 // @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
 // @Router /user/profile [put]

@@ -271,25 +271,31 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 
 	return nil
 }
-func (s *Storage) RefreshToken(id int) (string, error) {
+func (s *Storage) RefreshToken(token string) (string, int, error) {
 	const op = "database.postgres.SaveRefreshToken"
 
-	stmt, err := s.db.Prepare(`SELECT token FROM public.tokens WHERE id = $1`)
+	stmt, err := s.db.Prepare(`SELECT userid, token FROM public.tokens WHERE token = $1 and date < Now()`)
 	if err != nil {
-		return "", fmt.Errorf("%s: %v", op, err)
+		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	rows, err := stmt.Query(id)
+	rows, err := stmt.Query(token)
 	if err != nil {
-		return "", fmt.Errorf("%s: %v", op, err)
+		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	var token string
+	var res string
+	var id int
+
 	for !rows.Next() {
-		if err := rows.Scan(&token); err != nil {
-			return "", fmt.Errorf("%s: %v", op, err)
+		if err := rows.Scan(&id, &token); err != nil {
+			return "", 0, fmt.Errorf("%s: %v", op, err)
 		}
 	}
 
-	return token, nil
+	if res == "" {
+		res = "expired"
+	}
+
+	return token, id, nil
 }

@@ -23,7 +23,7 @@ import (
 
 // @title           sAPI
 // @version         v0.2.0
-// @description     This is RESTful-API service for EasyDev.
+// @description     This is a RESTful API service for EasyDev. It provides various user management functionalities such as user registration, authentication, profile updates, and admin operations.
 
 // @contact.name   s4bb4t
 // @contact.email  s4bb4t@yandex.ru
@@ -31,10 +31,16 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      51.250.113.72:8082/api/v1
+// @host      51.250.113.72:8082
 
-// @externalDocs.description  Readme.md from github
-// @externalDocs.url          https://github.com/sabbatD/srest-api
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description JWT Bearer token required for accessing protected routes. Format: Bearer <token>
+
+// @schemes http
 func main() {
 	cfg := config.MustLoad()
 
@@ -65,6 +71,7 @@ func main() {
 		// Unknown users handlers
 		router.Post("/signup", user.Register(log, storage))
 		router.Post("/signin", user.Auth(log, storage))
+		router.Post("/auth/refresh", user.Refresh(log, storage))
 
 		// Authenticated user handlers
 		// JWTAuthMiddleware used for authenticating users with jwt token from heade with prefix "Bearer "
