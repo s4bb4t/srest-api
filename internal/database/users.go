@@ -271,3 +271,25 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 
 	return nil
 }
+func (s *Storage) RefreshToken(id int) (string, error) {
+	const op = "database.postgres.SaveRefreshToken"
+
+	stmt, err := s.db.Prepare(`SELECT token FROM public.tokens WHERE id = $1`)
+	if err != nil {
+		return "", fmt.Errorf("%s: %v", op, err)
+	}
+
+	rows, err := stmt.Query(id)
+	if err != nil {
+		return "", fmt.Errorf("%s: %v", op, err)
+	}
+
+	var token string
+	for !rows.Next() {
+		if err := rows.Scan(&token); err != nil {
+			return "", fmt.Errorf("%s: %v", op, err)
+		}
+	}
+
+	return token, nil
+}
