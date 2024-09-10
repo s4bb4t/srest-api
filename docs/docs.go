@@ -65,7 +65,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -100,7 +100,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -145,7 +145,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -178,7 +178,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -213,7 +213,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -288,7 +288,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true

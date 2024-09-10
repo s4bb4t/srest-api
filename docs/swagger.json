@@ -58,7 +58,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -93,7 +93,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -138,7 +138,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -171,7 +171,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -206,7 +206,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -281,7 +281,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer token",
+                        "description": "Use token with prefix 'Bearer '",
                         "name": "Authorization",
                         "in": "header",
                         "required": true

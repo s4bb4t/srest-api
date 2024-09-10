@@ -188,7 +188,7 @@ paths:
         in: query
         name: offset
         type: integer
-      - description: Bearer token
+      - description: Use token with prefix 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -211,7 +211,7 @@ paths:
     delete:
       description: Removes user by id in url.
       parameters:
-      - description: Bearer token
+      - description: Use token with prefix 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -233,7 +233,7 @@ paths:
     get:
       description: Retrieves user's profile by id.
       parameters:
-      - description: Bearer token
+      - description: Use token with prefix 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -263,7 +263,7 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
-      - description: Bearer token
+      - description: Use token with prefix 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -286,7 +286,7 @@ paths:
     post:
       description: Blocks user by id in url.
       parameters:
-      - description: Bearer token
+      - description: Use token with prefix 'Bearer '
         in: header
         name: Authorization
         required: true
@@ -336,7 +336,7 @@ paths:
     post:
       description: Unlocks user by id in url.
       parameters:
-      - description: Bearer token
+      - description: Use token with prefix 'Bearer '
         in: header
         name: Authorization
         required: true
