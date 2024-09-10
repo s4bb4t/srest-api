@@ -40,6 +40,7 @@ type AdminHandler interface {
 // Get godoc
 // @Summary Get all users
 // @Description Gets users by accepting a url query payload containing filters.
+// Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
 // @Param search query string false "Search term"
@@ -47,6 +48,7 @@ type AdminHandler interface {
 // @Param blocked query bool false "block status"
 // @Param limit query int false "limit of users for query"
 // @Param offset query int false "offset"
+// @Param Authorization header string true "Bearer token"
 // @Success 200 {object} GetAllResponse "Retrieve successful. Returns users."
 // @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
 // @Router /admin/users [get]
@@ -67,13 +69,13 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		offsetStr := r.URL.Query().Get("offset")
 
 		if order == "" {
-			order = "asc"
+			order = "none"
 		}
 		if blockedStr == "" {
 			blockedStr = "false"
 		}
 		if limitStr == "" {
-			limitStr = "30"
+			limitStr = "20"
 		}
 		if offsetStr == "" {
 			offsetStr = "0"
@@ -105,8 +107,10 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Profile godoc
 // @Summary Retrieve user's profile
 // @Description Retrieves user's profile by id.
+// Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
+// @Param Authorization header string true "Bearer token"
 // @Success 200 {object} GetResponse "Retrieve successful. Returns user."
 // @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
 // @Router /admin/users/{id} [get]
@@ -149,10 +153,12 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // UpdateUser godoc
 // @Summary Update user's fields
 // @Description Updates user by id by accepting a JSON payload containing user.
+// Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Accept json
 // @Produce json
 // @Param UserData body u.User true "Complete user data"
+// @Param Authorization header string true "Bearer token"
 // @Success 200 {object} GetResponse "Update successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Update failed. Returns error message."
 // @Router /admin/users/{id} [put]
@@ -210,8 +216,10 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Remove godoc
 // @Summary Remove user
 // @Description Removes user by id in url.
+// Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
+// @Param Authorization header string true "Bearer token"
 // @Success 200 {object} resp.Response "Remove successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Remove failed. Returns error message."
 // @Router /admin/users/{id} [delete]
@@ -253,8 +261,10 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Block godoc
 // @Summary Block user
 // @Description Blocks user by id in url.
+// Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
+// @Param Authorization header string true "Bearer token"
 // @Success 200 {object} GetResponse "Block successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Block failed. Returns error message."
 // @Router /admin/users/{id}/block [post]
@@ -269,8 +279,10 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Unlock godoc
 // @Summary Unlock user
 // @Description Unlocks user by id in url.
+// Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
+// @Param Authorization header string true "Bearer token"
 // @Success 200 {object} GetResponse "Unlock successful. Returns user ok."
 // @Failure 401 {object} resp.Response "Unlock failed. Returns error message."
 // @Router /admin/users/{id}/unlock [post]

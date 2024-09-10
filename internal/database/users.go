@@ -149,13 +149,25 @@ func (s *Storage) Remove(id int) (int64, error) {
 func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) ([]u.TableUser, error) {
 	const op = "database.postgres.GetAllUsers"
 
-	query := `
+	query := ``
+
+	switch order {
+	case "none":
+		query = `
+		SELECT * FROM public.users
+		WHERE ($1 = '' OR login ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' OR username ILIKE '%' || $1 || '%') AND block = $2
+		ORDER BY id ASC
+		LIMIT $4 OFFSET $5
+		`
+	default:
+		query = `
 		SELECT * FROM public.users
 		WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND block = $2)
 		ORDER BY CASE WHEN $3 = 'asc' THEN email END ASC,
 				 CASE WHEN $3 = 'desc' THEN email END DESC
 		LIMIT $4 OFFSET $5
 	`
+	}
 
 	rows, err := s.db.Query(query, search, blocked, order, limit, offset)
 	if err != nil {

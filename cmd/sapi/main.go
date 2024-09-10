@@ -22,7 +22,7 @@ import (
 )
 
 // @title           sAPI
-// @version         v0.1.1
+// @version         v0.2.0
 // @description     This is RESTful-API service for EasyDev.
 
 // @contact.name   s4bb4t
