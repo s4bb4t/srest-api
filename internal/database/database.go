@@ -60,7 +60,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 	stmt, err = db.Prepare(`
 		CREATE TABLE IF NOT EXISTS public.tokens (
 			userid INTEGER PRIMARY KEY UNIQUE,
-			token TEXT
+			token TEXT,
 			date TIMESTAMPTZ DEFAULT Now()+1
 		)
 	`)
