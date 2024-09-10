@@ -144,7 +144,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		accessToken, err := access.NewAccessToken(user.ID, user.Login, user.Admin)
 		if err != nil {
-			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
+			util.InternalError(w, r, log, err)
 			return
 		}
 
@@ -155,7 +155,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		}
 
 		if err := User.SaveRefreshToken(refreshToken, user.ID); err != nil {
-			util.InternalError(w, r, log, fmt.Errorf("could not save JWT refreshToken"))
+			util.InternalError(w, r, log, err)
 			return
 		}
 

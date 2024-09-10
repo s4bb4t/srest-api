@@ -23,8 +23,6 @@ func SlogWith(op string, r *http.Request) []any {
 
 // Shortcut for InternalError
 func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
-	log.Info("Internal Server Error")
-
 	log.Debug(err.Error())
 
 	render.JSON(w, r, resp.Error("Internal Server Error"))
