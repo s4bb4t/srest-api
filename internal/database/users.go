@@ -280,7 +280,7 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 func (s *Storage) RefreshToken(token string) (string, int, error) {
 	const op = "database.postgres.RefreshToken"
 
-	stmt, err := s.db.Prepare(`SELECT user_id, token FROM public.tokens WHERE token = $1 and date < Now()`)
+	stmt, err := s.db.Prepare(`SELECT user_id, token FROM public.tokens WHERE token = $1 and date < NOW()`)
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
