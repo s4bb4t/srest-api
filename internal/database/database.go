@@ -21,9 +21,10 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
-	stmt, err := db.Prepare(`
+	// uuid
+	stmt, err := db.Prepare(` 
 		CREATE TABLE IF NOT EXISTS public.users (
-			id INTEGER PRIMARY KEY UNIQUE,
+			id INTEGER PRIMARY KEY UNIQUE, 
 			login TEXT UNIQUE,
 			username TEXT,
 			password TEXT,
@@ -56,12 +57,12 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 	if _, err = stmt.Exec(); err != nil {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
-
+	// tz
 	stmt, err = db.Prepare(`
 		CREATE TABLE IF NOT EXISTS public.tokens (
 			userid INTEGER PRIMARY KEY UNIQUE,
 			token TEXT,
-			date TIMESTAMP DEFAULT NOW() + INTERVAL '1 day'
+			date TIMESTAMP DEFAULT NOW() + INTERVAL '1 day' 
 		)
 	`)
 	if err != nil {

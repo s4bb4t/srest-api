@@ -24,6 +24,11 @@ const docTemplate = `{
     "paths": {
         "/admin/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Gets users by accepting a url query payload containing filters.",
                 "produces": [
                     "application/json"
@@ -62,13 +67,6 @@ const docTemplate = `{
                         "description": "offset",
                         "name": "offset",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Use token with prefix 'Bearer '",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -89,6 +87,11 @@ const docTemplate = `{
         },
         "/admin/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieves user's profile by id.",
                 "produces": [
                     "application/json"
@@ -97,15 +100,6 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Retrieve user's profile",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Use token with prefix 'Bearer '",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Retrieve successful. Returns user.",
@@ -122,6 +116,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Updates user by id by accepting a JSON payload containing user.",
                 "consumes": [
                     "application/json"
@@ -142,13 +141,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Use token with prefix 'Bearer '",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -167,6 +159,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Removes user by id in url.",
                 "produces": [
                     "application/json"
@@ -175,15 +172,6 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Remove user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Use token with prefix 'Bearer '",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Remove successful. Returns user ok.",
@@ -202,6 +190,11 @@ const docTemplate = `{
         },
         "/admin/users/{id}/block": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Blocks user by id in url.",
                 "produces": [
                     "application/json"
@@ -210,15 +203,6 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Block user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Use token with prefix 'Bearer '",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Block successful. Returns user ok.",
@@ -277,6 +261,11 @@ const docTemplate = `{
         },
         "/admin/users/{id}/unlock": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Unlocks user by id in url.",
                 "produces": [
                     "application/json"
@@ -285,15 +274,6 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Unlock user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Use token with prefix 'Bearer '",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Unlock successful. Returns user ok.",
@@ -303,6 +283,46 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unlock failed. Returns error message.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "Recieve a user's refresh token in JSON format.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Refresh user's access token",
+                "parameters": [
+                    {
+                        "description": "User's refresh token",
+                        "name": "AuthData",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.RefreshToken"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Authentication successful. Returns a JWT token.",
+                        "schema": {
+                            "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input. Returns error message for improper data structure.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
                         }
@@ -552,6 +572,11 @@ const docTemplate = `{
         },
         "/user/profile": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieves the full profile of the currently authenticated user.",
                 "produces": [
                     "application/json"
@@ -576,6 +601,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Updates the user profile with new data provided in the JSON payload.",
                 "consumes": [
                     "application/json"
@@ -828,8 +858,8 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "token": {
-                    "type": "string"
+                "tokens": {
+                    "$ref": "#/definitions/internal_http-server_handlers_user.Tokens"
                 }
             }
         },
@@ -846,22 +876,45 @@ const docTemplate = `{
                     "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                 }
             }
+        },
+        "internal_http-server_handlers_user.RefreshToken": {
+            "type": "object",
+            "properties": {
+                "refresh": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_http-server_handlers_user.Tokens": {
+            "type": "object",
+            "properties": {
+                "access": {
+                    "type": "string"
+                },
+                "refresh": {
+                    "type": "string"
+                }
+            }
         }
     },
-    "externalDocs": {
-        "description": "Readme.md from github",
-        "url": "https://github.com/sabbatD/srest-api"
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "JWT Bearer token required for accessing protected routes. Format: Bearer \u003ctoken\u003e",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "v0.2.0",
-	Host:             "51.250.113.72:8082/api/v1",
-	BasePath:         "",
-	Schemes:          []string{},
+	Host:             "51.250.113.72:8082",
+	BasePath:         "/api/v1",
+	Schemes:          []string{"http"},
 	Title:            "sAPI",
-	Description:      "This is RESTful-API service for EasyDev.",
+	Description:      "This is a RESTful API service for EasyDev. It provides various user management functionalities such as user registration, authentication, profile updates, and admin operations.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
