@@ -26,10 +26,6 @@ type Tokens struct {
 	RefreshToken
 }
 
-type Response struct {
-	Error string `json:"msg,omitempty"`
-}
-
 type UserHandler interface {
 	Add(u u.User) (int, error)
 	Auth(u u.AuthData) (user u.TableUser, err error)
@@ -48,9 +44,9 @@ type UserHandler interface {
 // @Produce json
 // @Param UserData body u.User true "Complete user data for registration"
 // @Success 201 {object} u.TableUser "Registration successful. Returns user data."
-// @Failure 400 {object} Response "Invalid input."
-// @Failure 409 {object} Response "User already exists."
-// @Failure 500 {object} Response "Internal error."
+// @Failure 400 {object} string "Invalid input."
+// @Failure 409 {object} string "User already exists."
+// @Failure 500 {object} string "Internal error."
 // @Router /signup [post]
 func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -106,9 +102,9 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param AuthData body u.AuthData true "User login credentials"
 // @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
-// @Failure 400 {object} Response "Invalid input."
-// @Failure 401 {object} Response "Invalid credentials."
-// @Failure 500 {object} Response "Internal error."
+// @Failure 400 {object} string "Invalid input."
+// @Failure 401 {object} string "Invalid credentials."
+// @Failure 500 {object} string "Internal error."
 // @Router /signin [post]
 func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -174,9 +170,9 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param AuthData body RefreshToken true "User's refresh token"
 // @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
-// @Failure 400 {object} Response "Invalid input."
-// @Failure 401 {object} Response "Invalid credentials: token is expired - must auth again."
-// @Failure 500 {object} Response "Internal error."
+// @Failure 400 {object} string "Invalid input."
+// @Failure 401 {object} string "Invalid credentials: token is expired - must auth again."
+// @Failure 500 {object} string "Internal error."
 // @Router /auth/refresh [post]
 func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -236,8 +232,8 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} u.TableUser "Returns the user profile data."
-// @Failure 400 {object} Response "No such user."
-// @Failure 500 {object} Response "Internal error."
+// @Failure 400 {object} string "No such user."
+// @Failure 500 {object} string "Internal error."
 // @Router /user/profile [get]
 func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -281,10 +277,10 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Param Userdata body u.User true "Updated user data"
 // @Security BearerAuth
 // @Success 200 {object} u.TableUser "Profile successfully updated."
-// @Failure 400 {object} Response "Invalid input."
-// @Failure 400 {object} Response "Login or email already used."
-// @Failure 404 {object} Response "No such user."
-// @Failure 500 {object} Response "Internal error."
+// @Failure 400 {object} string "Invalid input."
+// @Failure 400 {object} string "Login or email already used."
+// @Failure 404 {object} string "No such user."
+// @Failure 500 {object} string "Internal error."
 // @Router /user/profile [put]
 func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
