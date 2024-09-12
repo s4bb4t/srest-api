@@ -594,13 +594,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Unknown filter.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -638,13 +638,13 @@ const docTemplate = `{
                     "400": {
                         "description": "failed to deserialize json request.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -670,19 +670,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -720,19 +720,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -750,25 +750,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Deletion successful. Returns status code OK.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -1043,14 +1043,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "refresh": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.Response": {
-            "type": "object",
-            "properties": {
-                "msg": {
                     "type": "string"
                 }
             }

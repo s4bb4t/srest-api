@@ -115,11 +115,6 @@ definitions:
       refresh:
         type: string
     type: object
-  response.Response:
-    properties:
-      msg:
-        type: string
-    type: object
 host: 51.250.113.72:8082
 info:
   contact:
@@ -506,11 +501,11 @@ paths:
         "400":
           description: Unknown filter.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
       summary: Get all tasks
       tags:
       - todo
@@ -536,11 +531,11 @@ paths:
         "400":
           description: failed to deserialize json request.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
       summary: Create a new task
       tags:
       - todo
@@ -553,19 +548,19 @@ paths:
         "200":
           description: Deletion successful. Returns status code OK.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "404":
           description: No such task.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
       summary: Delete task
       tags:
       - todo
@@ -582,15 +577,15 @@ paths:
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "404":
           description: No such task.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
       summary: Get task
       tags:
       - todo
@@ -616,15 +611,15 @@ paths:
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "404":
           description: No such task.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/response.Response'
+            type: string
       summary: Update task
       tags:
       - todo
