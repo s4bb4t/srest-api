@@ -80,11 +80,6 @@ definitions:
       username:
         type: string
     type: object
-  internal_http-server_handlers_admin.Response:
-    properties:
-      msg:
-        type: string
-    type: object
   internal_http-server_handlers_admin.UpdateRequest:
     properties:
       field:
@@ -101,11 +96,6 @@ definitions:
   internal_http-server_handlers_user.RefreshToken:
     properties:
       refresh:
-        type: string
-    type: object
-  internal_http-server_handlers_user.Response:
-    properties:
-      msg:
         type: string
     type: object
   internal_http-server_handlers_user.Tokens:
@@ -164,15 +154,15 @@ paths:
         "401":
           description: User context not found.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "403":
           description: Not enough rights.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
       security:
       - BearerAuth: []
       summary: Get all users
@@ -187,27 +177,27 @@ paths:
         "200":
           description: Remove successful. Returns ok.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "401":
           description: User context not found.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "403":
           description: Not enough rights.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
       security:
       - BearerAuth: []
       summary: Remove user
@@ -225,23 +215,23 @@ paths:
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "401":
           description: User context not found.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "403":
           description: Not enough rights.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
       security:
       - BearerAuth: []
       summary: Retrieve user's profile
@@ -268,23 +258,23 @@ paths:
         "400":
           description: Login or email already used.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "401":
           description: User context not found.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "403":
           description: Not enough rights.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
       security:
       - BearerAuth: []
       summary: Update user's fields
@@ -303,15 +293,15 @@ paths:
         "400":
           description: No such field.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
       security:
       - BearerAuth: []
       summary: Block user
@@ -340,15 +330,15 @@ paths:
         "400":
           description: No such field.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
       summary: Update user's rights
       tags:
       - admin
@@ -365,15 +355,15 @@ paths:
         "400":
           description: No such field.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.Response'
+            type: string
       security:
       - BearerAuth: []
       summary: Unlock user
@@ -401,15 +391,15 @@ paths:
         "400":
           description: Invalid input.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "401":
           description: 'Invalid credentials: token is expired - must auth again.'
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
       summary: Refresh user's access token
       tags:
       - user
@@ -436,15 +426,15 @@ paths:
         "400":
           description: Invalid input.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "401":
           description: Invalid credentials.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
       summary: Authenticate user
       tags:
       - user
@@ -471,15 +461,15 @@ paths:
         "400":
           description: Invalid input.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "409":
           description: User already exists.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
       summary: Register a new user
       tags:
       - user
@@ -636,11 +626,11 @@ paths:
         "400":
           description: No such user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
       security:
       - BearerAuth: []
       summary: Get user profile
@@ -667,15 +657,15 @@ paths:
         "400":
           description: Login or email already used.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.Response'
+            type: string
       security:
       - BearerAuth: []
       summary: Update user profile

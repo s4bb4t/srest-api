@@ -79,19 +79,19 @@ const docTemplate = `{
                     "401": {
                         "description": "User context not found.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "403": {
                         "description": "Not enough rights.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -122,31 +122,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "401": {
                         "description": "User context not found.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "403": {
                         "description": "Not enough rights.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -189,31 +189,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Login or email already used.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "401": {
                         "description": "User context not found.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "403": {
                         "description": "Not enough rights.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -236,37 +236,37 @@ const docTemplate = `{
                     "200": {
                         "description": "Remove successful. Returns ok.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "401": {
                         "description": "User context not found.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "403": {
                         "description": "Not enough rights.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -297,19 +297,19 @@ const docTemplate = `{
                     "400": {
                         "description": "No such field.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -349,19 +349,19 @@ const docTemplate = `{
                     "400": {
                         "description": "No such field.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -392,19 +392,19 @@ const docTemplate = `{
                     "400": {
                         "description": "No such field.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -444,19 +444,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid input.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "401": {
                         "description": "Invalid credentials: token is expired - must auth again.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -496,19 +496,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid input.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "401": {
                         "description": "Invalid credentials.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -548,19 +548,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid input.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "409": {
                         "description": "User already exists.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -799,13 +799,13 @@ const docTemplate = `{
                     "400": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -848,19 +848,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Login or email already used.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.Response"
+                            "type": "string"
                         }
                     }
                 }
@@ -992,14 +992,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_http-server_handlers_admin.Response": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
         "internal_http-server_handlers_admin.UpdateRequest": {
             "type": "object",
             "properties": {
@@ -1024,14 +1016,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "refresh": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_http-server_handlers_user.Response": {
-            "type": "object",
-            "properties": {
-                "msg": {
                     "type": "string"
                 }
             }
