@@ -73,7 +73,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Retrieve successful. Returns users.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetAllResponse"
+                            "$ref": "#/definitions/internal_http-server_handlers_admin.Users"
                         }
                     },
                     "401": {
@@ -116,7 +116,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Retrieve successful. Returns user.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
@@ -183,7 +183,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Update successful. Returns user ok.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
@@ -291,7 +291,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Block successful. Returns user ok.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
@@ -343,7 +343,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Update successful. Returns ok.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
@@ -386,7 +386,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Unlock successful. Returns user ok.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
@@ -438,7 +438,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Authentication successful. Returns a JWT token.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
+                            "$ref": "#/definitions/internal_http-server_handlers_user.Tokens"
                         }
                     },
                     "400": {
@@ -490,7 +490,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Authentication successful. Returns a JWT token.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.AuthResponse"
+                            "$ref": "#/definitions/internal_http-server_handlers_user.Tokens"
                         }
                     },
                     "400": {
@@ -542,7 +542,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Registration successful. Returns user data.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
@@ -588,19 +588,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Retrieved successfully. Returns status code OK.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetAllResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse"
                         }
                     },
                     "400": {
                         "description": "Unknown filter.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -632,19 +632,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Creation successful. Returns task with status code OK.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
                         }
                     },
                     "400": {
                         "description": "failed to deserialize json request.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -664,25 +664,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Retrieved successfully. Returns task and status code OK.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
                         }
                     },
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -714,25 +714,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Update successful. Returns task with status code OK.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_todo.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
                         }
                     },
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -748,27 +748,27 @@ const docTemplate = `{
                 "summary": "Delete task",
                 "responses": {
                     "200": {
-                        "description": "Deletion successful. Returns OK.",
+                        "description": "Deletion successful. Returns status code OK.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "type": "header"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -793,7 +793,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Returns the user profile data.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
@@ -842,7 +842,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Profile successfully updated.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.GetResponse"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
@@ -992,31 +992,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_http-server_handlers_admin.GetAllResponse": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
-                    }
-                }
-            }
-        },
-        "internal_http-server_handlers_admin.GetResponse": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
-                }
-            }
-        },
         "internal_http-server_handlers_admin.UpdateRequest": {
             "type": "object",
             "properties": {
@@ -1026,47 +1001,14 @@ const docTemplate = `{
                 "value": {}
             }
         },
-        "internal_http-server_handlers_todo.GetAllResponse": {
+        "internal_http-server_handlers_admin.Users": {
             "type": "object",
             "properties": {
-                "metaresponse": {
-                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse"
-                },
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_http-server_handlers_todo.GetResponse": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                },
-                "todo": {
-                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
-                }
-            }
-        },
-        "internal_http-server_handlers_user.AuthResponse": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                },
-                "tokens": {
-                    "$ref": "#/definitions/internal_http-server_handlers_user.Tokens"
-                }
-            }
-        },
-        "internal_http-server_handlers_user.GetResponse": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
+                    }
                 }
             }
         },
@@ -1085,6 +1027,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "refresh": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "msg": {
                     "type": "string"
                 }
             }

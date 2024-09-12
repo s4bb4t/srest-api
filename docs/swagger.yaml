@@ -80,55 +80,18 @@ definitions:
       username:
         type: string
     type: object
-  internal_http-server_handlers_admin.GetAllResponse:
-    properties:
-      msg:
-        type: string
-      users:
-        items:
-          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
-        type: array
-    type: object
-  internal_http-server_handlers_admin.GetResponse:
-    properties:
-      msg:
-        type: string
-      user:
-        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
-    type: object
   internal_http-server_handlers_admin.UpdateRequest:
     properties:
       field:
         type: string
       value: {}
     type: object
-  internal_http-server_handlers_todo.GetAllResponse:
+  internal_http-server_handlers_admin.Users:
     properties:
-      metaresponse:
-        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse'
-      msg:
-        type: string
-    type: object
-  internal_http-server_handlers_todo.GetResponse:
-    properties:
-      msg:
-        type: string
-      todo:
-        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo'
-    type: object
-  internal_http-server_handlers_user.AuthResponse:
-    properties:
-      msg:
-        type: string
-      tokens:
-        $ref: '#/definitions/internal_http-server_handlers_user.Tokens'
-    type: object
-  internal_http-server_handlers_user.GetResponse:
-    properties:
-      msg:
-        type: string
-      user:
-        $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
+      users:
+        items:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
+        type: array
     type: object
   internal_http-server_handlers_user.RefreshToken:
     properties:
@@ -140,6 +103,11 @@ definitions:
       access:
         type: string
       refresh:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      msg:
         type: string
     type: object
 host: 51.250.113.72:8082
@@ -187,7 +155,7 @@ paths:
         "200":
           description: Retrieve successful. Returns users.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.GetAllResponse'
+            $ref: '#/definitions/internal_http-server_handlers_admin.Users'
         "401":
           description: User context not found.
           schema:
@@ -248,7 +216,7 @@ paths:
         "200":
           description: Retrieve successful. Returns user.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: Missing or wrong id.
           schema:
@@ -291,7 +259,7 @@ paths:
         "200":
           description: Update successful. Returns user ok.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: Login or email already used.
           schema:
@@ -326,7 +294,7 @@ paths:
         "200":
           description: Block successful. Returns user ok.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: No such field.
           schema:
@@ -363,7 +331,7 @@ paths:
         "200":
           description: Update successful. Returns ok.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: No such field.
           schema:
@@ -388,7 +356,7 @@ paths:
         "200":
           description: Unlock successful. Returns user ok.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: No such field.
           schema:
@@ -424,7 +392,7 @@ paths:
         "200":
           description: Authentication successful. Returns a JWT token.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.AuthResponse'
+            $ref: '#/definitions/internal_http-server_handlers_user.Tokens'
         "400":
           description: Invalid input.
           schema:
@@ -459,7 +427,7 @@ paths:
         "200":
           description: Authentication successful. Returns a JWT token.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.AuthResponse'
+            $ref: '#/definitions/internal_http-server_handlers_user.Tokens'
         "400":
           description: Invalid input.
           schema:
@@ -494,7 +462,7 @@ paths:
         "201":
           description: Registration successful. Returns user data.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: Invalid input.
           schema:
@@ -524,15 +492,15 @@ paths:
         "200":
           description: Retrieved successfully. Returns status code OK.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_todo.GetAllResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse'
         "400":
           description: Unknown filter.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "500":
           description: Internal error.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
       summary: Get all tasks
       tags:
       - todo
@@ -554,15 +522,15 @@ paths:
         "200":
           description: Creation successful. Returns task with status code OK.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_todo.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo'
         "400":
           description: failed to deserialize json request.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "500":
           description: Internal error.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
       summary: Create a new task
       tags:
       - todo
@@ -573,21 +541,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: Deletion successful. Returns OK.
+          description: Deletion successful. Returns status code OK.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "400":
           description: Missing or wrong id.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "404":
           description: No such task.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "500":
           description: Internal error.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
       summary: Delete task
       tags:
       - todo
@@ -600,19 +568,19 @@ paths:
         "200":
           description: Retrieved successfully. Returns task and status code OK.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_todo.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo'
         "400":
           description: Missing or wrong id.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "404":
           description: No such task.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "500":
           description: Internal error.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
       summary: Get task
       tags:
       - todo
@@ -634,19 +602,19 @@ paths:
         "200":
           description: Update successful. Returns task with status code OK.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_todo.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo'
         "400":
           description: Missing or wrong id.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "404":
           description: No such task.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
         "500":
           description: Internal error.
           schema:
-            type: header
+            $ref: '#/definitions/response.Response'
       summary: Update task
       tags:
       - todo
@@ -659,7 +627,7 @@ paths:
         "200":
           description: Returns the user profile data.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: No such user.
           schema:
@@ -690,7 +658,7 @@ paths:
         "200":
           description: Profile successfully updated.
           schema:
-            $ref: '#/definitions/internal_http-server_handlers_user.GetResponse'
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: Login or email already used.
           schema:
