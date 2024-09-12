@@ -10,7 +10,6 @@ import (
 
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
-	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
@@ -27,14 +26,8 @@ type Tokens struct {
 	RefreshToken
 }
 
-type AuthResponse struct {
-	resp.Response
-	Tokens `json:"tokens,omitempty"`
-}
-
-type GetResponse struct {
-	resp.Response
-	User u.TableUser `json:"user,omitempty"`
+type Response struct {
+	Error string `json:"msg,omitempty"`
 }
 
 type UserHandler interface {
@@ -54,10 +47,10 @@ type UserHandler interface {
 // @Accept json
 // @Produce json
 // @Param UserData body u.User true "Complete user data for registration"
-// @Success 201 {object} GetResponse "Registration successful. Returns user data."
-// @Failure 400 {header} resp.Response "Invalid input."
-// @Failure 409 {header} resp.Response "User already exists."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 201 {object} u.TableUser "Registration successful. Returns user data."
+// @Failure 400 {header} Response "Invalid input."
+// @Failure 409 {header} Response "User already exists."
+// @Failure 500 {header} Response "Internal error."
 // @Router /signup [post]
 func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +93,7 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Debug(fmt.Sprintf("user: %v", user))
 
 		w.WriteHeader(http.StatusCreated)
-		render.JSON(w, r, GetResponse{resp.OK(), user})
+		render.JSON(w, r, user)
 	}
 }
 
@@ -112,10 +105,10 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param AuthData body u.AuthData true "User login credentials"
-// @Success 200 {object} AuthResponse "Authentication successful. Returns a JWT token."
-// @Failure 400 {header} resp.Response "Invalid input."
-// @Failure 401 {header} resp.Response "Invalid credentials."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
+// @Failure 400 {header} Response "Invalid input."
+// @Failure 401 {header} Response "Invalid credentials."
+// @Failure 500 {header} Response "Internal error."
 // @Router /signin [post]
 func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -168,7 +161,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Info("successfully logged in")
 		log.Debug(fmt.Sprintf("user: %v", req))
 
-		render.JSON(w, r, AuthResponse{resp.OK(), Tokens{AccessToken{accessToken}, RefreshToken{refreshToken}}})
+		render.JSON(w, r, Tokens{AccessToken{accessToken}, RefreshToken{refreshToken}})
 	}
 }
 
@@ -180,10 +173,10 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param AuthData body RefreshToken true "User's refresh token"
-// @Success 200 {object} AuthResponse "Authentication successful. Returns a JWT token."
-// @Failure 400 {header} resp.Response "Invalid input."
-// @Failure 401 {header} resp.Response "Invalid credentials: token is expired - must auth again."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
+// @Failure 400 {header} Response "Invalid input."
+// @Failure 401 {header} Response "Invalid credentials: token is expired - must auth again."
+// @Failure 500 {header} Response "Internal error."
 // @Router /auth/refresh [post]
 func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -231,7 +224,7 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Info("successfully refreshed access token")
 		log.Debug(fmt.Sprintf("user: %v", req))
 
-		render.JSON(w, r, AuthResponse{resp.OK(), Tokens{AccessToken{accessToken}, RefreshToken{req.Token}}})
+		render.JSON(w, r, Tokens{AccessToken{accessToken}, RefreshToken{req.Token}})
 	}
 }
 
@@ -242,9 +235,9 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Tags user
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} GetResponse "Returns the user profile data."
-// @Failure 400 {header} resp.Response "No such user."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} u.TableUser "Returns the user profile data."
+// @Failure 400 {header} Response "No such user."
+// @Failure 500 {header} Response "Internal error."
 // @Router /user/profile [get]
 func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -274,7 +267,7 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Info("User successfully retrieved")
 		log.Debug(fmt.Sprintf("user: %v", user))
 
-		render.JSON(w, r, GetResponse{resp.OK(), user})
+		render.JSON(w, r, user)
 	}
 }
 
@@ -287,11 +280,11 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param Userdata body u.User true "Updated user data"
 // @Security BearerAuth
-// @Success 200 {object} GetResponse "Profile successfully updated."
-// @Failure 400 {header} resp.Response "Invalid input."
-// @Failure 400 {header} resp.Response "Login or email already used."
-// @Failure 404 {header} resp.Response "No such user."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} u.TableUser "Profile successfully updated."
+// @Failure 400 {header} Response "Invalid input."
+// @Failure 400 {header} Response "Login or email already used."
+// @Failure 404 {header} Response "No such user."
+// @Failure 500 {header} Response "Internal error."
 // @Router /user/profile [put]
 func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -342,6 +335,6 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Info("Successfully updated user")
 		log.Debug(fmt.Sprintf("user: %v to %v with password %v and email %v", userContext.Id, req.Username, req.Password, req.Email))
 
-		render.JSON(w, r, GetResponse{resp.OK(), user})
+		render.JSON(w, r, user)
 	}
 }

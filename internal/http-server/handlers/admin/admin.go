@@ -10,7 +10,6 @@ import (
 	"github.com/go-chi/render"
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
-	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
@@ -20,14 +19,12 @@ type UpdateRequest struct {
 	Value any
 }
 
-type GetAllResponse struct {
-	resp.Response
-	Users []u.TableUser `json:"users,omitempty"`
+type Response struct {
+	Error string `json:"msg,omitempty"`
 }
 
-type GetResponse struct {
-	resp.Response
-	User u.TableUser `json:"user,omitempty"`
+type Users struct {
+	Users []u.TableUser `json:"users"`
 }
 
 type AdminHandler interface {
@@ -50,10 +47,10 @@ type AdminHandler interface {
 // @Param limit query int false "limit of users for query"
 // @Param offset query int false "offset"
 // @Security BearerAuth
-// @Success 200 {object} GetAllResponse "Retrieve successful. Returns users."
-// @Failure 401 {header} resp.Response "User context not found."
-// @Failure 403 {header} resp.Response "Not enough rights."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} Users "Retrieve successful. Returns users."
+// @Failure 401 {header} Response "User context not found."
+// @Failure 403 {header} Response "Not enough rights."
+// @Failure 500 {header} Response "Internal error."
 // @Router /admin/users [get]
 func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +96,7 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		log.Info("users successfully retrieved")
 		log.Debug(fmt.Sprintf("params: %v, %v, %v, %v, %v", search, order, blocked, limit, offset))
 
-		render.JSON(w, r, GetAllResponse{resp.OK(), users})
+		render.JSON(w, r, Users{users})
 	}
 }
 
@@ -110,12 +107,12 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} GetResponse "Retrieve successful. Returns user."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 401 {header} resp.Response "User context not found."
-// @Failure 403 {header} resp.Response "Not enough rights."
-// @Failure 404 {header} resp.Response "No such user."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} u.TableUser "Retrieve successful. Returns user."
+// @Failure 400 {header} Response "Missing or wrong id."
+// @Failure 401 {header} Response "User context not found."
+// @Failure 403 {header} Response "Not enough rights."
+// @Failure 404 {header} Response "No such user."
+// @Failure 500 {header} Response "Internal error."
 // @Router /admin/users/{id} [get]
 func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -150,7 +147,7 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		log.Info("user successfully retrieved")
 		log.Debug(fmt.Sprintf("user: %v", user))
 
-		render.JSON(w, r, GetResponse{resp.OK(), user})
+		render.JSON(w, r, user)
 	}
 }
 
@@ -163,14 +160,14 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Produce json
 // @Param UserData body u.User true "Complete user data"
 // @Security BearerAuth
-// @Success 200 {object} GetResponse "Update successful. Returns user ok."
-// @Failure 400 {header} resp.Response "failed to deserialize json request."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 400 {header} resp.Response "Login or email already used."
-// @Failure 401 {header} resp.Response "User context not found."
-// @Failure 403 {header} resp.Response "Not enough rights."
-// @Failure 404 {header} resp.Response "No such user."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} u.TableUser "Update successful. Returns user ok."
+// @Failure 400 {header} Response "failed to deserialize json request."
+// @Failure 400 {header} Response "Missing or wrong id."
+// @Failure 400 {header} Response "Login or email already used."
+// @Failure 401 {header} Response "User context not found."
+// @Failure 403 {header} Response "Not enough rights."
+// @Failure 404 {header} Response "No such user."
+// @Failure 500 {header} Response "Internal error."
 // @Router /admin/users/{id} [put]
 func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -225,7 +222,7 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		log.Info("Successfully updated user")
 		log.Debug(fmt.Sprintf("user: %v", user))
 
-		render.JSON(w, r, GetResponse{resp.OK(), user})
+		render.JSON(w, r, user)
 	}
 }
 
@@ -236,12 +233,12 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {header} resp.Response "Remove successful. Returns ok."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 401 {header} resp.Response "User context not found."
-// @Failure 403 {header} resp.Response "Not enough rights."
-// @Failure 404 {header} resp.Response "No such user."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {header} Response "Remove successful. Returns ok."
+// @Failure 400 {header} Response "Missing or wrong id."
+// @Failure 401 {header} Response "User context not found."
+// @Failure 403 {header} Response "Not enough rights."
+// @Failure 404 {header} Response "No such user."
+// @Failure 500 {header} Response "Internal error."
 // @Router /admin/users/{id} [delete]
 func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -284,11 +281,11 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} GetResponse "Block successful. Returns user ok."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 400 {header} resp.Response "No such field."
-// @Failure 404 {header} resp.Response "No such user."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} u.TableUser "Block successful. Returns user ok."
+// @Failure 400 {header} Response "Missing or wrong id."
+// @Failure 400 {header} Response "No such field."
+// @Failure 404 {header} Response "No such user."
+// @Failure 500 {header} Response "Internal error."
 // @Router /admin/users/{id}/block [post]
 func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -305,11 +302,11 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} GetResponse "Unlock successful. Returns user ok."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 400 {header} resp.Response "No such field."
-// @Failure 404 {header} resp.Response "No such user."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} u.TableUser "Unlock successful. Returns user ok."
+// @Failure 400 {header} Response "Missing or wrong id."
+// @Failure 400 {header} Response "No such field."
+// @Failure 404 {header} Response "No such user."
+// @Failure 500 {header} Response "Internal error."
 // @Router /admin/users/{id}/unlock [post]
 func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -326,12 +323,12 @@ func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param UserData body UpdateRequest true "Complete user data"
-// @Success 200 {object} GetResponse "Update successful. Returns ok."
-// @Failure 400 {header} resp.Response "failed to deserialize json request."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 400 {header} resp.Response "No such field."
-// @Failure 404 {header} resp.Response "No such user."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} u.TableUser "Update successful. Returns ok."
+// @Failure 400 {header} Response "failed to deserialize json request."
+// @Failure 400 {header} Response "Missing or wrong id."
+// @Failure 400 {header} Response "No such field."
+// @Failure 404 {header} Response "No such user."
+// @Failure 500 {header} Response "Internal error."
 // @Router /admin/users/{id}/rights [post]
 func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -385,7 +382,7 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		log.Info("Successfully updated user's rights")
 		log.Debug(fmt.Sprintf("user: %v", user))
 
-		render.JSON(w, r, GetResponse{resp.OK(), user})
+		render.JSON(w, r, user)
 	}
 }
 
@@ -452,5 +449,5 @@ func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User 
 	log.Info(fmt.Sprintf("Successfully updated field: %v to %v", field, value))
 	log.Debug(fmt.Sprintf("user: %v", user))
 
-	render.JSON(w, r, GetResponse{resp.OK(), user})
+	render.JSON(w, r, user)
 }

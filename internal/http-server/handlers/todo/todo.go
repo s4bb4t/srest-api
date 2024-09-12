@@ -7,19 +7,12 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
-	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	t "github.com/sabbatD/srest-api/internal/lib/todoConfig"
 )
 
-type GetAllResponse struct {
-	resp.Response
-	t.MetaResponse `json:"metaresponse,omitempty"`
-}
-
-type GetResponse struct {
-	resp.Response
-	Todo t.Todo `json:"todo,omitempty"`
+type Response struct {
+	Error string `json:"msg,omitempty"`
 }
 
 type TodoHandler interface {
@@ -37,9 +30,9 @@ type TodoHandler interface {
 // @Accept json
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for creation"
-// @Success 200 {object} GetResponse "Creation successful. Returns task with status code OK."
-// @Failure 400 {header} resp.Response "failed to deserialize json request."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object}  t.Todo "Creation successful. Returns task with status code OK."
+// @Failure 400 {object} response.Response "failed to deserialize json request."
+// @Failure 500 {object} response.Response "Internal error."
 // @Router /todos [post]
 func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +66,7 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 
 		log.Info("successfully created task")
 
-		render.JSON(w, r, GetResponse{resp.OK(), task})
+		render.JSON(w, r, task)
 	}
 }
 
@@ -83,9 +76,9 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Tags todo
 // @Produce json
 // @Param filter query string false "all, completed, or inwork"
-// @Success 200 {object} GetAllResponse "Retrieved successfully. Returns status code OK."
-// @Failure 400 {header} resp.Response "Unknown filter."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} t.MetaResponse "Retrieved successfully. Returns status code OK."
+// @Failure 400 {object} response.Response "Unknown filter."
+// @Failure 500 {object} response.Response "Internal error."
 // @Router /todos [get]
 func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -107,14 +100,11 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 			return
 		}
 
-		response := GetAllResponse{
-			resp.OK(),
-			t.MetaResponse{
-				Data: todos,
-				Info: info,
-				Meta: t.Meta{
-					TotalAmount: n,
-				},
+		response := t.MetaResponse{
+			Data: todos,
+			Info: info,
+			Meta: t.Meta{
+				TotalAmount: n,
 			},
 		}
 
@@ -129,10 +119,10 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Description Gets a task by ID in the URL and returns a JSON containing task data.
 // @Tags todo
 // @Produce json
-// @Success 200 {object} GetResponse "Retrieved successfully. Returns task and status code OK."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 404 {header} resp.Response "No such task."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object}  t.Todo "Retrieved successfully. Returns task and status code OK."
+// @Failure 400 {object} response.Response "Missing or wrong id."
+// @Failure 404 {object} response.Response "No such task."
+// @Failure 500 {object} response.Response "Internal error."
 // @Router /todos/{id} [get]
 func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -162,7 +152,7 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 
 		log.Info("successfully retrieved task")
 
-		render.JSON(w, r, GetResponse{resp.OK(), task})
+		render.JSON(w, r, task)
 	}
 }
 
@@ -173,11 +163,11 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for update"
-// @Success 200 {object} GetResponse "Update successful. Returns task with status code OK."
-// @Failure 400 {header} resp.Response "failed to deserialize json request."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 404 {header} resp.Response "No such task."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object}  t.Todo "Update successful. Returns task with status code OK."
+// @Failure 400 {object} response.Response "failed to deserialize json request."
+// @Failure 400 {object} response.Response "Missing or wrong id."
+// @Failure 404 {object} response.Response "No such task."
+// @Failure 500 {object} response.Response "Internal error."
 // @Router /todos/{id} [put]
 func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -226,7 +216,7 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 
 		log.Info("successfully updated task")
 
-		render.JSON(w, r, GetResponse{resp.OK(), task})
+		render.JSON(w, r, task)
 	}
 }
 
@@ -235,10 +225,10 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Description Deletes a task by ID in the URL.
 // @Tags todo
 // @Produce json
-// @Success 200 {header} resp.Response "Deletion successful. Returns OK."
-// @Failure 400 {header} resp.Response "Missing or wrong id."
-// @Failure 404 {header} resp.Response "No such task."
-// @Failure 500 {header} resp.Response "Internal error."
+// @Success 200 {object} response.Response "Deletion successful. Returns status code OK."
+// @Failure 400 {object} response.Response "Missing or wrong id."
+// @Failure 404 {object} response.Response "No such task."
+// @Failure 500 {object} response.Response "Internal error."
 // @Router /todos/{id} [delete]
 func Delete(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
