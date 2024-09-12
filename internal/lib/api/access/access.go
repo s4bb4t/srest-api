@@ -14,24 +14,21 @@ var jwtKey = []byte("YouAreKissedSabbatsAss")
 type CxtKey string
 
 type Claims struct {
-	Id      int    `json:"id"`
-	Login   string `json:"login"`
-	IsAdmin bool   `json:"isadmin"`
+	UserId  int  `json:"id"`
+	IsAdmin bool `json:"isAdmin"`
 	jwt.StandardClaims
 }
 
 type UserContext struct {
-	Id        int    `json:"id"`
-	Login     string `json:"login"`
-	IsAdmin   bool   `json:"isadmin"`
-	IsBlocked bool   `json:"isblocked"`
+	UserId    int  `json:"id"`
+	IsAdmin   bool `json:"isAdmin"`
+	IsBlocked bool `json:"isBlocked"`
 }
 
-func NewAccessToken(id int, login string, admin bool) (string, error) {
+func NewAccessToken(id int, admin bool) (string, error) {
 	expirationTime := time.Now().Add(2 * time.Hour)
 	claims := &Claims{
-		Id:      id,
-		Login:   login,
+		UserId:  id,
 		IsAdmin: admin,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
@@ -90,8 +87,7 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		userContext := UserContext{
-			Id:      claims.Id,
-			Login:   claims.Login,
+			UserId:  claims.UserId,
 			IsAdmin: claims.IsAdmin,
 		}
 		ctx := context.WithValue(r.Context(), CxtKey("userContext"), userContext)

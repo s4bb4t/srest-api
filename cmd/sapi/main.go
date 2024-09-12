@@ -69,9 +69,11 @@ func main() {
 		))
 
 		// Unknown users handlers
-		router.Post("/signup", user.Register(log, storage))
-		router.Post("/signin", user.Auth(log, storage))
-		router.Post("/auth/refresh", user.Refresh(log, storage))
+		router.Route("/auth", func(u chi.Router) {
+			u.Post("/signup", user.Register(log, storage))
+			u.Post("/signin", user.Auth(log, storage))
+			u.Post("/refresh", user.Refresh(log, storage))
+		})
 
 		// Authenticated user handlers
 		// JWTAuthMiddleware used for authenticating users with jwt token from heade with prefix "Bearer "

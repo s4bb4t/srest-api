@@ -4,24 +4,24 @@ type Todo struct {
 	ID      uint   `json:"id"`
 	Title   string `json:"title"`
 	Created string `json:"created"`
-	IsDone  bool   `json:"isdone"`
+	IsDone  bool   `json:"isDone"`
 }
 
 type Todos []Todo
 
 type TodoRequest struct {
 	Title  string `json:"title"`
-	IsDone bool   `json:"isdone"`
+	IsDone bool   `json:"isDone"`
 }
 
 type TodoInfo struct {
 	All       int `json:"all"`
 	Completed int `json:"completed"`
-	InWork    int `json:"inwork"`
+	InWork    int `json:"inWork"`
 }
 
 type Meta struct {
-	TotalAmount int `json:"total_amount"`
+	TotalAmount int `json:"totalAmount"`
 }
 
 type MetaResponse struct {

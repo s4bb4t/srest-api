@@ -73,7 +73,6 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Produce json
 // @Param filter query string false "all, completed, or inwork"
 // @Success 200 {object} t.MetaResponse "Retrieved successfully. Returns status code OK."
-// @Failure 400 {object} string "Unknown filter."
 // @Failure 500 {object} string "Internal error."
 // @Router /todos [get]
 func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
@@ -89,9 +88,6 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 
 		todos, info, n, err := todo.OutputAll(filter)
 		if err != nil {
-			if err.Error() == "database.postgres.OutputAllTodos: unknown filter" {
-				http.Error(w, "Unknown filter", http.StatusBadRequest)
-			}
 			util.InternalError(w, r, log, err)
 			return
 		}
@@ -235,7 +231,9 @@ func Delete(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		id := util.GetUrlParam(w, r, log)
 		if id == 0 {
 			log.Info("missing or wrong id")
+
 			http.Error(w, "Missing or wrong id", http.StatusBadRequest)
+
 			return
 		}
 

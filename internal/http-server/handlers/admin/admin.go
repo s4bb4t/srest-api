@@ -25,7 +25,7 @@ type Users struct {
 
 type AdminHandler interface {
 	UpdateField(field string, id int, val any) (int64, error)
-	GetAll(search, order string, blocked bool, limit, offset int) ([]u.TableUser, error)
+	GetAll(search, sotrOrder string, isBlocked bool, limit, offset int) ([]u.TableUser, error)
 	Remove(id int) (int64, error)
 	Get(id int) (u.TableUser, error)
 	UpdateUser(u u.User, id int) (int64, error)
@@ -38,8 +38,8 @@ type AdminHandler interface {
 // @Tags admin
 // @Produce json
 // @Param search query string false "Search in login or username or email"
-// @Param order query string false "order asc or desc or none (asc, decs - order by email, none - order by id)"
-// @Param blocked query bool false "block status"
+// @Param sotrOrder query string false "sotrOrder asc or desc or none (asc, decs - sotrOrder by email, none - sotrOrder by id)"
+// @Param isBlocked query bool false "block status"
 // @Param limit query int false "limit of users for query"
 // @Param offset query int false "offset"
 // @Security BearerAuth
@@ -59,18 +59,18 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		search := r.URL.Query().Get("search")
-		order := strings.ToLower(r.URL.Query().Get("order"))
-		blockedStr := r.URL.Query().Get("blocked")
+		sotrOrder := strings.ToLower(r.URL.Query().Get("sotrOrder"))
+		isblockedStr := r.URL.Query().Get("isBlocked")
 		limitStr := r.URL.Query().Get("limit")
 		offsetStr := r.URL.Query().Get("offset")
 
-		switch order {
+		switch sotrOrder {
 		case "asc", "desc", "none":
 		default:
-			order = "none"
+			sotrOrder = "none"
 		}
-		if blockedStr == "" {
-			blockedStr = "false"
+		if isblockedStr == "" {
+			isblockedStr = "false"
 		}
 		if limitStr == "" {
 			limitStr = "20"
@@ -79,18 +79,18 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			offsetStr = "0"
 		}
 
-		blocked, _ := strconv.ParseBool(blockedStr)
+		isBlocked, _ := strconv.ParseBool(isblockedStr)
 		limit, _ := strconv.Atoi(limitStr)
 		offset, _ := strconv.Atoi(offsetStr)
 
-		users, err := User.GetAll(search, order, blocked, limit, offset)
+		users, err := User.GetAll(search, sotrOrder, isBlocked, limit, offset)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("users successfully retrieved")
-		log.Debug(fmt.Sprintf("params: %v, %v, %v, %v, %v", search, order, blocked, limit, offset))
+		log.Debug(fmt.Sprintf("params: %v, %v, %v, %v, %v", search, sotrOrder, isBlocked, limit, offset))
 
 		render.JSON(w, r, Users{users})
 	}

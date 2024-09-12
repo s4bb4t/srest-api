@@ -137,7 +137,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		accessToken, err := access.NewAccessToken(user.ID, user.Login, user.Admin)
+		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
@@ -168,7 +168,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param AuthData body RefreshToken true "User's refresh token"
+// @Param Refresh Token body RefreshToken true "User's refresh token"
 // @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
 // @Failure 400 {object} string "Invalid input."
 // @Failure 401 {object} string "Invalid credentials: token is expired - must auth again."
@@ -211,7 +211,7 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		accessToken, err := access.NewAccessToken(user.ID, user.Login, user.Admin)
+		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
 			return
@@ -247,7 +247,7 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		user, err := User.Get(userContext.Id)
+		user, err := User.Get(userContext.UserId)
 		if err != nil {
 			if err.Error() == "database.postgres.Get: no such user" {
 				log.Info(err.Error())
@@ -306,7 +306,7 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		n, err := User.UpdateUser(req, userContext.Id)
+		n, err := User.UpdateUser(req, userContext.UserId)
 		if err != nil {
 			if n == 0 {
 				log.Info(err.Error())
@@ -322,14 +322,14 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		user, err := User.Get(userContext.Id)
+		user, err := User.Get(userContext.UserId)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("Successfully updated user")
-		log.Debug(fmt.Sprintf("user: %v to %v with password %v and email %v", userContext.Id, req.Username, req.Password, req.Email))
+		log.Debug(fmt.Sprintf("user: %v to %v with password %v and email %v", userContext.UserId, req.Username, req.Password, req.Email))
 
 		render.JSON(w, r, user)
 	}

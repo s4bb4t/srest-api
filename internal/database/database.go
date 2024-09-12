@@ -30,8 +30,8 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 			password TEXT,
 			email TEXT UNIQUE,
 			date TEXT,
-			block BOOLEAN NOT NULL DEFAULT FALSE,
-			admin BOOLEAN NOT NULL DEFAULT FALSE
+			is_block BOOLEAN NOT NULL DEFAULT FALSE,
+			is_admin BOOLEAN NOT NULL DEFAULT FALSE
 		)
 	`)
 	if err != nil {

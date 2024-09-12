@@ -29,7 +29,6 @@ func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err
 func GetUrlParam(w http.ResponseWriter, r *http.Request, log *slog.Logger) int {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil || id < 1 {
-		InternalError(w, r, log, err)
 		return 0
 	}
 	return id

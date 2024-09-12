@@ -7,6 +7,7 @@ import (
 
 	"github.com/lib/pq"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
+	"github.com/sabbatD/srest-api/internal/password"
 )
 
 func (s *Storage) Add(u u.User) (int, error) {
@@ -34,7 +35,12 @@ func (s *Storage) Add(u u.User) (int, error) {
 		maxID.Int64 += 1
 	}
 
-	res, err := stmt.Exec(maxID.Int64, u.Login, u.Username, u.Email, u.Password, time.Now().Format("2006-01-02 15:04:05"))
+	pwd, err := password.HashPassword(u.Password)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %v", op, err)
+	}
+
+	res, err := stmt.Exec(maxID.Int64, u.Login, u.Username, u.Email, pwd, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" { // Код ошибки 23505 означает нарушение уникальности
 			return 0, fmt.Errorf("%s: user already exists", op)
@@ -63,8 +69,13 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		return user, fmt.Errorf("%s: %v", op, err)
 	}
 
+	pwd, err := password.HashPassword(u.Password)
+	if err != nil {
+		return user, fmt.Errorf("%s: %v", op, err)
+	}
+
 	var exists bool
-	if err = stmt.QueryRow(u.Login, u.Password).Scan(&exists); err != nil {
+	if err = stmt.QueryRow(u.Login, pwd).Scan(&exists); err != nil {
 		return user, fmt.Errorf("%s: %v", op, err)
 	}
 
@@ -74,12 +85,12 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 			return user, fmt.Errorf("%s: %v", op, err)
 		}
 
-		err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Login, &user.Password, &user.Email, &user.Date, &user.Block, &user.Admin)
+		err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
 		if err != nil {
 			return user, fmt.Errorf("%s: %v", op, err)
 		}
-		if user.Block {
-			user.Admin = false
+		if user.IsBlocked {
+			user.IsAdmin = false
 		}
 	}
 
@@ -147,7 +158,7 @@ func (s *Storage) Remove(id int) (int64, error) {
 	return n, nil
 }
 
-func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) ([]u.TableUser, error) {
+func (s *Storage) GetAll(search, order string, isblocked bool, limit, offset int) ([]u.TableUser, error) {
 	const op = "database.postgres.GetAllUsers"
 
 	query := ``
@@ -169,7 +180,7 @@ func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) 
 		`
 	}
 
-	rows, err := s.db.Query(query, search, blocked, order, limit, offset)
+	rows, err := s.db.Query(query, search, isblocked, order, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
@@ -178,7 +189,7 @@ func (s *Storage) GetAll(search, order string, blocked bool, limit, offset int) 
 	var user u.TableUser
 
 	for rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Login, &user.Username, &user.Password, &user.Email, &user.Date, &user.Block, &user.Admin); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
 			return nil, fmt.Errorf("%s: %v", op, err)
 		}
 
@@ -199,7 +210,7 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	var user u.TableUser
 
 	if rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Login, &user.Username, &user.Password, &user.Email, &user.Date, &user.Block, &user.Admin); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
 			return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 		}
 	} else {

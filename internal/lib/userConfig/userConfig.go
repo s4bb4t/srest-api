@@ -12,17 +12,11 @@ type AuthData struct {
 	Password string `json:"password"`
 }
 
-type Login struct {
-	Login string `json:"login"`
-}
-
 type TableUser struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Login    string `json:"login"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-	Date     string `json:"date"`
-	Block    bool   `json:"block"`
-	Admin    bool   `json:"admin"`
+	ID        int    `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Date      string `json:"date"`
+	IsBlocked bool   `json:"isBlocked"`
+	IsAdmin   bool   `json:"isAdmin"`
 }
