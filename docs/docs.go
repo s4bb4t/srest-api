@@ -79,19 +79,19 @@ const docTemplate = `{
                     "401": {
                         "description": "User context not found.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "403": {
                         "description": "Not enough rights.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -122,31 +122,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "401": {
                         "description": "User context not found.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "403": {
                         "description": "Not enough rights.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -189,31 +189,31 @@ const docTemplate = `{
                     "400": {
                         "description": "Login or email already used.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "401": {
                         "description": "User context not found.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "403": {
                         "description": "Not enough rights.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -234,39 +234,39 @@ const docTemplate = `{
                 "summary": "Remove user",
                 "responses": {
                     "200": {
-                        "description": "Remove successful. Returns user ok.",
+                        "description": "Remove successful. Returns ok.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "401": {
                         "description": "User context not found.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "403": {
                         "description": "Not enough rights.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -297,19 +297,19 @@ const docTemplate = `{
                     "400": {
                         "description": "No such field.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -341,27 +341,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Update successful. Returns user ok.",
+                        "description": "Update successful. Returns ok.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "$ref": "#/definitions/internal_http-server_handlers_admin.GetResponse"
                         }
                     },
                     "400": {
                         "description": "No such field.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -392,19 +392,19 @@ const docTemplate = `{
                     "400": {
                         "description": "No such field.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -444,19 +444,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid input.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "401": {
                         "description": "Invalid credentials: token is expired - must auth again.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -496,19 +496,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid input.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "401": {
                         "description": "Invalid credentials.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -548,19 +548,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid input.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "409": {
                         "description": "User already exists.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -594,13 +594,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Unknown filter.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -638,13 +638,13 @@ const docTemplate = `{
                     "400": {
                         "description": "failed to deserialize json request.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -670,19 +670,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -720,19 +720,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -748,27 +748,27 @@ const docTemplate = `{
                 "summary": "Delete task",
                 "responses": {
                     "200": {
-                        "description": "Deletion successful. Returns status code OK.",
+                        "description": "Deletion successful. Returns OK.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "400": {
                         "description": "Missing or wrong id.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such task.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -799,13 +799,13 @@ const docTemplate = `{
                     "400": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -848,19 +848,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Login or email already used.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "404": {
                         "description": "No such user.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     },
                     "500": {
                         "description": "Internal error.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response"
+                            "type": "header"
                         }
                     }
                 }
@@ -868,14 +868,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_sabbatD_srest-api_internal_lib_api_response.Response": {
-            "type": "object",
-            "properties": {
-                "msg": {
-                    "type": "string"
-                }
-            }
-        },
         "github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta": {
             "type": "object",
             "properties": {

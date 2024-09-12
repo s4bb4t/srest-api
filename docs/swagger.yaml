@@ -1,10 +1,5 @@
 basePath: /api/v1
 definitions:
-  github_com_sabbatD_srest-api_internal_lib_api_response.Response:
-    properties:
-      msg:
-        type: string
-    type: object
   github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta:
     properties:
       total_amount:
@@ -196,15 +191,15 @@ paths:
         "401":
           description: User context not found.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "403":
           description: Not enough rights.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       security:
       - BearerAuth: []
       summary: Get all users
@@ -217,29 +212,29 @@ paths:
       - application/json
       responses:
         "200":
-          description: Remove successful. Returns user ok.
+          description: Remove successful. Returns ok.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "401":
           description: User context not found.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "403":
           description: Not enough rights.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       security:
       - BearerAuth: []
       summary: Remove user
@@ -257,23 +252,23 @@ paths:
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "401":
           description: User context not found.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "403":
           description: Not enough rights.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       security:
       - BearerAuth: []
       summary: Retrieve user's profile
@@ -300,23 +295,23 @@ paths:
         "400":
           description: Login or email already used.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "401":
           description: User context not found.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "403":
           description: Not enough rights.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       security:
       - BearerAuth: []
       summary: Update user's fields
@@ -335,15 +330,15 @@ paths:
         "400":
           description: No such field.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       security:
       - BearerAuth: []
       summary: Block user
@@ -366,21 +361,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: Update successful. Returns user ok.
+          description: Update successful. Returns ok.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            $ref: '#/definitions/internal_http-server_handlers_admin.GetResponse'
         "400":
           description: No such field.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Update user's rights
       tags:
       - admin
@@ -397,15 +392,15 @@ paths:
         "400":
           description: No such field.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       security:
       - BearerAuth: []
       summary: Unlock user
@@ -433,15 +428,15 @@ paths:
         "400":
           description: Invalid input.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "401":
           description: 'Invalid credentials: token is expired - must auth again.'
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Refresh user's access token
       tags:
       - user
@@ -468,15 +463,15 @@ paths:
         "400":
           description: Invalid input.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "401":
           description: Invalid credentials.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Authenticate user
       tags:
       - user
@@ -503,15 +498,15 @@ paths:
         "400":
           description: Invalid input.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "409":
           description: User already exists.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Register a new user
       tags:
       - user
@@ -533,11 +528,11 @@ paths:
         "400":
           description: Unknown filter.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Get all tasks
       tags:
       - todo
@@ -563,11 +558,11 @@ paths:
         "400":
           description: failed to deserialize json request.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Create a new task
       tags:
       - todo
@@ -578,21 +573,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: Deletion successful. Returns status code OK.
+          description: Deletion successful. Returns OK.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such task.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Delete task
       tags:
       - todo
@@ -609,15 +604,15 @@ paths:
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such task.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Get task
       tags:
       - todo
@@ -643,15 +638,15 @@ paths:
         "400":
           description: Missing or wrong id.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such task.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       summary: Update task
       tags:
       - todo
@@ -668,11 +663,11 @@ paths:
         "400":
           description: No such user.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       security:
       - BearerAuth: []
       summary: Get user profile
@@ -699,15 +694,15 @@ paths:
         "400":
           description: Login or email already used.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "404":
           description: No such user.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
         "500":
           description: Internal error.
           schema:
-            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_api_response.Response'
+            type: header
       security:
       - BearerAuth: []
       summary: Update user profile
