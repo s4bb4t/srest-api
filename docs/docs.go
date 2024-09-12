@@ -462,7 +462,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/signin": {
+        "/auth/signin": {
             "post": {
                 "description": "Authenticates a user by accepting their login credentials (login and password) in JSON format.",
                 "consumes": [
@@ -514,7 +514,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/signup": {
+        "/auth/signup": {
             "post": {
                 "description": "Handles the registration of a new user by accepting a JSON payload containing user data.",
                 "consumes": [
@@ -579,7 +579,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "all, completed, or inwork",
+                        "description": "all, completed, or inWork",
                         "name": "filter",
                         "in": "query"
                     }

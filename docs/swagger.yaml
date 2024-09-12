@@ -399,7 +399,7 @@ paths:
       summary: Refresh user's access token
       tags:
       - user
-  /signin:
+  /auth/signin:
     post:
       consumes:
       - application/json
@@ -434,7 +434,7 @@ paths:
       summary: Authenticate user
       tags:
       - user
-  /signup:
+  /auth/signup:
     post:
       consumes:
       - application/json
@@ -473,7 +473,7 @@ paths:
     get:
       description: Gets all tasks and returns a JSON containing task data.
       parameters:
-      - description: all, completed, or inwork
+      - description: all, completed, or inWork
         in: query
         name: filter
         type: string
