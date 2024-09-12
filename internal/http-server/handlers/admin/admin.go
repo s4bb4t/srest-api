@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/render"
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
+	"github.com/sabbatD/srest-api/internal/lib/api/validation"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
@@ -186,6 +187,16 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
+
+		if err := validation.ValidateStruct(req); err != nil {
+			log.Debug(fmt.Sprintf("validation failed: %v", err.Error()))
+
+			http.Error(w, fmt.Sprintf("Invalid input: %v", err.Error()), http.StatusBadRequest)
+
+			return
+		}
+
+		log.Info("input validated")
 
 		id := util.GetUrlParam(w, r, log)
 		if id == 0 {

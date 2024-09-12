@@ -10,6 +10,7 @@ import (
 
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
 	"github.com/sabbatD/srest-api/internal/lib/api/access"
+	"github.com/sabbatD/srest-api/internal/lib/api/validation"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
@@ -44,6 +45,7 @@ type UserHandler interface {
 // @Produce json
 // @Param UserData body u.User true "Complete user data for registration"
 // @Success 201 {object} u.TableUser "Registration successful. Returns user data."
+// @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 400 {object} string "Invalid input."
 // @Failure 409 {object} string "User already exists."
 // @Failure 500 {object} string "Internal error."
@@ -65,6 +67,16 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
+
+		if err := validation.ValidateStruct(req); err != nil {
+			log.Debug(fmt.Sprintf("validation failed: %v", err.Error()))
+
+			http.Error(w, fmt.Sprintf("Invalid input: %v", err.Error()), http.StatusBadRequest)
+
+			return
+		}
+
+		log.Info("input validated")
 
 		id, err := User.Add(req)
 		if err != nil {
@@ -102,6 +114,7 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param AuthData body u.AuthData true "User login credentials"
 // @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
+// @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 400 {object} string "Invalid input."
 // @Failure 401 {object} string "Invalid credentials."
 // @Failure 500 {object} string "Internal error."
@@ -123,6 +136,16 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
+
+		if err := validation.ValidateStruct(req); err != nil {
+			log.Debug(fmt.Sprintf("validation failed: %v", err.Error()))
+
+			http.Error(w, fmt.Sprintf("Invalid input: %v", err.Error()), http.StatusBadRequest)
+
+			return
+		}
+
+		log.Info("input validated")
 
 		user, err := User.Auth(req)
 		if err != nil {
@@ -170,7 +193,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param RefreshToken body RefreshToken true "User's refresh token"
 // @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
-// @Failure 400 {object} string "Invalid input."
+// @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 401 {object} string "Invalid credentials: token is expired - must auth again."
 // @Failure 500 {object} string "Internal error."
 // @Router /auth/refresh [post]
@@ -277,7 +300,7 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Param Userdata body u.User true "Updated user data"
 // @Security BearerAuth
 // @Success 200 {object} u.TableUser "Profile successfully updated."
-// @Failure 400 {object} string "Invalid input."
+// @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 400 {object} string "Login or email already used."
 // @Failure 404 {object} string "No such user."
 // @Failure 500 {object} string "Internal error."
