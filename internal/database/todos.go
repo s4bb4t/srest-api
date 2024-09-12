@@ -131,7 +131,7 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 	case "inWork":
 		query = `SELECT * FROM public.todos WHERE is_done = false`
 	default:
-		filter = "all"
+		query = `SELECT * FROM public.todos`
 	}
 
 	rows, err := s.db.Query(query)
