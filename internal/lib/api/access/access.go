@@ -63,6 +63,7 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
+
 		// cookie, err := r.Cookie("token")
 		// if err != nil {
 		// 	if err == http.ErrNoCookie {
@@ -72,18 +73,12 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 		// 	http.Error(w, err.Error(), http.StatusBadRequest)
 		// 	return
 		// }
-		// ----------------------------------------------------------------
-		// _ = cookie // в случае отмены токена в хедере => коммент
 		// tokenString := cookie.Value // раскоммент
-
-		// этот костыль ебучий для токена из хедера сделан специально
-		// чтобы студики учились работать с токеном
-		// но такой запрос появился уже после того как я сделал полноценную функцию jwt аутентификации
 
 		tokenString := r.Header.Get("Authorization") // коммент
 
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ") // коммент
-		// ----------------------------------------------------------------
+
 		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil

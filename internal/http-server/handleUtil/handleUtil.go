@@ -5,11 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	resp "github.com/sabbatD/srest-api/internal/lib/api/response"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
 )
 
 // Shortcut for logging
@@ -25,7 +22,7 @@ func SlogWith(op string, r *http.Request) []any {
 func InternalError(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) {
 	log.Debug(err.Error())
 
-	render.JSON(w, r, resp.Error("Internal Server Error"))
+	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 }
 
 // Shortcut for GetUrlParam

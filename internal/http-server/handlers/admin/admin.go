@@ -51,7 +51,9 @@ type AdminHandler interface {
 // @Param offset query int false "offset"
 // @Security BearerAuth
 // @Success 200 {object} GetAllResponse "Retrieve successful. Returns users."
-// @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
+// @Failure 401 {object} httputil.HTTPError "User context not found."
+// @Failure 403 {object} httputil.HTTPError "Not enough rights."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /admin/users [get]
 func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -90,19 +92,13 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		users, err := User.GetAll(search, order, blocked, limit, offset)
 		if err != nil {
-			if users == nil {
-				log.Info("no users found")
-
-				render.JSON(w, r, resp.Error("no users found"))
-
-				return
-			}
 			util.InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("users successfully retrieved")
 		log.Debug(fmt.Sprintf("params: %v, %v, %v, %v, %v", search, order, blocked, limit, offset))
+
 		render.JSON(w, r, GetAllResponse{resp.OK(), users})
 	}
 }
@@ -115,7 +111,11 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} GetResponse "Retrieve successful. Returns user."
-// @Failure 401 {object} resp.Response "Retrieve failed. Returns error message."
+// @Failure 400 {object} httputil.HTTPError "Missing or wrong id."
+// @Failure 401 {object} httputil.HTTPError "User context not found."
+// @Failure 403 {object} httputil.HTTPError "Not enough rights."
+// @Failure 404 {object} httputil.HTTPError "No such user."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /admin/users/{id} [get]
 func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +130,7 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		id := util.GetUrlParam(w, r, log)
 		if id == 0 {
 			log.Info("missing or wrong id")
-			render.JSON(w, r, resp.Error("missing or wrong id"))
+			http.Error(w, "Missing or wrong id", http.StatusBadRequest)
 			return
 		}
 
@@ -139,7 +139,7 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			if err.Error() == "database.postgres.Get: no such user" {
 				log.Info(err.Error())
 
-				render.JSON(w, r, resp.Error("No such user"))
+				http.Error(w, "No such user", http.StatusNotFound)
 
 				return
 			}
@@ -149,6 +149,7 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.Info("user successfully retrieved")
 		log.Debug(fmt.Sprintf("user: %v", user))
+
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
@@ -163,7 +164,13 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Param UserData body u.User true "Complete user data"
 // @Security BearerAuth
 // @Success 200 {object} GetResponse "Update successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Update failed. Returns error message."
+// @Failure 400 {object} httputil.HTTPError "failed to deserialize json request."
+// @Failure 400 {object} httputil.HTTPError "Missing or wrong id."
+// @Failure 400 {object} httputil.HTTPError "Login or email already used."
+// @Failure 401 {object} httputil.HTTPError "User context not found."
+// @Failure 403 {object} httputil.HTTPError "Not enough rights."
+// @Failure 404 {object} httputil.HTTPError "No such user."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /admin/users/{id} [put]
 func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -177,9 +184,9 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		var req u.User
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
+			log.Error("failed to decode request", sl.Err(err))
 
-			render.JSON(w, r, resp.Error("failed to decode request"))
+			http.Error(w, "failed to deserialize json request", http.StatusBadRequest)
 
 			return
 		}
@@ -190,7 +197,7 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		id := util.GetUrlParam(w, r, log)
 		if id == 0 {
 			log.Info("missing or wrong id")
-			render.JSON(w, r, resp.Error("missing or wrong id"))
+			http.Error(w, "Missing or wrong id", http.StatusBadRequest)
 			return
 		}
 
@@ -199,7 +206,12 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			if n == 0 {
 				log.Info(err.Error())
 
-				render.JSON(w, r, resp.Error(err.Error()))
+				http.Error(w, "No such user", http.StatusNotFound)
+			} else if n == -2 {
+
+				log.Info(err.Error())
+
+				http.Error(w, "Login or email already used", http.StatusBadRequest)
 			}
 			util.InternalError(w, r, log, err)
 			return
@@ -212,6 +224,7 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.Info("Successfully updated user")
 		log.Debug(fmt.Sprintf("user: %v", user))
+
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
@@ -224,7 +237,11 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} resp.Response "Remove successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Remove failed. Returns error message."
+// @Failure 400 {object} httputil.HTTPError "Missing or wrong id."
+// @Failure 401 {object} httputil.HTTPError "User context not found."
+// @Failure 403 {object} httputil.HTTPError "Not enough rights."
+// @Failure 404 {object} httputil.HTTPError "No such user."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /admin/users/{id} [delete]
 func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -239,7 +256,7 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		id := util.GetUrlParam(w, r, log)
 		if id == 0 {
 			log.Info("missing or wrong id")
-			render.JSON(w, r, resp.Error("missing or wrong id"))
+			http.Error(w, "Missing or wrong id", http.StatusBadRequest)
 			return
 		}
 
@@ -248,7 +265,7 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			if n == 0 {
 				log.Info(err.Error())
 
-				render.JSON(w, r, resp.Error(err.Error()))
+				http.Error(w, "No such user", http.StatusNotFound)
 
 				return
 			}
@@ -257,7 +274,6 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		log.Info("user successfully removed")
-		render.JSON(w, r, resp.OK())
 	}
 }
 
@@ -269,7 +285,10 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} GetResponse "Block successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Block failed. Returns error message."
+// @Failure 400 {object} httputil.HTTPError "Missing or wrong id."
+// @Failure 400 {object} httputil.HTTPError "No such field."
+// @Failure 404 {object} httputil.HTTPError "No such user."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /admin/users/{id}/block [post]
 func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -287,7 +306,10 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} GetResponse "Unlock successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Unlock failed. Returns error message."
+// @Failure 400 {object} httputil.HTTPError "Missing or wrong id."
+// @Failure 400 {object} httputil.HTTPError "No such field."
+// @Failure 404 {object} httputil.HTTPError "No such user."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /admin/users/{id}/unlock [post]
 func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -305,7 +327,11 @@ func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Produce json
 // @Param UserData body UpdateRequest true "Complete user data"
 // @Success 200 {object} resp.Response "Update successful. Returns user ok."
-// @Failure 401 {object} resp.Response "Update failed. Returns error message."
+// @Failure 400 {object} httputil.HTTPError "failed to deserialize json request."
+// @Failure 400 {object} httputil.HTTPError "Missing or wrong id."
+// @Failure 400 {object} httputil.HTTPError "No such field."
+// @Failure 404 {object} httputil.HTTPError "No such user."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /admin/users/{id}/rights [post]
 func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -319,9 +345,9 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		var req UpdateRequest
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
+			log.Error("failed to decode request", sl.Err(err))
 
-			render.JSON(w, r, resp.Error("failed to decode request"))
+			http.Error(w, "failed to deserialize json request", http.StatusBadRequest)
 
 			return
 		}
@@ -332,7 +358,7 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		id := util.GetUrlParam(w, r, log)
 		if id == 0 {
 			log.Info("missing or wrong id")
-			render.JSON(w, r, resp.Error("missing or wrong id"))
+			http.Error(w, "Missing or wrong id", http.StatusBadRequest)
 			return
 		}
 
@@ -340,7 +366,11 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			if n == 0 {
 				log.Info(err.Error())
 
-				render.JSON(w, r, resp.Error(err.Error()))
+				http.Error(w, "No such user", http.StatusNotFound)
+			} else if n == -2 {
+				log.Info(err.Error())
+
+				http.Error(w, "No such field", http.StatusBadRequest)
 			}
 			util.InternalError(w, r, log, err)
 			return
@@ -354,33 +384,31 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.Info("Successfully updated user's rights")
 		log.Debug(fmt.Sprintf("user: %v", user))
+
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
 
-func contextAdmin(w http.ResponseWriter, r *http.Request) (bool, error) {
+func contextAdmin(r *http.Request) (bool, error) {
 	userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 	if !ok {
-		http.Error(w, "User context not found", http.StatusUnauthorized)
 		return false, fmt.Errorf("Unauthorized")
 	}
 	return userContext.IsAdmin, nil
 }
 
 func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) bool {
-	ok, err := contextAdmin(w, r)
+	ok, err := contextAdmin(r)
 	if !ok {
 		if err != nil {
-			log.Error(err.Error())
-
-			render.JSON(w, r, resp.Error(err.Error()))
+			http.Error(w, "User context not found", http.StatusUnauthorized)
 
 			return false
 		}
 
 		log.Info("Not enough rights")
 
-		render.JSON(w, r, resp.Error("Not enough rights"))
+		http.Error(w, "Not enough rights", http.StatusForbidden)
 
 		return false
 	}
@@ -397,7 +425,7 @@ func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User 
 	id := util.GetUrlParam(w, r, log)
 	if id == 0 {
 		log.Info("missing or wrong id")
-		render.JSON(w, r, resp.Error("missing or wrong id"))
+		http.Error(w, "Missing or wrong id", http.StatusBadRequest)
 		return
 	}
 
@@ -405,7 +433,11 @@ func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User 
 		if n == 0 {
 			log.Info(err.Error())
 
-			render.JSON(w, r, resp.Error(err.Error()))
+			http.Error(w, "No such user", http.StatusNotFound)
+		} else if n == -2 {
+			log.Info(err.Error())
+
+			http.Error(w, "No such field", http.StatusBadRequest)
 		}
 		util.InternalError(w, r, log, err)
 		return
@@ -419,5 +451,6 @@ func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User 
 
 	log.Info(fmt.Sprintf("Successfully updated field: %v to %v", field, value))
 	log.Debug(fmt.Sprintf("user: %v", user))
+
 	render.JSON(w, r, GetResponse{resp.OK(), user})
 }

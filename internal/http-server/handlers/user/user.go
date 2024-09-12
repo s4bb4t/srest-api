@@ -54,8 +54,10 @@ type UserHandler interface {
 // @Accept json
 // @Produce json
 // @Param UserData body u.User true "Complete user data for registration"
-// @Success 200 {object} GetResponse "Registration successful. Returns user data."
-// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
+// @Success 201 {object} GetResponse "Registration successful. Returns user data."
+// @Failure 400 {object} httputil.HTTPError "Invalid input."
+// @Failure 409 {object} httputil.HTTPError "User already exists."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /signup [post]
 func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -65,9 +67,9 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		var req u.User
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
+			log.Error("failed to decode request", sl.Err(err))
 
-			render.JSON(w, r, resp.Error("failed to decode request"))
+			http.Error(w, "failed to deserialize json request", http.StatusBadRequest)
 
 			return
 		}
@@ -80,7 +82,7 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			if err.Error() == "database.postgres.Add: user already exists" {
 				log.Info(err.Error())
 
-				render.JSON(w, r, resp.Error("user already exists"))
+				http.Error(w, "user already exists", http.StatusConflict)
 
 				return
 			}
@@ -96,6 +98,8 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("user successfully created")
 		log.Debug(fmt.Sprintf("user: %v", user))
+
+		w.WriteHeader(http.StatusCreated)
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
@@ -109,7 +113,9 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param AuthData body u.AuthData true "User login credentials"
 // @Success 200 {object} AuthResponse "Authentication successful. Returns a JWT token."
-// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
+// @Failure 400 {object} httputil.HTTPError "Invalid input."
+// @Failure 401 {object} httputil.HTTPError "Invalid credentials."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /signin [post]
 func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -119,9 +125,9 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		var req u.AuthData
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
+			log.Error("failed to decode request", sl.Err(err))
 
-			render.JSON(w, r, resp.Error("failed to decode request"))
+			http.Error(w, "failed to deserialize json request", http.StatusBadRequest)
 
 			return
 		}
@@ -137,7 +143,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		if user.ID == 0 {
 			log.Info("wrong login or password")
 
-			render.JSON(w, r, resp.Error("wrong login or password"))
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 
 			return
 		}
@@ -161,6 +167,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("successfully logged in")
 		log.Debug(fmt.Sprintf("user: %v", req))
+
 		render.JSON(w, r, AuthResponse{resp.OK(), Tokens{AccessToken{accessToken}, RefreshToken{refreshToken}}})
 	}
 }
@@ -174,7 +181,9 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param AuthData body RefreshToken true "User's refresh token"
 // @Success 200 {object} AuthResponse "Authentication successful. Returns a JWT token."
-// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
+// @Failure 400 {object} httputil.HTTPError "Invalid input."
+// @Failure 401 {object} httputil.HTTPError "Invalid credentials: token is expired - must auth again."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /auth/refresh [post]
 func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -184,9 +193,9 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		var req RefreshToken
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
+			log.Error("failed to decode request", sl.Err(err))
 
-			render.JSON(w, r, resp.Error("failed to decode request"))
+			http.Error(w, "failed to deserialize json request", http.StatusBadRequest)
 
 			return
 		}
@@ -202,7 +211,7 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		if token == "expired" {
 			log.Info("token is expired")
 
-			render.JSON(w, r, resp.Error("token is expired: must auth again"))
+			http.Error(w, "Invalid credentials: token is expired - must auth again", http.StatusUnauthorized)
 
 			return
 		}
@@ -221,6 +230,7 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("successfully refreshed access token")
 		log.Debug(fmt.Sprintf("user: %v", req))
+
 		render.JSON(w, r, AuthResponse{resp.OK(), Tokens{AccessToken{accessToken}, RefreshToken{req.Token}}})
 	}
 }
@@ -233,7 +243,8 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Security BearerAuth
 // @Success 200 {object} GetResponse "Returns the user profile data."
-// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
+// @Failure 400 {object} httputil.HTTPError "No such user."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /user/profile [get]
 func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -252,7 +263,7 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			if err.Error() == "database.postgres.Get: no such user" {
 				log.Info(err.Error())
 
-				render.JSON(w, r, resp.Error("No such user"))
+				http.Error(w, "No such user", http.StatusBadRequest)
 
 				return
 			}
@@ -262,6 +273,7 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("User successfully retrieved")
 		log.Debug(fmt.Sprintf("user: %v", user))
+
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }
@@ -276,7 +288,10 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Param Userdata body u.User true "Updated user data"
 // @Security BearerAuth
 // @Success 200 {object} GetResponse "Profile successfully updated."
-// @Failure 400 {object} resp.Response "Invalid input. Returns error message for improper data structure."
+// @Failure 400 {object} httputil.HTTPError "Invalid input."
+// @Failure 400 {object} httputil.HTTPError "Login or email already used."
+// @Failure 404 {object} httputil.HTTPError "No such user."
+// @Failure 500 {object} httputil.HTTPError "Internal error."
 // @Router /user/profile [put]
 func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -286,9 +301,9 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		var req u.User
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request body", sl.Err(err))
+			log.Error("failed to decode request", sl.Err(err))
 
-			render.JSON(w, r, resp.Error("failed to decode request"))
+			http.Error(w, "failed to deserialize json request", http.StatusBadRequest)
 
 			return
 		}
@@ -307,7 +322,12 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			if n == 0 {
 				log.Info(err.Error())
 
-				render.JSON(w, r, resp.Error(err.Error()))
+				http.Error(w, "No such user", http.StatusNotFound)
+			} else if n == -2 {
+
+				log.Info(err.Error())
+
+				http.Error(w, "Login or email already used", http.StatusBadRequest)
 			}
 			util.InternalError(w, r, log, err)
 			return
@@ -321,6 +341,7 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("Successfully updated user")
 		log.Debug(fmt.Sprintf("user: %v to %v with password %v and email %v", userContext.Id, req.Username, req.Password, req.Email))
+
 		render.JSON(w, r, GetResponse{resp.OK(), user})
 	}
 }

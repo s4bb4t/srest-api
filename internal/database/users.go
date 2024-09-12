@@ -93,7 +93,7 @@ func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 	case "admin":
 	case "block":
 	default:
-		return 0, fmt.Errorf("%s: no such field: %v", op, field)
+		return -2, fmt.Errorf("%s: no such field: %v", op, field)
 	}
 	query := fmt.Sprintf(`UPDATE public.users SET %s = $1 WHERE id = $2`, field)
 
@@ -227,7 +227,7 @@ func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 	if exists {
-		return 0, fmt.Errorf("%s: login or email already used", op)
+		return -2, fmt.Errorf("%s: login or email already used", op)
 	}
 
 	stmt, err = s.db.Prepare(`
