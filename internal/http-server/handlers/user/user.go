@@ -47,7 +47,7 @@ type UserHandler interface {
 // @Failure 400 {object} string "Invalid input."
 // @Failure 409 {object} string "User already exists."
 // @Failure 500 {object} string "Internal error."
-// @Router /signup [post]
+// @Router /auth/signup [post]
 func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Register"
@@ -105,7 +105,7 @@ func Register(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Failure 400 {object} string "Invalid input."
 // @Failure 401 {object} string "Invalid credentials."
 // @Failure 500 {object} string "Internal error."
-// @Router /signin [post]
+// @Router /auth/signin [post]
 func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Auth"
