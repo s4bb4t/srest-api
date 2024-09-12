@@ -2,7 +2,7 @@ basePath: /api/v1
 definitions:
   github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta:
     properties:
-      total_amount:
+      totalAmount:
         type: integer
     type: object
   github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse:
@@ -22,7 +22,7 @@ definitions:
         type: string
       id:
         type: integer
-      isdone:
+      isDone:
         type: boolean
       title:
         type: string
@@ -33,12 +33,12 @@ definitions:
         type: integer
       completed:
         type: integer
-      inwork:
+      inWork:
         type: integer
     type: object
   github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest:
     properties:
-      isdone:
+      isDone:
         type: boolean
       title:
         type: string
@@ -52,20 +52,16 @@ definitions:
     type: object
   github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser:
     properties:
-      admin:
-        type: boolean
-      block:
-        type: boolean
       date:
         type: string
       email:
         type: string
       id:
         type: integer
-      login:
-        type: string
-      password:
-        type: string
+      isAdmin:
+        type: boolean
+      isBlocked:
+        type: boolean
       username:
         type: string
     type: object
@@ -127,14 +123,14 @@ paths:
         in: query
         name: search
         type: string
-      - description: order asc or desc or none (asc, decs - order by email, none -
-          order by id)
+      - description: sotrOrder asc or desc or none (asc, decs - sotrOrder by email,
+          none - sotrOrder by id)
         in: query
-        name: order
+        name: sotrOrder
         type: string
       - description: block status
         in: query
-        name: blocked
+        name: isBlocked
         type: boolean
       - description: limit of users for query
         in: query
@@ -377,7 +373,7 @@ paths:
       parameters:
       - description: User's refresh token
         in: body
-        name: AuthData
+        name: RefreshToken
         required: true
         schema:
           $ref: '#/definitions/internal_http-server_handlers_user.RefreshToken'
@@ -488,10 +484,6 @@ paths:
           description: Retrieved successfully. Returns status code OK.
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse'
-        "400":
-          description: Unknown filter.
-          schema:
-            type: string
         "500":
           description: Internal error.
           schema:

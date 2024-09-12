@@ -46,14 +46,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "order asc or desc or none (asc, decs - order by email, none - order by id)",
-                        "name": "order",
+                        "description": "sotrOrder asc or desc or none (asc, decs - sotrOrder by email, none - sotrOrder by id)",
+                        "name": "sotrOrder",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
                         "description": "block status",
-                        "name": "blocked",
+                        "name": "isBlocked",
                         "in": "query"
                     },
                     {
@@ -426,7 +426,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "User's refresh token",
-                        "name": "AuthData",
+                        "name": "RefreshToken",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -589,12 +589,6 @@ const docTemplate = `{
                         "description": "Retrieved successfully. Returns status code OK.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Unknown filter.",
-                        "schema": {
-                            "type": "string"
                         }
                     },
                     "500": {
@@ -871,7 +865,7 @@ const docTemplate = `{
         "github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta": {
             "type": "object",
             "properties": {
-                "total_amount": {
+                "totalAmount": {
                     "type": "integer"
                 }
             }
@@ -902,7 +896,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "isdone": {
+                "isDone": {
                     "type": "boolean"
                 },
                 "title": {
@@ -919,7 +913,7 @@ const docTemplate = `{
                 "completed": {
                     "type": "integer"
                 },
-                "inwork": {
+                "inWork": {
                     "type": "integer"
                 }
             }
@@ -927,7 +921,7 @@ const docTemplate = `{
         "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest": {
             "type": "object",
             "properties": {
-                "isdone": {
+                "isDone": {
                     "type": "boolean"
                 },
                 "title": {
@@ -949,12 +943,6 @@ const docTemplate = `{
         "github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser": {
             "type": "object",
             "properties": {
-                "admin": {
-                    "type": "boolean"
-                },
-                "block": {
-                    "type": "boolean"
-                },
                 "date": {
                     "type": "string"
                 },
@@ -964,11 +952,11 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "login": {
-                    "type": "string"
+                "isAdmin": {
+                    "type": "boolean"
                 },
-                "password": {
-                    "type": "string"
+                "isBlocked": {
+                    "type": "boolean"
                 },
                 "username": {
                     "type": "string"
