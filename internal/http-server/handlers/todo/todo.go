@@ -11,10 +11,6 @@ import (
 	t "github.com/sabbatD/srest-api/internal/lib/todoConfig"
 )
 
-type Response struct {
-	Error string `json:"msg,omitempty"`
-}
-
 type TodoHandler interface {
 	Create(t t.TodoRequest) (int64, error)
 	Update(id int, t t.TodoRequest) (int64, error)
@@ -31,8 +27,8 @@ type TodoHandler interface {
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for creation"
 // @Success 200 {object}  t.Todo "Creation successful. Returns task with status code OK."
-// @Failure 400 {object} response.Response "failed to deserialize json request."
-// @Failure 500 {object} response.Response "Internal error."
+// @Failure 400 {object} string "failed to deserialize json request."
+// @Failure 500 {object} string "Internal error."
 // @Router /todos [post]
 func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -77,8 +73,8 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Produce json
 // @Param filter query string false "all, completed, or inwork"
 // @Success 200 {object} t.MetaResponse "Retrieved successfully. Returns status code OK."
-// @Failure 400 {object} response.Response "Unknown filter."
-// @Failure 500 {object} response.Response "Internal error."
+// @Failure 400 {object} string "Unknown filter."
+// @Failure 500 {object} string "Internal error."
 // @Router /todos [get]
 func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -120,9 +116,9 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Tags todo
 // @Produce json
 // @Success 200 {object}  t.Todo "Retrieved successfully. Returns task and status code OK."
-// @Failure 400 {object} response.Response "Missing or wrong id."
-// @Failure 404 {object} response.Response "No such task."
-// @Failure 500 {object} response.Response "Internal error."
+// @Failure 400 {object} string "Missing or wrong id."
+// @Failure 404 {object} string "No such task."
+// @Failure 500 {object} string "Internal error."
 // @Router /todos/{id} [get]
 func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -164,10 +160,10 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for update"
 // @Success 200 {object}  t.Todo "Update successful. Returns task with status code OK."
-// @Failure 400 {object} response.Response "failed to deserialize json request."
-// @Failure 400 {object} response.Response "Missing or wrong id."
-// @Failure 404 {object} response.Response "No such task."
-// @Failure 500 {object} response.Response "Internal error."
+// @Failure 400 {object} string "failed to deserialize json request."
+// @Failure 400 {object} string "Missing or wrong id."
+// @Failure 404 {object} string "No such task."
+// @Failure 500 {object} string "Internal error."
 // @Router /todos/{id} [put]
 func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -225,10 +221,10 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Description Deletes a task by ID in the URL.
 // @Tags todo
 // @Produce json
-// @Success 200 {object} response.Response "Deletion successful. Returns status code OK."
-// @Failure 400 {object} response.Response "Missing or wrong id."
-// @Failure 404 {object} response.Response "No such task."
-// @Failure 500 {object} response.Response "Internal error."
+// @Success 200 {object} string "Deletion successful. Returns status code OK."
+// @Failure 400 {object} string "Missing or wrong id."
+// @Failure 404 {object} string "No such task."
+// @Failure 500 {object} string "Internal error."
 // @Router /todos/{id} [delete]
 func Delete(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
