@@ -44,18 +44,29 @@ func (s *Storage) Create(t t.TodoRequest) (int64, error) {
 func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	const op = "database.postgres.UpdateTodo"
 
-	stmt, err := s.db.Prepare(`
-		UPDATE public.todos 
-			SET title = $1, is_done = $2
-			WHERE id = $3
-	`)
-	if err != nil {
-		return -1, fmt.Errorf("%s: %v", op, err)
-	}
+	var stmt *sql.Stmt
+	var err error
+	var res sql.Result
 
-	res, err := stmt.Exec(t.Title, t.IsDone, id)
-	if err != nil {
-		return -1, fmt.Errorf("%s: %v", op, err)
+	if t.Title == "" {
+		stmt, err = s.db.Prepare(`UPDATE public.todos SET is_done = $1 WHERE id = $2`)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+		res, err = stmt.Exec(t.IsDone, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+
+	} else {
+		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1, is_done = $2 WHERE id = $3`)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+		res, err = stmt.Exec(t.Title, t.IsDone, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
 	}
 
 	n, err := res.RowsAffected()

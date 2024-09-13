@@ -1,15 +1,22 @@
 package userConfig
 
 type User struct {
-	Login    string `json:"login" validate:"required,min=5,max=30,alphanum,excludesall= "`
-	Username string `json:"username" validate:"required,min=5,max=30,excludesall= "`
-	Password string `json:"password" validate:"required,min=3,max=30,excludesall= "`
-	Email    string `json:"email" validate:"required,min=5,max=30,excludesall= ~!#$%^&*()-_=+[{]};:'<>/"`
+	Login    string `json:"login" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+	Email    string `json:"email" validate:"required"`
+}
+
+type PutUser struct {
+	Login    string `json:"login,omitempty"`
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+	Email    string `json:"email,omitempty"`
 }
 
 type AuthData struct {
-	Login    string `json:"login" validate:"required,min=5,max=30,alphanum,excludesall= "`
-	Password string `json:"password" validate:"required,min=5,max=30,excludesall= "`
+	Login    string `json:"login" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type TableUser struct {
