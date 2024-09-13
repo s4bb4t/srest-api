@@ -57,6 +57,17 @@ definitions:
     - login
     - password
     type: object
+  github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser:
+    properties:
+      email:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
   github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser:
     properties:
       date:
@@ -250,12 +261,12 @@ paths:
       - application/json
       description: Updates user by id by accepting a JSON payload containing user.
       parameters:
-      - description: Complete user data
+      - description: Any user data
         in: body
         name: UserData
         required: true
         schema:
-          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser'
       produces:
       - application/json
       responses:
@@ -453,12 +464,12 @@ paths:
       description: Handles the registration of a new user by accepting a JSON payload
         containing user data.
       parameters:
-      - description: Complete user data for registration
+      - description: Any user data for registration
         in: body
         name: UserData
         required: true
         schema:
-          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser'
       produces:
       - application/json
       responses:

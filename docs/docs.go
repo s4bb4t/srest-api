@@ -170,12 +170,12 @@ const docTemplate = `{
                 "summary": "Update user's fields",
                 "parameters": [
                     {
-                        "description": "Complete user data",
+                        "description": "Any user data",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser"
                         }
                     }
                 ],
@@ -529,12 +529,12 @@ const docTemplate = `{
                 "summary": "Register a new user",
                 "parameters": [
                     {
-                        "description": "Complete user data for registration",
+                        "description": "Any user data for registration",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser"
                         }
                     }
                 ],
@@ -945,6 +945,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
