@@ -10,7 +10,7 @@ type Todo struct {
 type Todos []Todo
 
 type TodoRequest struct {
-	Title  string `json:"title"`
+	Title  string `json:"title" validate:"required,min=2,max=40"`
 	IsDone bool   `json:"isDone"`
 }
 

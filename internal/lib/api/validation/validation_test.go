@@ -3,6 +3,7 @@ package validation
 import (
 	"testing"
 
+	todoconfig "github.com/sabbatD/srest-api/internal/lib/todoConfig"
 	"github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
@@ -31,6 +32,7 @@ func TestValidateStruct(t *testing.T) {
 				Password: "",
 				Email:    "",
 			},
+			wantErr: true,
 		},
 		{
 			name: "spaces",
@@ -40,6 +42,7 @@ func TestValidateStruct(t *testing.T) {
 				Password: "      ",
 				Email:    "      ",
 			},
+			wantErr: true,
 		},
 		{
 			name: "to much",
@@ -49,6 +52,7 @@ func TestValidateStruct(t *testing.T) {
 				Password: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-_=+[{]};:',<.>/?",
 				Email:    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-_=+[{]};:',<.>/?",
 			},
+			wantErr: true,
 		},
 		{
 			name: "symbs",
@@ -58,6 +62,7 @@ func TestValidateStruct(t *testing.T) {
 				Password: "`~!@#$%^&*()-_=+[{]};:',<.>/?",
 				Email:    "`~!@#$%^&*()-_=+[{]};:',<.>/?",
 			},
+			wantErr: true,
 		},
 		{
 			name: "hitry",
@@ -67,6 +72,7 @@ func TestValidateStruct(t *testing.T) {
 				Password: "`~!@#$%^&*()-_=+[{]};:',<.>/?",
 				Email:    "`~!@#$%^&*",
 			},
+			wantErr: true,
 		},
 		{
 			name: "one-empty",
@@ -76,6 +82,81 @@ func TestValidateStruct(t *testing.T) {
 				Password: "`~!@#$%^&*()-_=+[{]};:',<.>/?",
 				Email:    "`~!@#$%^&*",
 			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := ValidateStruct(tt.args); (err != nil) != tt.wantErr {
+				t.Errorf("ValidateStruct() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestValidateStruct2(t *testing.T) {
+	InitValidator()
+
+	tests := []struct {
+		name    string
+		args    todoconfig.TodoRequest
+		wantErr bool
+	}{
+		{
+			name: "normal",
+			args: todoconfig.TodoRequest{
+				Title:  "todo",
+				IsDone: false,
+			},
+			wantErr: false,
+		},
+		{
+			name: "empty",
+			args: todoconfig.TodoRequest{
+				Title:  "",
+				IsDone: false,
+			},
+			wantErr: true,
+		},
+		{
+			name: "spaces",
+			args: todoconfig.TodoRequest{
+				Title:  "      ",
+				IsDone: false,
+			},
+			wantErr: false,
+		},
+		{
+			name: "to much",
+			args: todoconfig.TodoRequest{
+				Title:  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-_=+[{]};:',<.>/?",
+				IsDone: false,
+			},
+			wantErr: true,
+		},
+		{
+			name: "symbs",
+			args: todoconfig.TodoRequest{
+				Title:  "`~!@#$%^&*()-_=+[{]};:',<.>/?",
+				IsDone: true,
+			},
+			wantErr: false,
+		},
+		{
+			name: "hitry",
+			args: todoconfig.TodoRequest{
+				Title:  "              ",
+				IsDone: false,
+			},
+			wantErr: false,
+		},
+		{
+			name: "one-empty",
+			args: todoconfig.TodoRequest{
+				Title:  "",
+				IsDone: false,
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
