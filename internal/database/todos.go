@@ -33,9 +33,16 @@ func (s *Storage) Create(t t.TodoRequest) (int64, error) {
 		maxID.Int64 += 1
 	}
 
-	_, err = stmt.Exec(maxID.Int64, t.Title, time.Now().Format("2006-01-02 15:04:05"), *t.IsDone)
-	if err != nil {
-		return 0, fmt.Errorf("%s: %v", op, err)
+	if t.IsDone != nil {
+		_, err = stmt.Exec(maxID.Int64, t.Title, time.Now().Format("2006-01-02 15:04:05"), *t.IsDone)
+		if err != nil {
+			return 0, fmt.Errorf("%s: %v", op, err)
+		}
+	} else {
+		_, err = stmt.Exec(maxID.Int64, t.Title, time.Now().Format("2006-01-02 15:04:05"), false)
+		if err != nil {
+			return 0, fmt.Errorf("%s: %v", op, err)
+		}
 	}
 
 	return maxID.Int64, nil
