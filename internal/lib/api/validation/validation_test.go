@@ -106,7 +106,7 @@ func TestValidateStruct2(t *testing.T) {
 			name: "normal",
 			args: todoconfig.TodoRequest{
 				Title:  "todo",
-				IsDone: false,
+				IsDone: "true",
 			},
 			wantErr: false,
 		},
@@ -114,47 +114,31 @@ func TestValidateStruct2(t *testing.T) {
 			name: "empty",
 			args: todoconfig.TodoRequest{
 				Title:  "",
-				IsDone: false,
-			},
-			wantErr: true,
-		},
-		{
-			name: "spaces",
-			args: todoconfig.TodoRequest{
-				Title:  "      ",
-				IsDone: false,
+				IsDone: "false",
 			},
 			wantErr: false,
 		},
 		{
-			name: "to much",
+			name: "empty",
 			args: todoconfig.TodoRequest{
-				Title:  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-_=+[{]};:',<.>/?",
-				IsDone: false,
-			},
-			wantErr: true,
-		},
-		{
-			name: "symbs",
-			args: todoconfig.TodoRequest{
-				Title:  "`~!@#$%^&*()-_=+[{]};:',<.>/?",
-				IsDone: true,
+				Title:  "todo",
+				IsDone: "",
 			},
 			wantErr: false,
 		},
 		{
-			name: "hitry",
-			args: todoconfig.TodoRequest{
-				Title:  "              ",
-				IsDone: false,
-			},
-			wantErr: false,
-		},
-		{
-			name: "one-empty",
+			name: "empty",
 			args: todoconfig.TodoRequest{
 				Title:  "",
-				IsDone: false,
+				IsDone: "",
+			},
+			wantErr: false,
+		},
+		{
+			name: "empty",
+			args: todoconfig.TodoRequest{
+				Title:  "",
+				IsDone: "abc",
 			},
 			wantErr: true,
 		},

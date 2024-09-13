@@ -1,12 +1,14 @@
 package todo
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	util "github.com/sabbatD/srest-api/internal/http-server/handleUtil"
+	"github.com/sabbatD/srest-api/internal/lib/api/validation"
 	"github.com/sabbatD/srest-api/internal/lib/logger/sl"
 	t "github.com/sabbatD/srest-api/internal/lib/todoConfig"
 )
@@ -27,6 +29,7 @@ type TodoHandler interface {
 // @Produce json
 // @Param UserData body t.TodoRequest true "Complete task data for creation"
 // @Success 200 {object}  t.Todo "Creation successful. Returns task with status code OK."
+// @Failure 400 {object} string "Invalid IsDone field."
 // @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 500 {object} string "Internal error."
 // @Router /todos [post]
@@ -155,6 +158,7 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 // @Success 200 {object}  t.Todo "Update successful. Returns task with status code OK."
 // @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 400 {object} string "Missing or wrong id."
+// @Failure 400 {object} string "Invalid IsDone field."
 // @Failure 404 {object} string "No such task."
 // @Failure 500 {object} string "Internal error."
 // @Router /todos/{id} [put]
@@ -178,6 +182,17 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
+
+		validation.InitValidator()
+		if err := validation.ValidateStruct(req); err != nil {
+			log.Debug(fmt.Sprintf("validation failed: %v", err.Error()))
+
+			http.Error(w, fmt.Sprintf("Invalid input: %v", err.Error()), http.StatusBadRequest)
+
+			return
+		}
+
+		log.Info("input validated")
 
 		id := util.GetUrlParam(w, r, log)
 		if id == 0 {

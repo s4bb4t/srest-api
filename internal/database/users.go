@@ -218,17 +218,16 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
 	const op = "database.postgres.UpdateUser"
 
-	stmt, err := s.db.Prepare(`
-		SELECT EXISTS (
-			SELECT 1 FROM public.users 
-			WHERE login = $1 OR email = $2
-		)
-	`)
+	var stmts []*sql.Stmt
+	var stmt *sql.Stmt
+	var err error
+
+	var exists bool
+	stmt, err = s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE login = $1 OR email = $2)`)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 
-	var exists bool
 	if err = stmt.QueryRow(u.Login, u.Email).Scan(&exists); err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
@@ -236,13 +235,21 @@ func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
 		return -2, fmt.Errorf("%s: login or email already used", op)
 	}
 
-	stmt, err = s.db.Prepare(`
-		UPDATE public.users 
-			SET login = $1, username = $2, password = $3, email = $4
-			WHERE id = $5
-	`)
-	if err != nil {
-		return -1, fmt.Errorf("%s: %v", op, err)
+	if u.Login != "" {
+		stmt, err = s.db.Prepare(`UPDATE public.users SET login = $1 WHERE id = $2`)
+		stmts = append(stmts, stmt)
+	}
+	if u.Username != "" {
+		stmt, err = s.db.Prepare(`UPDATE public.users SET username = $1 WHERE id = $2`)
+		stmts = append(stmts, stmt)
+	}
+	if u.Password != "" {
+		stmt, err = s.db.Prepare(`UPDATE public.users SET password = $1 WHERE id = $2`)
+		stmts = append(stmts, stmt)
+	}
+	if u.Email != "" {
+		stmt, err = s.db.Prepare(`UPDATE public.users SET email = $1 WHERE id = $2`)
+		stmts = append(stmts, stmt)
 	}
 
 	res, err := stmt.Exec(u.Login, u.Username, u.Password, u.Email, id)
