@@ -712,7 +712,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Missing or wrong id.",
+                        "description": "Invalid IsDone field.",
                         "schema": {
                             "type": "string"
                         }
@@ -920,17 +920,17 @@ const docTemplate = `{
         },
         "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest": {
             "type": "object",
-            "required": [
-                "title"
-            ],
             "properties": {
                 "isDone": {
-                    "type": "boolean"
+                    "type": "string",
+                    "enum": [
+                        "true",
+                        "false",
+                        ""
+                    ]
                 },
                 "title": {
-                    "type": "string",
-                    "maxLength": 40,
-                    "minLength": 2
+                    "type": "string"
                 }
             }
         },
@@ -942,14 +942,10 @@ const docTemplate = `{
             ],
             "properties": {
                 "login": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 5
+                    "type": "string"
                 },
                 "password": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 5
+                    "type": "string"
                 }
             }
         },
@@ -986,24 +982,16 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 5
+                    "type": "string"
                 },
                 "login": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 5
+                    "type": "string"
                 },
                 "password": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 3
+                    "type": "string"
                 },
                 "username": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 5
+                    "type": "string"
                 }
             }
         },

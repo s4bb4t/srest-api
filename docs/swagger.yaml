@@ -39,23 +39,19 @@ definitions:
   github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest:
     properties:
       isDone:
-        type: boolean
-      title:
-        maxLength: 40
-        minLength: 2
+        enum:
+        - "true"
+        - "false"
+        - ""
         type: string
-    required:
-    - title
+      title:
+        type: string
     type: object
   github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData:
     properties:
       login:
-        maxLength: 30
-        minLength: 5
         type: string
       password:
-        maxLength: 30
-        minLength: 5
         type: string
     required:
     - login
@@ -79,20 +75,12 @@ definitions:
   github_com_sabbatD_srest-api_internal_lib_userConfig.User:
     properties:
       email:
-        maxLength: 30
-        minLength: 5
         type: string
       login:
-        maxLength: 30
-        minLength: 5
         type: string
       password:
-        maxLength: 30
-        minLength: 3
         type: string
       username:
-        maxLength: 30
-        minLength: 5
         type: string
     required:
     - email
@@ -615,7 +603,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo'
         "400":
-          description: Missing or wrong id.
+          description: Invalid IsDone field.
           schema:
             type: string
         "404":
