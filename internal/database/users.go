@@ -161,14 +161,14 @@ func (s *Storage) GetAll(search, order string, isblocked bool, limit, offset int
 		order = "id"
 		query = `
 			SELECT id, username, email, date, is_blocked, is_admin FROM public.users
-			WHERE ($1 = '' OR login ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' OR username ILIKE '%' || $1 || '%') AND block = $2
+			WHERE ($1 = '' OR login ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' OR username ILIKE '%' || $1 || '%') AND is_blocked = $2
 			ORDER BY $3 ASC
 			LIMIT $4 OFFSET $5
 		`
 	} else {
 		query = `
 			SELECT id, username, email, date, is_blocked, is_admin FROM public.users
-			WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND block = $2)
+			WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND is_blocked = $2)
 			ORDER BY CASE WHEN $3 = 'asc' THEN email END ASC,
 					CASE WHEN $3 = 'desc' THEN email END DESC
 			LIMIT $4 OFFSET $5
