@@ -188,6 +188,7 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
 
+		validation.InitValidator()
 		if err := validation.ValidateStruct(req); err != nil {
 			log.Debug(fmt.Sprintf("validation failed: %v", err.Error()))
 

@@ -50,6 +50,7 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
 
+		validation.InitValidator()
 		if err := validation.ValidateStruct(req); err != nil {
 			log.Debug(fmt.Sprintf("validation failed: %v", err.Error()))
 
@@ -191,6 +192,7 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 		log.Info("request body decoded")
 		log.Debug("req: ", slog.Any("request", req))
 
+		validation.InitValidator()
 		if err := validation.ValidateStruct(req); err != nil {
 			log.Debug(fmt.Sprintf("validation failed: %v", err.Error()))
 
