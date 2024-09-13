@@ -39,11 +39,7 @@ definitions:
   github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest:
     properties:
       isDone:
-        enum:
-        - "true"
-        - "false"
-        - ""
-        type: string
+        type: boolean
       title:
         type: string
     type: object

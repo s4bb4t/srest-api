@@ -922,12 +922,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "isDone": {
-                    "type": "string",
-                    "enum": [
-                        "true",
-                        "false",
-                        ""
-                    ]
+                    "type": "boolean"
                 },
                 "title": {
                     "type": "string"
