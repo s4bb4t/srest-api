@@ -236,25 +236,45 @@ func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
 	}
 
 	if u.Login != "" {
-		stmt, err = s.db.Prepare(`UPDATE public.users SET login = $1 WHERE id = $2`)
+		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET login = %s WHERE id = $2`, u.Login))
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+
 		stmts = append(stmts, stmt)
 	}
 	if u.Username != "" {
-		stmt, err = s.db.Prepare(`UPDATE public.users SET username = $1 WHERE id = $2`)
+		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET username = %s WHERE id = $2`, u.Username))
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+
 		stmts = append(stmts, stmt)
 	}
 	if u.Password != "" {
-		stmt, err = s.db.Prepare(`UPDATE public.users SET password = $1 WHERE id = $2`)
+		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET password = %s WHERE id = $2`, u.Password))
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+
 		stmts = append(stmts, stmt)
 	}
 	if u.Email != "" {
-		stmt, err = s.db.Prepare(`UPDATE public.users SET email = $1 WHERE id = $2`)
+		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET email = %s WHERE id = $2`, u.Email))
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+
 		stmts = append(stmts, stmt)
 	}
 
-	res, err := stmt.Exec(u.Login, u.Username, u.Password, u.Email, id)
-	if err != nil {
-		return -1, fmt.Errorf("%s: %v", op, err)
+	var res sql.Result
+
+	for _, st := range stmts {
+		res, err = st.Exec(id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
 	}
 
 	n, err := res.RowsAffected()
