@@ -95,7 +95,9 @@ func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 
 	switch field {
 	case "admin":
+		field = "is_admin"
 	case "block":
+		field = "is_blocked"
 	default:
 		return -2, fmt.Errorf("%s: no such field: %v", op, field)
 	}

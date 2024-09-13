@@ -212,11 +212,15 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 				log.Info(err.Error())
 
 				http.Error(w, "No such user", http.StatusNotFound)
+
+				return
 			} else if n == -2 {
 
 				log.Info(err.Error())
 
 				http.Error(w, "Login or email already used", http.StatusBadRequest)
+
+				return
 			}
 			util.InternalError(w, r, log, err)
 			return
@@ -372,10 +376,14 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 				log.Info(err.Error())
 
 				http.Error(w, "No such user", http.StatusNotFound)
+
+				return
 			} else if n == -2 {
 				log.Info(err.Error())
 
 				http.Error(w, "No such field", http.StatusBadRequest)
+
+				return
 			}
 			util.InternalError(w, r, log, err)
 			return

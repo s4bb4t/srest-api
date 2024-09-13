@@ -216,6 +216,8 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 				log.Info(err.Error())
 
 				http.Error(w, "No such task", http.StatusNotFound)
+
+				return
 			}
 			util.InternalError(w, r, log, err)
 			return
@@ -264,6 +266,8 @@ func Delete(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 				log.Info(err.Error())
 
 				http.Error(w, "No such task", http.StatusNotFound)
+
+				return
 			}
 			util.InternalError(w, r, log, err)
 			return
