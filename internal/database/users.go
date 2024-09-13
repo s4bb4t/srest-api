@@ -85,7 +85,9 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 			return user, fmt.Errorf("%s: %v", op, err)
 		}
 
-		err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
+		var login, password string
+
+		err = stmt.QueryRow(u.Login).Scan(&user.ID, login, &user.Username, &password, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
 		if err != nil {
 			return user, fmt.Errorf("%s: %v", op, err)
 		}
@@ -187,9 +189,10 @@ func (s *Storage) GetAll(search, order string, isblocked bool, limit, offset int
 
 	var result []u.TableUser
 	var user u.TableUser
+	var login, password string
 
 	for rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
+		if err := rows.Scan(&user.ID, login, &user.Username, &password, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
 			return nil, fmt.Errorf("%s: %v", op, err)
 		}
 
@@ -208,9 +211,10 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	}
 
 	var user u.TableUser
+	var login, password string
 
 	if rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
+		if err := rows.Scan(&user.ID, login, &user.Username, &password, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
 			return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 		}
 	} else {
