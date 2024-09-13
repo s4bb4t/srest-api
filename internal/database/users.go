@@ -59,41 +59,32 @@ func (s *Storage) Add(u u.User) (int, error) {
 func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 	const op = "database.postgres.Auth"
 
-	stmt, err := s.db.Prepare(`
-		SELECT EXISTS (
-			SELECT 1 FROM public.users 
-			WHERE login = $1 AND password = $2
-		)
-	`)
+	stmt, err := s.db.Prepare(`SELECT password FROM public.users WHERE login = $1`)
 	if err != nil {
 		return user, fmt.Errorf("%s: %v", op, err)
 	}
 
-	pwd, err := password.HashPassword(u.Password)
+	var pwd string
+
+	if err = stmt.QueryRow(u.Login).Scan(&pwd); err != nil {
+		return user, fmt.Errorf("%s: %v", op, err)
+	}
+
+	if err := password.CheckPassword([]byte(pwd), u.Password); err != nil {
+		return user, fmt.Errorf("%s: %v", op, err)
+	}
+
+	stmt, err = s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE login = $1`)
 	if err != nil {
 		return user, fmt.Errorf("%s: %v", op, err)
 	}
 
-	var exists bool
-	if err = stmt.QueryRow(u.Login, string(pwd)).Scan(&exists); err != nil {
+	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
+	if err != nil {
 		return user, fmt.Errorf("%s: %v", op, err)
 	}
-
-	if exists {
-		stmt, err = s.db.Prepare(`SELECT * FROM public.users WHERE login = $1`)
-		if err != nil {
-			return user, fmt.Errorf("%s: %v", op, err)
-		}
-
-		var login, password string
-
-		err = stmt.QueryRow(u.Login).Scan(&user.ID, &login, &user.Username, &password, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
-		if err != nil {
-			return user, fmt.Errorf("%s: %v", op, err)
-		}
-		if user.IsBlocked {
-			user.IsAdmin = false
-		}
+	if user.IsBlocked {
+		user.IsAdmin = false
 	}
 
 	return user, nil
@@ -167,14 +158,14 @@ func (s *Storage) GetAll(search, order string, isblocked bool, limit, offset int
 	if order == "none" {
 		order = "id"
 		query = `
-			SELECT * FROM public.users
+			SELECT id, username, email, date, is_blocked, is_admin FROM public.users
 			WHERE ($1 = '' OR login ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' OR username ILIKE '%' || $1 || '%') AND block = $2
 			ORDER BY $3 ASC
 			LIMIT $4 OFFSET $5
 		`
 	} else {
 		query = `
-			SELECT * FROM public.users
+			SELECT id, username, email, date, is_blocked, is_admin FROM public.users
 			WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND block = $2)
 			ORDER BY CASE WHEN $3 = 'asc' THEN email END ASC,
 					CASE WHEN $3 = 'desc' THEN email END DESC
@@ -189,10 +180,9 @@ func (s *Storage) GetAll(search, order string, isblocked bool, limit, offset int
 
 	var result []u.TableUser
 	var user u.TableUser
-	var login, password string
 
 	for rows.Next() {
-		if err := rows.Scan(&user.ID, &login, &user.Username, &password, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
 			return nil, fmt.Errorf("%s: %v", op, err)
 		}
 
@@ -205,16 +195,15 @@ func (s *Storage) GetAll(search, order string, isblocked bool, limit, offset int
 func (s *Storage) Get(id int) (u.TableUser, error) {
 	const op = "database.postgres.GetUser"
 
-	rows, err := s.db.Query(`SELECT * FROM public.users WHERE id = $1`, id)
+	rows, err := s.db.Query(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE id = $1`, id)
 	if err != nil {
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
 
 	var user u.TableUser
-	var login, password string
 
 	if rows.Next() {
-		if err := rows.Scan(&user.ID, &login, &user.Username, &password, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
 			return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 		}
 	} else {

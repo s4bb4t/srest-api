@@ -30,7 +30,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 			password TEXT,
 			email TEXT UNIQUE,
 			date TEXT,
-			is_block BOOLEAN NOT NULL DEFAULT FALSE,
+			is_blocked BOOLEAN NOT NULL DEFAULT FALSE,
 			is_admin BOOLEAN NOT NULL DEFAULT FALSE
 		)
 	`)

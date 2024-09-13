@@ -18,13 +18,13 @@ func HashPassword(password string) ([]byte, error) {
 	return hashedPassword, nil
 }
 
-// func CheckPassword(hashedPassword []byte, password string) error {
-// 	const op = "password.CheckPassword"
+func CheckPassword(hashedPassword []byte, password string) error {
+	const op = "password.CheckPassword"
 
-// 	err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
-// 	if err != nil {
-// 		return fmt.Errorf("%s: %v", op, err)
-// 	}
+	err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	if err != nil {
+		return fmt.Errorf("%s: %v", op, err)
+	}
 
-// 	return nil
-// }
+	return nil
+}
