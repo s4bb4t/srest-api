@@ -442,7 +442,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid input.",
+                        "description": "failed to deserialize json request.",
                         "schema": {
                             "type": "string"
                         }
@@ -920,23 +920,36 @@ const docTemplate = `{
         },
         "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest": {
             "type": "object",
+            "required": [
+                "title"
+            ],
             "properties": {
                 "isDone": {
                     "type": "boolean"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 40,
+                    "minLength": 2
                 }
             }
         },
         "github_com_sabbatD_srest-api_internal_lib_userConfig.AuthData": {
             "type": "object",
+            "required": [
+                "login",
+                "password"
+            ],
             "properties": {
                 "login": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 5
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 5
                 }
             }
         },
@@ -965,18 +978,32 @@ const docTemplate = `{
         },
         "github_com_sabbatD_srest-api_internal_lib_userConfig.User": {
             "type": "object",
+            "required": [
+                "email",
+                "login",
+                "password",
+                "username"
+            ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 5
                 },
                 "login": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 5
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 3
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 5
                 }
             }
         },
