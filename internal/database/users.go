@@ -218,12 +218,8 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	const op = "database.postgres.UpdateUser"
 
-	var stmts []*sql.Stmt
-	var stmt *sql.Stmt
-	var err error
-
 	var exists bool
-	stmt, err = s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE login = $1 OR email = $2)`)
+	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE login = $1 OR email = $2)`)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
@@ -235,58 +231,46 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 		return -2, fmt.Errorf("%s: login or email already used", op)
 	}
 
-	if u.Login != "" {
-		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET login = %s WHERE id = %d`, u.Login, id))
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-
-		stmts = append(stmts, stmt)
-	}
-	if u.Username != "" {
-		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET username = %s WHERE id = %d`, u.Username, id))
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-
-		stmts = append(stmts, stmt)
-	}
-	if u.Password != "" {
-		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET password = %s WHERE id = %d`, u.Password, id))
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-
-		stmts = append(stmts, stmt)
-	}
-	if u.Email != "" {
-		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET email = %s WHERE id = %d`, u.Email, id))
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-
-		stmts = append(stmts, stmt)
-	}
-
-	var res sql.Result
-
-	for _, st := range stmts {
-		res, err = st.Exec()
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-	}
-
-	n, err := res.RowsAffected()
+	tx, err := s.db.Begin()
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 
-	if n == 0 {
-		return n, fmt.Errorf("%s: no users with id: %v", op, id)
+	defer tx.Rollback()
+
+	if u.Login != "" {
+		_, err = tx.Exec(`UPDATE public.users SET login = $1 WHERE id = $2`, u.Login, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
 	}
 
-	return n, nil
+	if u.Username != "" {
+		_, err = tx.Exec(`UPDATE public.users SET username = $1 WHERE id = $2`, u.Username, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+	}
+
+	if u.Password != "" {
+		_, err = tx.Exec(`UPDATE public.users SET password = $1 WHERE id = $2`, u.Password, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+	}
+
+	if u.Email != "" {
+		_, err = tx.Exec(`UPDATE public.users SET email = $1 WHERE id = $2`, u.Email, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return -1, fmt.Errorf("%s: %v", op, err)
+	}
+
+	return 1, nil
 }
 
 func (s *Storage) SaveRefreshToken(token string, id int) error {
