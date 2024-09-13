@@ -215,7 +215,7 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	return user, nil
 }
 
-func (s *Storage) UpdateUser(u u.User, id int) (int64, error) {
+func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	const op = "database.postgres.UpdateUser"
 
 	var stmts []*sql.Stmt

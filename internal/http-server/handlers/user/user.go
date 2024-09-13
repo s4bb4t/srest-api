@@ -31,7 +31,7 @@ type UserHandler interface {
 	Add(u u.User) (int, error)
 	Auth(u u.AuthData) (user u.TableUser, err error)
 	Get(id int) (u.TableUser, error)
-	UpdateUser(u u.User, id int) (int64, error)
+	UpdateUser(u u.PutUser, id int) (int64, error)
 	RefreshToken(token string) (string, int, error)
 	SaveRefreshToken(token string, id int) error
 }
@@ -43,7 +43,7 @@ type UserHandler interface {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param UserData body u.User true "Complete user data for registration"
+// @Param UserData body u.PutUser true "Any user data for registration"
 // @Success 201 {object} u.TableUser "Registration successful. Returns user data."
 // @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 400 {object} string "Invalid input."
@@ -313,7 +313,7 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		var req u.User
+		var req u.PutUser
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
 			log.Error("failed to decode request", sl.Err(err))
 

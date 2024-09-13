@@ -155,7 +155,7 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Accept json
 // @Produce json
-// @Param UserData body u.User true "Complete user data"
+// @Param UserData body u.PutUser true "Any user data"
 // @Security BearerAuth
 // @Success 200 {object} u.TableUser "Update successful. Returns user ok."
 // @Failure 400 {object} string "failed to deserialize json request."
