@@ -29,7 +29,7 @@ type AdminHandler interface {
 	GetAll(search, sotrOrder string, isBlocked bool, limit, offset int) ([]u.TableUser, error)
 	Remove(id int) (int64, error)
 	Get(id int) (u.TableUser, error)
-	UpdateUser(u u.User, id int) (int64, error)
+	UpdateUser(u u.PutUser, id int) (int64, error)
 }
 
 // Get godoc
@@ -176,7 +176,7 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		var req u.User
+		var req u.PutUser
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
 			log.Error("failed to decode request", sl.Err(err))
 
