@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 	"time"
 
 	t "github.com/sabbatD/srest-api/internal/lib/todoConfig"
@@ -55,19 +54,14 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
 
-		IsDone, err := strconv.ParseBool(t.IsDone)
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-
-		res, err = stmt.Exec(IsDone, id)
+		res, err = stmt.Exec(*t.IsDone, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
 
 	}
 
-	if t.IsDone == "" {
+	if t.IsDone == nil {
 		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1 WHERE id = $2`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
@@ -79,7 +73,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 
 	}
 
-	if t.Title != "" && t.IsDone != "" {
+	if t.Title != "" && t.IsDone != nil {
 		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1, is_done = $2 WHERE id = $3`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)

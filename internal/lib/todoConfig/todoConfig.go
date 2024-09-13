@@ -11,7 +11,7 @@ type Todos []Todo
 
 type TodoRequest struct {
 	Title  string `json:"title,omitempty"`
-	IsDone string `json:"isDone,omitempty" validate:"oneof='true' 'false' ''"`
+	IsDone *bool  `json:"isDone,omitempty"`
 }
 
 type TodoInfo struct {

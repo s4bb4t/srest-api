@@ -102,46 +102,46 @@ func TestValidateStruct2(t *testing.T) {
 		args    todoconfig.TodoRequest
 		wantErr bool
 	}{
-		{
-			name: "normal",
-			args: todoconfig.TodoRequest{
-				Title:  "todo",
-				IsDone: "true",
-			},
-			wantErr: false,
-		},
-		{
-			name: "empty",
-			args: todoconfig.TodoRequest{
-				Title:  "",
-				IsDone: "false",
-			},
-			wantErr: false,
-		},
-		{
-			name: "empty",
-			args: todoconfig.TodoRequest{
-				Title:  "todo",
-				IsDone: "",
-			},
-			wantErr: false,
-		},
-		{
-			name: "empty",
-			args: todoconfig.TodoRequest{
-				Title:  "",
-				IsDone: "",
-			},
-			wantErr: false,
-		},
-		{
-			name: "empty",
-			args: todoconfig.TodoRequest{
-				Title:  "",
-				IsDone: "abc",
-			},
-			wantErr: true,
-		},
+		// {
+		// 	name: "normal",
+		// 	args: todoconfig.TodoRequest{
+		// 		Title:  "todo",
+		// 		IsDone: "true",
+		// 	},
+		// 	wantErr: false,
+		// },
+		// {
+		// 	name: "empty",
+		// 	args: todoconfig.TodoRequest{
+		// 		Title:  "",
+		// 		IsDone: "false",
+		// 	},
+		// 	wantErr: false,
+		// },
+		// {
+		// 	name: "empty",
+		// 	args: todoconfig.TodoRequest{
+		// 		Title:  "todo",
+		// 		IsDone: "",
+		// 	},
+		// 	wantErr: false,
+		// },
+		// {
+		// 	name: "empty",
+		// 	args: todoconfig.TodoRequest{
+		// 		Title:  "",
+		// 		IsDone: "",
+		// 	},
+		// 	wantErr: false,
+		// },
+		// {
+		// 	name: "empty",
+		// 	args: todoconfig.TodoRequest{
+		// 		Title:  "",
+		// 		IsDone: "abc",
+		// 	},
+		// 	wantErr: true,
+		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
