@@ -236,7 +236,7 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	}
 
 	if u.Login != "" {
-		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET login = %s WHERE id = $1`, u.Login))
+		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET login = %s WHERE id = %d`, u.Login, id))
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -244,7 +244,7 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 		stmts = append(stmts, stmt)
 	}
 	if u.Username != "" {
-		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET username = %s WHERE id = $1`, u.Username))
+		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET username = %s WHERE id = %d`, u.Username, id))
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -252,7 +252,7 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 		stmts = append(stmts, stmt)
 	}
 	if u.Password != "" {
-		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET password = %s WHERE id = $1`, u.Password))
+		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET password = %s WHERE id = %d`, u.Password, id))
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -260,7 +260,7 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 		stmts = append(stmts, stmt)
 	}
 	if u.Email != "" {
-		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET email = %s WHERE id = $1`, u.Email))
+		stmt, err = s.db.Prepare(fmt.Sprintf(`UPDATE public.users SET email = %s WHERE id = %d`, u.Email, id))
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -271,7 +271,7 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	var res sql.Result
 
 	for _, st := range stmts {
-		res, err = st.Exec(id)
+		res, err = st.Exec()
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
