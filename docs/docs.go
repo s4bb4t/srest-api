@@ -46,14 +46,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "sotrBy email or username or id. Default - id.",
-                        "name": "sotrby",
+                        "description": "sortBy email or username or id. Default - id.",
+                        "name": "sortby",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "sotrOrder asc or desc or none.",
-                        "name": "sotrOrder",
+                        "description": "sortOrder asc or desc or none.",
+                        "name": "sortOrder",
                         "in": "query"
                     },
                     {

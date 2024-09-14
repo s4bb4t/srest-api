@@ -153,13 +153,13 @@ paths:
         in: query
         name: search
         type: string
-      - description: sotrBy email or username or id. Default - id.
+      - description: sortBy email or username or id. Default - id.
         in: query
-        name: sotrby
+        name: sortby
         type: string
-      - description: sotrOrder asc or desc or none.
+      - description: sortOrder asc or desc or none.
         in: query
-        name: sotrOrder
+        name: sortOrder
         type: string
       - description: block status
         in: query
