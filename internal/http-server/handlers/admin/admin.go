@@ -68,11 +68,11 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 			q.SortBy = "id"
 		}
 
-		q.SortOrder = strings.ToLower(r.URL.Query().Get("sotrOrder"))
+		q.SortOrder = strings.ToUpper(r.URL.Query().Get("sotrOrder"))
 		switch q.SortOrder {
-		case "asc", "desc", "none":
+		case "ASC", "DESC", "NONE":
 		default:
-			q.SortOrder = "asc"
+			q.SortOrder = "ASC"
 		}
 
 		isblockedStr := r.URL.Query().Get("isBlocked")
