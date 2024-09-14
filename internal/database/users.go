@@ -153,43 +153,46 @@ func (s *Storage) Remove(id int) (int64, error) {
 	return n, nil
 }
 
-func (s *Storage) GetAll(search, order string, isblocked bool, limit, offset int) ([]u.TableUser, error) {
+func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	const op = "database.postgres.GetAllUsers"
 
-	query := ``
-	if order == "none" {
-		order = "id"
-		query = `
-			SELECT id, username, email, date, is_blocked, is_admin FROM public.users
-			WHERE ($1 = '' OR login ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%' OR username ILIKE '%' || $1 || '%') AND is_blocked = $2
-			ORDER BY $3 ASC
-			LIMIT $4 OFFSET $5
-		`
-	} else {
-		query = `
-			SELECT id, username, email, date, is_blocked, is_admin FROM public.users
-			WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND is_blocked = $2)
-			ORDER BY CASE WHEN $3 = 'asc' THEN email END ASC,
-					CASE WHEN $3 = 'desc' THEN email END DESC
-			LIMIT $4 OFFSET $5
-		`
-	}
+	query := `SELECT 1 FROM public.users`
 
-	rows, err := s.db.Query(query, search, isblocked, order, limit, offset)
+	rows, err := s.db.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", op, err)
+		return result, fmt.Errorf("%s: %v", op, err)
 	}
-
-	var result []u.TableUser
-	var user u.TableUser
 
 	for rows.Next() {
+		result.Meta.TotalAmount++
+	}
+	result.Meta.SortBy, result.Meta.SortOrder = q.SortBy, q.SortOrder
+
+	query = `
+		SELECT id, username, email, date, is_blocked, is_admin FROM public.users
+		WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND is_blocked = $4)
+		ORDER BY CASE WHEN $3 = 'asc' THEN $2 END ASC,
+				CASE WHEN $3 = 'desc' THEN $2 END DESC,
+				CASE WHEN $3 = 'none' THEN $2 END ASC
+		LIMIT $5 OFFSET $6
+	`
+
+	rows, err = s.db.Query(query, q.SearchTerm, q.SortBy, q.SortOrder, q.IsBlocked, q.Limit, q.Limit)
+	if err != nil {
+		return result, fmt.Errorf("%s: %v", op, err)
+	}
+
+	var user u.TableUser
+	var users []u.TableUser
+	for rows.Next() {
 		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
-			return nil, fmt.Errorf("%s: %v", op, err)
+			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
-		result = append(result, user)
+		users = append(users, user)
 	}
+
+	result.Data = users
 
 	return result, nil
 }
