@@ -150,15 +150,15 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Info("input validated")
 
 		user, err := User.Auth(req)
-		if err != nil {
-			util.InternalError(w, r, log, err)
-			return
-		}
 		if user.ID == 0 {
 			log.Info("wrong login or password")
 
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 
+			return
+		}
+		if err != nil {
+			util.InternalError(w, r, log, err)
 			return
 		}
 

@@ -61,27 +61,27 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 
 	stmt, err := s.db.Prepare(`SELECT password FROM public.users WHERE login = $1`)
 	if err != nil {
-		return user, fmt.Errorf("%s: %v", op, err)
+		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT password FROM public.users WHERE login = $1`): %v", op, err)
 	}
 
 	var pwd string
 
 	if err = stmt.QueryRow(u.Login).Scan(&pwd); err != nil {
-		return user, fmt.Errorf("%s: %v", op, err)
+		return user, fmt.Errorf("%s.stmt.QueryRow(u.Login): %v", op, err)
 	}
 
 	if err := password.CheckPassword([]byte(pwd), u.Password); err != nil {
-		return user, fmt.Errorf("%s: %v", op, err)
+		return user, fmt.Errorf("%s.password.CheckPassword: %v", op, err)
 	}
 
 	stmt, err = s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE login = $1`)
 	if err != nil {
-		return user, fmt.Errorf("%s: %v", op, err)
+		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE login = $1`): %v", op, err)
 	}
 
 	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
 	if err != nil {
-		return user, fmt.Errorf("%s: %v", op, err)
+		return user, fmt.Errorf("%s.stmt.QueryRow(u.Login).Scan(user): %v", op, err)
 	}
 	if user.IsBlocked {
 		user.IsAdmin = false
