@@ -90,7 +90,7 @@ func main() {
 		router.Route("/admin", func(r chi.Router) {
 			r.Use(access.JWTAuthMiddleware)
 
-			r.Get("/users", admin.GetAll(log, storage))
+			r.Get("/users", admin.All(log, storage))
 
 			r.Get("/users/{id}", admin.Profile(log, storage))
 			r.Put("/users/{id}", admin.UpdateUser(log, storage))

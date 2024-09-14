@@ -20,19 +20,15 @@ type UpdateRequest struct {
 	Value any
 }
 
-type Users struct {
-	Users []u.TableUser `json:"users"`
-}
-
 type AdminHandler interface {
 	UpdateField(field string, id int, val any) (int64, error)
-	GetAll(search, sotrOrder string, isBlocked bool, limit, offset int) ([]u.TableUser, error)
+	All(q u.GetAllQuery) (result u.MetaResponse, E error)
 	Remove(id int) (int64, error)
 	Get(id int) (u.TableUser, error)
 	UpdateUser(u u.PutUser, id int) (int64, error)
 }
 
-// Get godoc
+// All godoc
 // @Summary Get all users
 // @Description Gets users by accepting a url query payload containing filters.
 // Requires an Authorization header with a "Bearer token" for authentication.
@@ -44,12 +40,12 @@ type AdminHandler interface {
 // @Param limit query int false "limit of users for query"
 // @Param offset query int false "offset"
 // @Security BearerAuth
-// @Success 200 {object} Users "Retrieve successful. Returns users."
+// @Success 200 {object} u.MetaResponse "Retrieve successful. Returns users."
 // @Failure 401 {object} string "User context not found."
 // @Failure 403 {object} string "Not enough rights."
 // @Failure 500 {object} string "Internal error."
 // @Router /admin/users [get]
-func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
+func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.admin.GetAll"
 
@@ -59,41 +55,53 @@ func GetAll(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		search := r.URL.Query().Get("search")
-		sotrOrder := strings.ToLower(r.URL.Query().Get("sotrOrder"))
-		isblockedStr := r.URL.Query().Get("isBlocked")
-		limitStr := r.URL.Query().Get("limit")
-		offsetStr := r.URL.Query().Get("offset")
+		var q u.GetAllQuery
+		var E error
 
-		switch sotrOrder {
+		q.SearchTerm = r.URL.Query().Get("search")
+
+		q.SortBy = strings.ToLower(r.URL.Query().Get("sotrBy"))
+		switch q.SortBy {
+		case "email", "username", "id":
+		default:
+			q.SortBy = "id"
+		}
+
+		q.SortOrder = strings.ToLower(r.URL.Query().Get("sotrOrder"))
+		switch q.SortOrder {
 		case "asc", "desc", "none":
 		default:
-			sotrOrder = "none"
-		}
-		if isblockedStr == "" {
-			isblockedStr = "false"
-		}
-		if limitStr == "" {
-			limitStr = "20"
-		}
-		if offsetStr == "" {
-			offsetStr = "0"
+			q.SortOrder = "none"
 		}
 
-		isBlocked, _ := strconv.ParseBool(isblockedStr)
-		limit, _ := strconv.Atoi(limitStr)
-		offset, _ := strconv.Atoi(offsetStr)
+		isblockedStr := r.URL.Query().Get("isBlocked")
+		q.IsBlocked, E = strconv.ParseBool(isblockedStr)
+		if E != nil {
+			q.IsBlocked = false
+		}
 
-		users, err := User.GetAll(search, sotrOrder, isBlocked, limit, offset)
+		limitStr := r.URL.Query().Get("limit")
+		q.Limit, E = strconv.Atoi(limitStr)
+		if E != nil || q.Limit < 20 {
+			q.Limit = 20
+		}
+
+		offsetStr := r.URL.Query().Get("offset")
+		q.Offset, E = strconv.Atoi(offsetStr)
+		if E != nil || q.Offset < 0 {
+			q.Offset = 0
+		}
+
+		metaResponse, err := Users.All(q)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
 		}
 
 		log.Info("users successfully retrieved")
-		log.Debug(fmt.Sprintf("params: %v, %v, %v, %v, %v", search, sotrOrder, isBlocked, limit, offset))
+		log.Debug(fmt.Sprintf("query: %v", q))
 
-		render.JSON(w, r, Users{users})
+		render.JSON(w, r, metaResponse)
 	}
 }
 

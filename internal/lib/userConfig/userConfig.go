@@ -27,3 +27,23 @@ type TableUser struct {
 	IsBlocked bool   `json:"isBlocked"`
 	IsAdmin   bool   `json:"isAdmin"`
 }
+
+type Meta struct {
+	TotalAmount int    `json:"totalAmount"`
+	SortBy      string `json:"sortBy"`
+	SortOrder   string `json:"sortOrder"`
+}
+
+type MetaResponse struct {
+	Data []TableUser `json:"data"`
+	Meta Meta        `json:"meta"`
+}
+
+type GetAllQuery struct {
+	SearchTerm string
+	SortBy     string
+	SortOrder  string
+	IsBlocked  bool
+	Limit      int
+	Offset     int
+}
