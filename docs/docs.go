@@ -40,13 +40,19 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Search in login or username or email",
+                        "description": "search in username or email",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "sotrOrder asc or desc or none (asc, decs - sotrOrder by email, none - sotrOrder by id)",
+                        "description": "sotrBy email or username or id. Default - id.",
+                        "name": "sotrby",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "sotrOrder asc or desc or none.",
                         "name": "sotrOrder",
                         "in": "query"
                     },
@@ -73,7 +79,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Retrieve successful. Returns users.",
                         "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_admin.Users"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.MetaResponse"
                         }
                     },
                     "401": {
@@ -944,6 +950,34 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.Meta": {
+            "type": "object",
+            "properties": {
+                "sortBy": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "string"
+                },
+                "totalAmount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.MetaResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.Meta"
+                }
+            }
+        },
         "github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser": {
             "type": "object",
             "properties": {
@@ -1014,17 +1048,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {}
-            }
-        },
-        "internal_http-server_handlers_admin.Users": {
-            "type": "object",
-            "properties": {
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
-                    }
-                }
             }
         },
         "internal_http-server_handlers_user.RefreshToken": {
