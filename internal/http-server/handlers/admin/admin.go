@@ -35,7 +35,7 @@ type AdminHandler interface {
 // @Tags admin
 // @Produce json
 // @Param search query string false "search in username or email"
-// @Param sortby query string false "sortBy email or username or id. Default - id."
+// @Param sortBy query string false "sortBy email or username or id. Default - id."
 // @Param sortOrder query string false "sortOrder asc or desc or none."
 // @Param isBlocked query bool false "block status"
 // @Param limit query int false "limit of users for query"
