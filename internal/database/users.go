@@ -170,14 +170,14 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 
 	query = `
 		SELECT id, username, email, date, is_blocked, is_admin FROM public.users
-		WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND is_blocked = $4)
-		ORDER BY CASE WHEN $3 = 'asc' THEN $2 END ASC,
-				CASE WHEN $3 = 'desc' THEN $2 END DESC,
-				CASE WHEN $3 = 'none' THEN $2 END ASC
+		WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND is_blocked = $2)
+		ORDER BY 
+			CASE WHEN $3 = 'asc' THEN $4 END ASC,
+			CASE WHEN $3 = 'desc' THEN $4 END DESC
 		LIMIT $5 OFFSET $6
 	`
 
-	rows, err = s.db.Query(query, q.SearchTerm, q.SortBy, q.SortOrder, q.IsBlocked, q.Limit, q.Limit)
+	rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.SortOrder, q.SortBy, q.Limit, q.Limit)
 	if err != nil {
 		return result, fmt.Errorf("%s: %v", op, err)
 	}
@@ -256,7 +256,12 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	}
 
 	if u.Password != "" {
-		_, err = tx.Exec(`UPDATE public.users SET password = $1 WHERE id = $2`, u.Password, id)
+		pwd, err := password.HashPassword(u.Password)
+		if err != nil {
+			return 0, fmt.Errorf("%s: %v", op, err)
+		}
+
+		_, err = tx.Exec(`UPDATE public.users SET password = $1 WHERE id = $2`, pwd, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}

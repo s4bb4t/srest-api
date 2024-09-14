@@ -35,8 +35,8 @@ type AdminHandler interface {
 // @Tags admin
 // @Produce json
 // @Param search query string false "search in username or email"
-// @Param sotrby query string false "sotrBy email or username or id. Default - id."
-// @Param sotrOrder query string false "sotrOrder asc or desc or none."
+// @Param sortby query string false "sortBy email or username or id. Default - id."
+// @Param sortOrder query string false "sortOrder asc or desc or none."
 // @Param isBlocked query bool false "block status"
 // @Param limit query int false "limit of users for query"
 // @Param offset query int false "offset"
@@ -72,7 +72,7 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 		switch q.SortOrder {
 		case "asc", "desc", "none":
 		default:
-			q.SortOrder = "none"
+			q.SortOrder = "asc"
 		}
 
 		isblockedStr := r.URL.Query().Get("isBlocked")
