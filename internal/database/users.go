@@ -177,7 +177,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		LIMIT $5 OFFSET $6
 	`
 
-	rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.SortOrder, q.SortBy, q.Limit, q.Limit)
+	rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.SortOrder, q.SortBy, q.Limit, q.Offset)
 	if err != nil {
 		return result, fmt.Errorf("%s: %v", op, err)
 	}
@@ -188,14 +188,12 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
-		fmt.Println(user)
 
 		users = append(users, user)
 	}
-	fmt.Println(users)
+
 	result.Data = users
 
-	fmt.Println(result)
 	return result, nil
 }
 
