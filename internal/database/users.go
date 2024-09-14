@@ -173,7 +173,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		FROM public.users
 		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
 		AND is_blocked = $2
-		ORDER BY` + q.SortBy + ` ` + q.SortOrder + `
+		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
 		LIMIT $3 OFFSET $4;
 	`
 
