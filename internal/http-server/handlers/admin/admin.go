@@ -34,8 +34,9 @@ type AdminHandler interface {
 // Requires an Authorization header with a "Bearer token" for authentication.
 // @Tags admin
 // @Produce json
-// @Param search query string false "Search in login or username or email"
-// @Param sotrOrder query string false "sotrOrder asc or desc or none (asc, decs - sotrOrder by email, none - sotrOrder by id)"
+// @Param search query string false "search in username or email"
+// @Param sotrby query string false "sotrBy email or username or id. Default - id."
+// @Param sotrOrder query string false "sotrOrder asc or desc or none."
 // @Param isBlocked query bool false "block status"
 // @Param limit query int false "limit of users for query"
 // @Param offset query int false "offset"
