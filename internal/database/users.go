@@ -173,18 +173,11 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		FROM public.users
 		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
 		AND is_blocked = $2
-		ORDER BY
-		CASE WHEN $3 = 'username' THEN username
-			WHEN $3 = 'email' THEN email
-			ELSE id
-		END
-		CASE WHEN $4 = 'ASC' THEN ASC
-			WHEN $4 = 'DESC' THEN DESC
-		END
-		LIMIT $5 OFFSET $6;
+		ORDER BY` + q.SortBy + ` ` + q.SortOrder + `
+		LIMIT $3 OFFSET $4;
 	`
 
-	rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.SortBy, q.SortOrder, q.Limit, q.Offset)
+	rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.Limit, q.Offset)
 	if err != nil {
 		return result, fmt.Errorf("%s: %v", op, err)
 	}
