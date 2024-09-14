@@ -169,11 +169,28 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	result.Meta.SortBy, result.Meta.SortOrder = q.SortBy, q.SortOrder
 
 	query = `
-		SELECT id, username, email, date, is_blocked, is_admin FROM public.users
+		SELECT id, username, email, date, is_blocked, is_admin
+		FROM public.users
 		WHERE (($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%') AND is_blocked = $2)
 		ORDER BY
-			CASE WHEN $4 = 'asc' THEN $3 END ASC,
-			CASE WHEN $4 = 'desc' THEN $3 END DESC
+			CASE WHEN $4 = 'asc' THEN
+				CASE $3
+					WHEN 'email' THEN email
+					WHEN 'username' THEN username
+					WHEN 'id' THEN id
+					ELSE id
+				END
+			ELSE NULL
+			END ASC,
+			CASE WHEN $4 = 'desc' THEN
+				CASE $3
+					WHEN 'email' THEN email
+					WHEN 'username' THEN username
+					WHEN 'id' THEN id
+					ELSE id
+				END
+			ELSE NULL
+			END DESC
 		LIMIT $5 OFFSET $6
 	`
 
