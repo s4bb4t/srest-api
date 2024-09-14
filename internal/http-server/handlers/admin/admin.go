@@ -61,14 +61,14 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 
 		q.SearchTerm = r.URL.Query().Get("search")
 
-		q.SortBy = strings.ToLower(r.URL.Query().Get("sotrBy"))
+		q.SortBy = strings.ToLower(r.URL.Query().Get("sortBy"))
 		switch q.SortBy {
 		case "email", "username", "id":
 		default:
 			q.SortBy = "id"
 		}
 
-		q.SortOrder = strings.ToUpper(r.URL.Query().Get("sotrOrder"))
+		q.SortOrder = strings.ToUpper(r.URL.Query().Get("sortOrder"))
 		switch q.SortOrder {
 		case "ASC", "DESC", "NONE":
 		default:
