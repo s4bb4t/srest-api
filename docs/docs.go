@@ -47,7 +47,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "sortBy email or username or id. Default - id.",
-                        "name": "sortby",
+                        "name": "sortBy",
                         "in": "query"
                     },
                     {
