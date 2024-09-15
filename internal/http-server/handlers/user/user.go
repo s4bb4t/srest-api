@@ -367,19 +367,18 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 // UpdatePassword godoc
 // @Summary Update user' Password
-// @Description Updates the user's Password with new data provided in the JSON payload.
+// @Description Updates the user's password with new data provided in the JSON payload.
 // The user must be authenticated and provide a valid JWT token.
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param Userdata body u.User true "Updated user data"
+// @Param Password body u.Pwd true "New password"
 // @Security BearerAuth
 // @Success 200 {object} u.TableUser "Profile successfully updated."
 // @Failure 400 {object} string "failed to deserialize json request."
-// @Failure 400 {object} string "Login or email already used."
 // @Failure 404 {object} string "No such user."
 // @Failure 500 {object} string "Internal error."
-// @Router /user/profile [put]
+// @Router /user/profile/reset-password [put]
 func ChangePassword(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.ChangePassword"
@@ -406,7 +405,7 @@ func ChangePassword(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			if err.Error() == "database.postgres.ChangePassword: no such user" {
 				log.Info(err.Error())
 
-				http.Error(w, "No such user", http.StatusBadRequest)
+				http.Error(w, "No such user", http.StatusNotFound)
 
 				return
 			}
