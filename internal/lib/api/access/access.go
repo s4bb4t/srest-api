@@ -47,7 +47,7 @@ func NewAccessToken(id int, admin bool) (string, error) {
 
 func NewRefreshToken() string {
 	token := jwt.New(jwt.SigningMethodHS256)
-	key := strconv.Itoa(int(time.Now().Unix())*2 + 1%3)
+	key := []byte(strconv.Itoa((int(time.Now().Unix())*2 + 1) % 3))
 	tokenString, err := token.SignedString(key)
 	if err != nil {
 		return ""
