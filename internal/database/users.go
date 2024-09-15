@@ -262,6 +262,13 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 		}
 	}
 
+	if u.PhoneNumber != "" {
+		_, err = tx.Exec(`UPDATE public.users SET phone_number = $1 WHERE id = $2`, u.PhoneNumber, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+	}
+
 	if err := tx.Commit(); err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
