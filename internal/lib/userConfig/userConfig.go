@@ -5,7 +5,7 @@ type User struct {
 	Username    string `json:"username" validate:"required,min=1,max=60,alphanumunicode"`
 	Password    string `json:"password" validate:"required,min=6,max=60,alphanumunicode"`
 	Email       string `json:"email" validate:"required,email"`
-	PhoneNumber string `json:"phone" validate:"number"`
+	PhoneNumber string `json:"phoneNumber" validate:"number"`
 }
 
 type PutUser struct {
