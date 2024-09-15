@@ -74,10 +74,16 @@ definitions:
   github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser:
     properties:
       email:
+        maxLength: 60
+        minLength: 6
         type: string
       login:
+        maxLength: 60
+        minLength: 2
         type: string
       username:
+        maxLength: 60
+        minLength: 1
         type: string
     type: object
   github_com_sabbatD_srest-api_internal_lib_userConfig.Pwd:
@@ -97,6 +103,8 @@ definitions:
         type: boolean
       isBlocked:
         type: boolean
+      phoneNumber:
+        type: string
       username:
         type: string
     type: object
@@ -111,6 +119,8 @@ definitions:
       password:
         maxLength: 60
         minLength: 6
+        type: string
+      phone:
         type: string
       username:
         maxLength: 60

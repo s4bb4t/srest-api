@@ -1039,13 +1039,19 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 6
                 },
                 "login": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 2
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 1
                 }
             }
         },
@@ -1075,6 +1081,9 @@ const docTemplate = `{
                 "isBlocked": {
                     "type": "boolean"
                 },
+                "phoneNumber": {
+                    "type": "string"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -1101,6 +1110,9 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 60,
                     "minLength": 6
+                },
+                "phone": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string",
