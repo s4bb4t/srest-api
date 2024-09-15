@@ -200,7 +200,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 func (s *Storage) Get(id int) (u.TableUser, error) {
 	const op = "database.postgres.GetUser"
 
-	rows, err := s.db.Query(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE id = $1`, id)
+	rows, err := s.db.Query(`SELECT id, username, email, date, is_blocked, is_admin, phone_number FROM public.users WHERE id = $1`, id)
 	if err != nil {
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
@@ -208,7 +208,7 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	var user u.TableUser
 
 	if rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin, &user.PhoneNumber); err != nil {
 			return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 		}
 	} else {
