@@ -25,6 +25,15 @@ func TestValidateStruct(t *testing.T) {
 			},
 		},
 		{
+			name: "not normal",
+			args: userConfig.User{
+				Login:    "asdsad",
+				Username: "asdasdasdasdasdasdklmd12l3kme12ioj31oij2io3j12io3j1io",
+				Password: "password",
+				Email:    "sabb@gmail.com",
+			},
+		},
+		{
 			name: "empty",
 			args: userConfig.User{
 				Login:    "",
