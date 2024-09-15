@@ -816,7 +816,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates the user's Password with new data provided in the JSON payload.",
+                "description": "Updates the user profile with new data provided in the JSON payload.",
                 "consumes": [
                     "application/json"
                 ],
@@ -826,7 +826,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Update user' Password",
+                "summary": "Update user profile",
                 "parameters": [
                     {
                         "description": "Updated user data",
@@ -847,6 +847,63 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Login or email already used.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "No such user.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profile/reset-password": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates the user's password with new data provided in the JSON payload.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user' Password",
+                "parameters": [
+                    {
+                        "description": "New password",
+                        "name": "Password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.Pwd"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile successfully updated.",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
+                        }
+                    },
+                    "400": {
+                        "description": "failed to deserialize json request.",
                         "schema": {
                             "type": "string"
                         }
@@ -988,6 +1045,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_sabbatD_srest-api_internal_lib_userConfig.Pwd": {
+            "type": "object",
+            "properties": {
+                "password": {
                     "type": "string"
                 }
             }

@@ -80,6 +80,11 @@ definitions:
       username:
         type: string
     type: object
+  github_com_sabbatD_srest-api_internal_lib_userConfig.Pwd:
+    properties:
+      password:
+        type: string
+    type: object
   github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser:
     properties:
       date:
@@ -662,8 +667,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Updates the user's Password with new data provided in the JSON
-        payload.
+      description: Updates the user profile with new data provided in the JSON payload.
       parameters:
       - description: Updated user data
         in: body
@@ -680,6 +684,43 @@ paths:
             $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
         "400":
           description: Login or email already used.
+          schema:
+            type: string
+        "404":
+          description: No such user.
+          schema:
+            type: string
+        "500":
+          description: Internal error.
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - user
+  /user/profile/reset-password:
+    put:
+      consumes:
+      - application/json
+      description: Updates the user's password with new data provided in the JSON
+        payload.
+      parameters:
+      - description: New password
+        in: body
+        name: Password
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.Pwd'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile successfully updated.
+          schema:
+            $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser'
+        "400":
+          description: failed to deserialize json request.
           schema:
             type: string
         "404":
