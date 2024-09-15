@@ -10,8 +10,11 @@ type User struct {
 type PutUser struct {
 	Login    string `json:"login,omitempty"`
 	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
 	Email    string `json:"email,omitempty"`
+}
+
+type Pwd struct {
+	Password string `json:"password,omitempty"`
 }
 
 type AuthData struct {

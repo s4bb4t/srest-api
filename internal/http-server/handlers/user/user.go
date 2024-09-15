@@ -34,6 +34,7 @@ type UserHandler interface {
 	UpdateUser(u u.PutUser, id int) (int64, error)
 	RefreshToken(token string) (string, int, error)
 	SaveRefreshToken(token string, id int) error
+	ChangePassword(u u.Pwd, id int) (int64, error)
 }
 
 // Register godoc
@@ -358,7 +359,63 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		}
 
 		log.Info("Successfully updated user")
-		log.Debug(fmt.Sprintf("user: %v to %v with password %v and email %v", userContext.UserId, req.Username, req.Password, req.Email))
+		log.Debug(fmt.Sprintf("user: %v to %v with email %v", userContext, req.Username, req.Email))
+
+		render.JSON(w, r, user)
+	}
+}
+
+// UpdatePassword godoc
+// @Summary Update user' Password
+// @Description Updates the user's Password with new data provided in the JSON payload.
+// The user must be authenticated and provide a valid JWT token.
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param Userdata body u.User true "Updated user data"
+// @Security BearerAuth
+// @Success 200 {object} u.TableUser "Profile successfully updated."
+// @Failure 400 {object} string "failed to deserialize json request."
+// @Failure 400 {object} string "Login or email already used."
+// @Failure 404 {object} string "No such user."
+// @Failure 500 {object} string "Internal error."
+// @Router /user/profile [put]
+func ChangePassword(log *slog.Logger, User UserHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.handlers.user.ChangePassword"
+
+		log.With(util.SlogWith(op, r)...)
+
+		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
+		if !ok {
+			http.Error(w, "User context not found", http.StatusUnauthorized)
+			return
+		}
+
+		var req u.Pwd
+		if err := render.DecodeJSON(r.Body, &req); err != nil {
+			log.Error("failed to decode request", sl.Err(err))
+
+			http.Error(w, "failed to deserialize json request", http.StatusBadRequest)
+
+			return
+		}
+
+		user, err := User.ChangePassword(req, userContext.UserId)
+		if err != nil {
+			if err.Error() == "database.postgres.ChangePassword: no such user" {
+				log.Info(err.Error())
+
+				http.Error(w, "No such user", http.StatusBadRequest)
+
+				return
+			}
+			util.InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info("User's password successfully changed")
+		log.Debug(fmt.Sprintf("user: %v, pwd: %s", user, req.Password))
 
 		render.JSON(w, r, user)
 	}

@@ -255,18 +255,6 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 		}
 	}
 
-	if u.Password != "" {
-		pwd, err := password.HashPassword(u.Password)
-		if err != nil {
-			return 0, fmt.Errorf("%s: %v", op, err)
-		}
-
-		_, err = tx.Exec(`UPDATE public.users SET password = $1 WHERE id = $2`, pwd, id)
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-	}
-
 	if u.Email != "" {
 		_, err = tx.Exec(`UPDATE public.users SET email = $1 WHERE id = $2`, u.Email, id)
 		if err != nil {
@@ -327,4 +315,46 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 	}
 
 	return token, id, nil
+}
+
+func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
+	const op = "database.postgres.ChangePassword"
+
+	var exists bool
+	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE id = $1)`)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v", op, err)
+	}
+
+	if err = stmt.QueryRow(id).Scan(&exists); err != nil {
+		return -1, fmt.Errorf("%s: %v", op, err)
+	}
+	if !exists {
+		return -2, fmt.Errorf("%s: no such user", op)
+	}
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v", op, err)
+	}
+
+	defer tx.Rollback()
+
+	if u.Password != "" {
+		pwd, err := password.HashPassword(u.Password)
+		if err != nil {
+			return 0, fmt.Errorf("%s: %v", op, err)
+		}
+
+		_, err = tx.Exec(`UPDATE public.users SET password = $1 WHERE id = $2`, pwd, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return -1, fmt.Errorf("%s: %v", op, err)
+	}
+
+	return 1, nil
 }

@@ -81,6 +81,7 @@ func main() {
 			u.Use(access.JWTAuthMiddleware)
 
 			u.Get("/profile", user.Profile(log, storage))
+			u.Get("/profile/reset-password", user.ChangePassword(log, storage))
 			u.Put("/profile", user.UpdateUser(log, storage))
 		})
 
