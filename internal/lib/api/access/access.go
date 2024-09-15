@@ -3,6 +3,7 @@ package access
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -51,7 +52,7 @@ func NewRefreshToken() string {
 		return ""
 	}
 
-	return tokenString
+	return tokenString + strconv.Itoa(int(time.Now().Unix()))
 }
 
 func JWTAuthMiddleware(next http.Handler) http.Handler {
