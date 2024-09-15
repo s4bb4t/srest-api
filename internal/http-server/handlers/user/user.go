@@ -374,7 +374,7 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Produce json
 // @Param Password body u.Pwd true "New password"
 // @Security BearerAuth
-// @Success 200 {object} u.TableUser "Profile successfully updated."
+// @Success 200 {object} string "Profile successfully updated."
 // @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 404 {object} string "No such user."
 // @Failure 500 {object} string "Internal error."
@@ -414,8 +414,6 @@ func ChangePassword(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		}
 
 		log.Info("User's password successfully changed")
-		log.Debug(fmt.Sprintf("user: %v, pwd: %s", user, req.Password))
-
-		render.JSON(w, r, user)
+		log.Debug(fmt.Sprintf("user: %v", user))
 	}
 }
