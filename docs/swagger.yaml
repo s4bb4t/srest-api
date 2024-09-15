@@ -77,8 +77,6 @@ definitions:
         type: string
       login:
         type: string
-      password:
-        type: string
       username:
         type: string
     type: object
@@ -664,7 +662,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: Updates the user profile with new data provided in the JSON payload.
+      description: Updates the user's Password with new data provided in the JSON
+        payload.
       parameters:
       - description: Updated user data
         in: body
@@ -693,7 +692,7 @@ paths:
             type: string
       security:
       - BearerAuth: []
-      summary: Update user profile
+      summary: Update user' Password
       tags:
       - user
 schemes:

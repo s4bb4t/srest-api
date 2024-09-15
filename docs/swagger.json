@@ -813,7 +813,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates the user profile with new data provided in the JSON payload.",
+                "description": "Updates the user's Password with new data provided in the JSON payload.",
                 "consumes": [
                     "application/json"
                 ],
@@ -823,7 +823,7 @@
                 "tags": [
                     "user"
                 ],
-                "summary": "Update user profile",
+                "summary": "Update user' Password",
                 "parameters": [
                     {
                         "description": "Updated user data",
@@ -982,9 +982,6 @@
                     "type": "string"
                 },
                 "login": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "username": {

@@ -816,7 +816,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates the user profile with new data provided in the JSON payload.",
+                "description": "Updates the user's Password with new data provided in the JSON payload.",
                 "consumes": [
                     "application/json"
                 ],
@@ -826,7 +826,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Update user profile",
+                "summary": "Update user' Password",
                 "parameters": [
                     {
                         "description": "Updated user data",
@@ -985,9 +985,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "login": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "username": {
