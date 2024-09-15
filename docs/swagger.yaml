@@ -105,10 +105,16 @@ definitions:
       email:
         type: string
       login:
+        maxLength: 60
+        minLength: 2
         type: string
       password:
+        maxLength: 60
+        minLength: 6
         type: string
       username:
+        maxLength: 60
+        minLength: 1
         type: string
     required:
     - email
@@ -477,12 +483,12 @@ paths:
       description: Handles the registration of a new user by accepting a JSON payload
         containing user data.
       parameters:
-      - description: Any user data for registration
+      - description: Complete user data for registration
         in: body
         name: UserData
         required: true
         schema:
-          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser'
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
       produces:
       - application/json
       responses:
@@ -669,12 +675,12 @@ paths:
       - application/json
       description: Updates the user profile with new data provided in the JSON payload.
       parameters:
-      - description: Updated user data
+      - description: Updated user's any data
         in: body
         name: Userdata
         required: true
         schema:
-          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User'
+          $ref: '#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser'
       produces:
       - application/json
       responses:

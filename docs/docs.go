@@ -535,12 +535,12 @@ const docTemplate = `{
                 "summary": "Register a new user",
                 "parameters": [
                     {
-                        "description": "Any user data for registration",
+                        "description": "Complete user data for registration",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
                         }
                     }
                 ],
@@ -829,12 +829,12 @@ const docTemplate = `{
                 "summary": "Update user profile",
                 "parameters": [
                     {
-                        "description": "Updated user data",
+                        "description": "Updated user's any data",
                         "name": "Userdata",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.User"
+                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser"
                         }
                     }
                 ],
@@ -1093,13 +1093,19 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "login": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 2
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 6
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 1
                 }
             }
         },
