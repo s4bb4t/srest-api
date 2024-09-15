@@ -47,12 +47,13 @@ func NewAccessToken(id int, admin bool) (string, error) {
 
 func NewRefreshToken() string {
 	token := jwt.New(jwt.SigningMethodHS256)
-	tokenString, err := token.SignedString(jwtKey)
+	key := strconv.Itoa(int(time.Now().Unix())*2 + 1%3)
+	tokenString, err := token.SignedString(key)
 	if err != nil {
 		return ""
 	}
 
-	return tokenString + strconv.Itoa(int(time.Now().Unix()))
+	return tokenString
 }
 
 func JWTAuthMiddleware(next http.Handler) http.Handler {
