@@ -31,7 +31,8 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 			email TEXT UNIQUE,
 			date TEXT,
 			is_blocked BOOLEAN NOT NULL DEFAULT FALSE,
-			is_admin BOOLEAN NOT NULL DEFAULT FALSE
+			is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+			phone INTEGER
 		)
 	`)
 	if err != nil {

@@ -15,8 +15,8 @@ func (s *Storage) Add(u u.User) (int, error) {
 
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.users (
-			id, login, username, email, password, date
-		) VALUES ($1, $2, $3, $4, $5, $6)
+			id, login, username, email, password, date, phone
+		) VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
@@ -40,7 +40,7 @@ func (s *Storage) Add(u u.User) (int, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	res, err := stmt.Exec(maxID.Int64, u.Login, u.Username, u.Email, string(pwd), time.Now().Format("2006-01-02 15:04:05"))
+	res, err := stmt.Exec(maxID.Int64, u.Login, u.Username, u.Email, string(pwd), time.Now().Format("2006-01-02 15:04:05"), u.PhoneNumber)
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" { // Код ошибки 23505 означает нарушение уникальности
 			return 0, fmt.Errorf("%s: user already exists", op)
