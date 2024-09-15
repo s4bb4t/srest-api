@@ -32,7 +32,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 			date TEXT,
 			is_blocked BOOLEAN NOT NULL DEFAULT FALSE,
 			is_admin BOOLEAN NOT NULL DEFAULT FALSE,
-			phone BIGINT
+			phone TEXT
 		)
 	`)
 	if err != nil {
