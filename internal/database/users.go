@@ -15,7 +15,7 @@ func (s *Storage) Add(u u.User) (int, error) {
 
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.users (
-			id, login, username, email, password, date, phone
+			id, login, username, email, password, date, phone_number
 		) VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`)
 	if err != nil {
