@@ -16,7 +16,7 @@ type PutUser struct {
 }
 
 type Pwd struct {
-	Password string `json:"password,omitempty"`
+	Password string `json:"password" validate:"required,min=6,max=60,alphanumunicode"`
 }
 
 type AuthData struct {
