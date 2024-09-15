@@ -899,7 +899,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Profile successfully updated.",
                         "schema": {
-                            "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
+                            "type": "string"
                         }
                     },
                     "400": {
