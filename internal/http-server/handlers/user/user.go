@@ -255,9 +255,9 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		}
 
 		log.Info("successfully refreshed access token")
-		log.Debug(fmt.Sprintf("user: %v", req))
+		log.Debug(fmt.Sprintf("user: %v", refreshToken))
 
-		render.JSON(w, r, Tokens{AccessToken{accessToken}, RefreshToken{req.Token}})
+		render.JSON(w, r, Tokens{AccessToken{accessToken}, RefreshToken{refreshToken}})
 	}
 }
 
