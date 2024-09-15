@@ -44,7 +44,7 @@ type UserHandler interface {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param UserData body u.PutUser true "Any user data for registration"
+// @Param UserData body u.User true "Complete user data for registration"
 // @Success 201 {object} u.TableUser "Registration successful. Returns user data."
 // @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 400 {object} string "Invalid input."
@@ -300,7 +300,7 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param Userdata body u.User true "Updated user data"
+// @Param Userdata body u.PutUser true "Updated user's any data"
 // @Security BearerAuth
 // @Success 200 {object} u.TableUser "Profile successfully updated."
 // @Failure 400 {object} string "failed to deserialize json request."
