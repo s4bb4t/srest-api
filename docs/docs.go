@@ -1060,9 +1060,14 @@ const docTemplate = `{
         },
         "github_com_sabbatD_srest-api_internal_lib_userConfig.Pwd": {
             "type": "object",
+            "required": [
+                "password"
+            ],
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 60,
+                    "minLength": 6
                 }
             }
         },

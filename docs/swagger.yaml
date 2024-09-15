@@ -91,7 +91,11 @@ definitions:
   github_com_sabbatD_srest-api_internal_lib_userConfig.Pwd:
     properties:
       password:
+        maxLength: 60
+        minLength: 6
         type: string
+    required:
+    - password
     type: object
   github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser:
     properties:
