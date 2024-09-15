@@ -81,6 +81,8 @@ definitions:
         maxLength: 60
         minLength: 2
         type: string
+      phoneNumber:
+        type: string
       username:
         maxLength: 60
         minLength: 1
@@ -120,7 +122,7 @@ definitions:
         maxLength: 60
         minLength: 6
         type: string
-      phone:
+      phoneNumber:
         type: string
       username:
         maxLength: 60

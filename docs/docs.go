@@ -1048,6 +1048,9 @@ const docTemplate = `{
                     "maxLength": 60,
                     "minLength": 2
                 },
+                "phoneNumber": {
+                    "type": "string"
+                },
                 "username": {
                     "type": "string",
                     "maxLength": 60,
@@ -1111,7 +1114,7 @@ const docTemplate = `{
                     "maxLength": 60,
                     "minLength": 6
                 },
-                "phone": {
+                "phoneNumber": {
                     "type": "string"
                 },
                 "username": {
