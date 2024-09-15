@@ -243,6 +243,17 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
+		refreshToken := access.NewRefreshToken()
+		if refreshToken == "" {
+			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT refreshToken"))
+			return
+		}
+
+		if err := User.SaveRefreshToken(refreshToken, user.ID); err != nil {
+			util.InternalError(w, r, log, err)
+			return
+		}
+
 		log.Info("successfully refreshed access token")
 		log.Debug(fmt.Sprintf("user: %v", req))
 
