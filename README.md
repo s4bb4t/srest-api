@@ -1,268 +1,350 @@
-# sAPI RESTful API Documentation
+# sAPI
 
-Welcome to the sAPI RESTful API documentation! This guide provides a comprehensive overview of all available endpoints in the API. For every endpoint, ensure to include an `Authorization` header with a valid JWT token for authentication.
+## Описание
 
----
+Это RESTful API сервис для EasyDev. Он предоставляет различные функции управления пользователями, такие как регистрация, аутентификация, обновление профиля и операции администратора.
 
-## Table of Contents
+## Контакты
 
-- [Authentication](#authentication)
-- [User Endpoints](#user-endpoints)
-  - [Sign Up](#sign-up)
-  - [Sign In](#sign-in)
-  - [Update Profile](#update-profile)
-  - [Get Profile](#get-profile)
-- [Admin Endpoints](#admin-endpoints)
-  - [Update User Rights](#update-user-rights)
-  - [Block User](#block-user)
-  - [Unblock User](#unblock-user)
-  - [Register New User](#register-new-user)
-  - [Update User Profile](#update-user-profile)
-  - [Get User Profile](#get-user-profile)
-  - [Get All Users](#get-all-users)
-  - [Delete User](#delete-user)
-- [Errors](#error-handling)
+- **Имя**: s4bb4t
+- **Email**: s4bb4t@yandex.ru
 
----
+## Лицензия
 
-## Base URL
+- **Название**: Apache 2.0
+- **Ссылка**: [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-The base URL for all endpoints is:
+## Хост
 
-```
-http://51.250.113.72:8082
-```
+- **URL**: [http://51.250.113.72:8082](http://51.250.113.72:8082)
 
-## Authentication
+## Базовый путь
 
-All endpoints, except `/signup` and `/signin`, require authentication. You must include an `Authorization` header in your requests with a valid JWT token. The token should be prefixed with `Bearer `.
+- **BasePath**: `/api/v1`
 
----
+## Безопасность
 
-# User Endpoints
+### BearerAuth
 
+- **Описание**: Требуется JWT Bearer токен для доступа к защищенным маршрутам. Формат: `Bearer <token>`
 
-## Register a New User
+## Схемы
 
-- **Endpoint:** `POST /signup`
-- **Description:** Registers a new user.
-- **Request Body:**
-  ```json
-  {
-    "login": "string",
-    "username": "string",
-    "password": "string",
-    "email": "string"
-  }
-  ```
-- **Response:**
-  ```json
-  {
-    "status": "OK",
-    "authdata": {
-      "login": "string",
-      "password": "string"
-    }
-  }
-  ```
+- **http**
 
----
+## Конечные точки
 
-## Sign In
+### Swagger
 
-- **Endpoint:** `POST /signin`
-- **Description:** Authenticates a user and returns a JWT token.
-- **Request Body:**
-  ```json
-  {
-    "login": "string",
-    "password": "string"
-  }
-  ```
-- **Response:**
-  ```json
-  {
-    "status": "OK",
-    "token": "string"
-  }
-  ```
+- **Путь**: `/swagger/*`
+- **Метод**: GET
+- **Описание**: Эндпоинт для документации Swagger.
 
----
+### Регистрация пользователя
 
-## Update User Profile
+- **Путь**: `/auth/signup`
+- **Метод**: POST
+- **Описание**: Регистрирует нового пользователя. Необходим JSON с данными пользователя.
+- **Параметры**:
+  - **UserData** (тело запроса): Полные данные пользователя для регистрации.
+- **Ответы**:
+  - **201 Created**: Успешная регистрация. Возвращает данные пользователя.
+  - **400 Bad Request**: Ошибка десериализации запроса или неверный ввод.
+  - **409 Conflict**: Пользователь уже существует.
+  - **500 Internal Server Error**: Внутренняя ошибка сервера.
 
-- **Endpoint:** `PUT /user/profile`
-- **Description:** Updates the logged-in user's profile.
-- **Request Body:**
-  ```json
-  {
-    "login": "string",
-    "username": "string",
-    "password": "string",
-    "email": "string"
-  }
-  ```
-- **Authentication Required**
+### Аутентификация пользователя
 
----
+- **Путь**: `/auth/signin`
+- **Метод**: POST
+- **Описание**: Аутентифицирует пользователя по логину и паролю. Возвращает JWT токен.
+- **Параметры**:
+  - **AuthData** (тело запроса): Данные для аутентификации пользователя.
+- **Ответы**:
+  - **200 OK**: Успешная аутентификация. Возвращает JWT токены.
+  - **400 Bad Request**: Ошибка десериализации запроса или неверный ввод.
+  - **401 Unauthorized**: Неверные учетные данные.
+  - **500 Internal Server Error**: Внутренняя ошибка сервера.
 
-## Get User Profile
+### Обновление токена
 
-- **Endpoint:** `GET /user/profile`
-- **Description:** Retrieves the logged-in user's profile information.
-- **Response:**
-  ```json
-  {
-    "status": "OK",
-    "user": {
-      "id": 1,
-      "login": "string",
-      "username": "string",
-      "email": "string",
-      "date": "string",
-      "block": false,
-      "admin": false
-    }
-  }
-  ```
-- **Authentication Required**
+- **Путь**: `/auth/refresh`
+- **Метод**: POST
+- **Описание**: Обновляет токен доступа на основе предоставленного refresh токена.
+- **Параметры**:
+  - **RefreshToken** (тело запроса): Refresh токен пользователя.
+- **Ответы**:
+  - **200 OK**: Успешное обновление токена. Возвращает новые JWT токены.
+  - **400 Bad Request**: Ошибка десериализации запроса.
+  - **401 Unauthorized**: Неверные учетные данные или токен истек.
+  - **500 Internal Server Error**: Внутренняя ошибка сервера.
 
----
+### Получение профиля пользователя
 
-# Admin Endpoints
+- **Путь**: `/user/profile`
+- **Метод**: GET
+- **Описание**: Возвращает профиль текущего аутентифицированного пользователя.
+- **Ответы**:
+  - **200 OK**: Возвращает данные профиля пользователя.
+  - **400 Bad Request**: Пользователь не найден.
+  - **500 Internal Server Error**: Внутренняя ошибка сервера.
 
+### Обновление профиля пользователя
 
-## Update User Rights
+- **Путь**: `/user/profile`
+- **Метод**: PUT
+- **Описание**: Обновляет профиль пользователя с новыми данными.
+- **Параметры**:
+  - **Userdata** (тело запроса): Обновленные данные пользователя.
+- **Ответы**:
+  - **200 OK**: Профиль успешно обновлен.
+  - **400 Bad Request**: Ошибка десериализации запроса или логин/электронная почта уже используются.
+  - **404 Not Found**: Пользователь не найден.
+  - **500 Internal Server Error**: Внутренняя ошибка сервера.
 
-- **Endpoint:** `POST /admin/users/user={id}/rights`
-- **Description:** Updates the rights of a user.
-- **Request Body:**
-  ```json
-  {
-    "field": "string",
-    "value": any
-  }
-  ```
-- **Authentication Required**
+### Изменение пароля
 
----
+- **Путь**: `/user/profile/reset-password`
+- **Метод**: PUT
+- **Описание**: Обновляет пароль пользователя.
+- **Параметры**:
+  - **Password** (тело запроса): Новый пароль.
+- **Ответы**:
+  - **200 OK**: Пароль успешно изменен.
+  - **400 Bad Request**: Ошибка десериализации запроса.
+  - **404 Not Found**: Пользователь не найден.
+  - **500 Internal Server Error**: Внутренняя ошибка сервера.
 
-## Block User
+### Управление задачами (Todo)
 
-- **Endpoint:** `POST /admin/users/user={id}/block`
-- **Description:** Blocks a user.
-- **Authentication Required**
+- **Путь**: `/todos`
+- **Методы**:
+  - **POST**: Создает новую задачу.
+  - **GET**: Получает все задачи.
+- **Путь**: `/todos/{id}`
+- **Методы**:
+  - **GET**: Получает задачу по ID.
+  - **PUT**: Обновляет задачу по ID.
+  - **DELETE**: Удаляет задачу по ID.
+- **Описание**: Управление задачами.
 
----
+## Admin API
 
-## Unblock User
+### Get All Users
 
-- **Endpoint:** `POST /admin/users/user={id}/unblock`
-- **Description:** Unblocks a user.
-- **Authentication Required**
+**GET** `/admin/users`
 
----
+Получить список пользователей с возможностью фильтрации и сортировки.
 
-## Register a New User (Admin)
-
-- **Endpoint:** `POST /admin/users/registrate/new`
-- **Description:** Registers a new user as an admin.
-- **Request Body:**
-  ```json
-  {
-    "login": "string",
-    "username": "string",
-    "password": "string",
-    "email": "string"
-  }
-  ```
-- **Authentication Required**
-
----
-
-## Update User Profile (Admin)
-
-- **Endpoint:** `PUT /admin/users/profile/user={id}`
-- **Description:** Updates a specific user's profile.
-- **Request Body:**
-  ```json
-  {
-    "login": "string",
-    "username": "string",
-    "password": "string",
-    "email": "string"
-  }
-  ```
-- **Authentication Required**
-
----
-
-## Get User Profile (Admin)
-
-- **Endpoint:** `GET /admin/users/profile/user={id}`
-- **Description:** Retrieves the profile information of a specific user.
-- **Response:**
-  ```json
-  {
-    "status": "OK",
-    "user": {
-      "id": 1,
-      "login": "string",
-      "username": "string",
-      "email": "string",
-      "date": "string",
-      "block": false,
-      "admin": false
-    }
-  }
-  ```
-- **Authentication Required**
-
----
-
-## Get All Users
-
-- **Endpoint:** `GET /admin/users?search={search_term}&order={asc}&blocked={false}&limit={10}&offset={0}`
-- **Description:** Retrieves a list of all users. Supports filtering by name or email, sorting by email, pagination, and filtering by blocked/unblocked status. The query parameters `search`, `order`, `blocked`, `limit`, and `offset` can be used for these purposes. 
-- **Note:** If any of the required query parameters (`order`, `blocked`, `limit`, `offset`) are missing or empty, the request will return an error. If `search` is empty, sAPI will ignore this parameter and return all results that matches rest of the query parameters.
+- **Query Parameters:**
+  - `search` (string, optional): Поиск по имени пользователя или email.
+  - `sortBy` (string, optional): Поле для сортировки (`email`, `username`, `id`). По умолчанию `id`.
+  - `sortOrder` (string, optional): Порядок сортировки (`asc`, `desc`, `none`). По умолчанию `asc`.
+  - `isBlocked` (bool, optional): Флаг блокировки пользователя.
+  - `limit` (int, optional): Ограничение на количество пользователей в запросе. По умолчанию 20.
+  - `offset` (int, optional): Смещение для пагинации.
 
 - **Response:**
-  ```json
-  {
-    "status": "OK",
-    "users": [
-      {
-        "id": 1,
-        "login": "string",
-        "username": "string",
-        "email": "string",
-        "date": "string",
-        "block": false,
-        "admin": false
-      }
-    ]
-  }
-  ```
-- **Authentication Required**
+  - `200 OK`: Возвращает список пользователей с метаинформацией.
+  - `401 Unauthorized`: Не найден контекст пользователя.
+  - `403 Forbidden`: Недостаточно прав.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
 
 ---
 
-## Delete User
+### Retrieve User's Profile
 
-- **Endpoint:** `DELETE /admin/users/user={id}`
-- **Description:** Deletes a specific user.
-- **Authentication Required**
+**GET** `/admin/users/{id}`
+
+Получить профиль пользователя по ID.
+
+- **Path Parameters:**
+  - `id` (integer): ID пользователя.
+
+- **Response:**
+  - `200 OK`: Возвращает информацию о пользователе.
+  - `400 Bad Request`: Неверный или отсутствующий ID.
+  - `401 Unauthorized`: Не найден контекст пользователя.
+  - `403 Forbidden`: Недостаточно прав.
+  - `404 Not Found`: Пользователь не найден.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
 
 ---
 
-# Error Handling
+### Update User's Fields
 
-For any errors, you will receive a response with the status set to `"Error"` and an appropriate message describing the issue.
+**PUT** `/admin/users/{id}`
 
-Example Error Response:
-```json
-{
-  "status": "Error",
-  "error": "Internal Server Error"
-}
-```
+Обновить данные пользователя по ID.
+
+- **Path Parameters:**
+  - `id` (integer): ID пользователя.
+
+- **Request Body:**
+  - `UserData` (object): Объект с данными пользователя для обновления.
+
+- **Response:**
+  - `200 OK`: Успешное обновление данных пользователя.
+  - `400 Bad Request`: Неверный JSON или отсутствующий ID.
+  - `401 Unauthorized`: Не найден контекст пользователя.
+  - `403 Forbidden`: Недостаточно прав.
+  - `404 Not Found`: Пользователь не найден.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+---
+
+### Remove User
+
+**DELETE** `/admin/users/{id}`
+
+Удалить пользователя по ID.
+
+- **Path Parameters:**
+  - `id` (integer): ID пользователя.
+
+- **Response:**
+  - `200 OK`: Успешное удаление пользователя.
+  - `400 Bad Request`: Неверный или отсутствующий ID.
+  - `401 Unauthorized`: Не найден контекст пользователя.
+  - `403 Forbidden`: Недостаточно прав.
+  - `404 Not Found`: Пользователь не найден.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+---
+
+### Block User
+
+**POST** `/admin/users/{id}/block`
+
+Заблокировать пользователя по ID.
+
+- **Path Parameters:**
+  - `id` (integer): ID пользователя.
+
+- **Response:**
+  - `200 OK`: Успешная блокировка пользователя.
+  - `400 Bad Request`: Неверный или отсутствующий ID.
+  - `404 Not Found`: Пользователь не найден.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+---
+
+### Unlock User
+
+**POST** `/admin/users/{id}/unlock`
+
+Разблокировать пользователя по ID.
+
+- **Path Parameters:**
+  - `id` (integer): ID пользователя.
+
+- **Response:**
+  - `200 OK`: Успешная разблокировка пользователя.
+  - `400 Bad Request`: Неверный или отсутствующий ID.
+  - `404 Not Found`: Пользователь не найден.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+---
+
+### Update User's Rights
+
+**POST** `/admin/users/{id}/rights`
+
+Обновить права пользователя по ID.
+
+- **Path Parameters:**
+  - `id` (integer): ID пользователя.
+
+- **Request Body:**
+  - `UserData` (object): Объект с данными для обновления прав пользователя.
+
+- **Response:**
+  - `200 OK`: Успешное обновление прав пользователя.
+  - `400 Bad Request`: Неверный JSON или отсутствующий ID.
+  - `404 Not Found`: Пользователь не найден.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+## Todo API
+
+### Create Task
+
+**POST** `/todos`
+
+Создает новую задачу, принимая JSON с данными задачи.
+
+- **Request Body:**
+  - `UserData` (object, required): Полные данные задачи для создания.
+
+- **Response:**
+  - `200 OK`: Успешное создание задачи, возвращает объект задачи.
+  - `400 Bad Request`: Неверное поле `IsDone` или ошибка десериализации JSON.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+---
+
+### Get All Tasks
+
+**GET** `/todos`
+
+Получает все задачи с возможностью фильтрации по статусу.
+
+- **Query Parameters:**
+  - `filter` (string, optional): Фильтр по статусу задачи (`all`, `completed`, `inWork`).
+
+- **Response:**
+  - `200 OK`: Успешное получение всех задач с метаинформацией.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+---
+
+### Get Task by ID
+
+**GET** `/todos/{id}`
+
+Получает задачу по ID, указанному в URL.
+
+- **Path Parameters:**
+  - `id` (integer, required): ID задачи.
+
+- **Response:**
+  - `200 OK`: Успешное получение задачи.
+  - `400 Bad Request`: Отсутствует или неверный ID.
+  - `404 Not Found`: Задача не найдена.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+---
+
+### Update Task
+
+**PUT** `/todos/{id}`
+
+Обновляет данные задачи по ID, принимая JSON с новыми данными задачи.
+
+- **Path Parameters:**
+  - `id` (integer, required): ID задачи.
+
+- **Request Body:**
+  - `UserData` (object, required): Полные данные задачи для обновления.
+
+- **Response:**
+  - `200 OK`: Успешное обновление задачи.
+  - `400 Bad Request`: Ошибка десериализации JSON, отсутствует или неверный ID, либо неверное поле `IsDone`.
+  - `404 Not Found`: Задача не найдена.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
+
+---
+
+### Delete Task
+
+**DELETE** `/todos/{id}`
+
+Удаляет задачу по ID, указанному в URL.
+
+- **Path Parameters:**
+  - `id` (integer, required): ID задачи.
+
+- **Response:**
+  - `200 OK`: Успешное удаление задачи.
+  - `400 Bad Request`: Отсутствует или неверный ID.
+  - `404 Not Found`: Задача не найдена.
+  - `500 Internal Server Error`: Внутренняя ошибка сервера.
