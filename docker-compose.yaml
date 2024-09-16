@@ -8,9 +8,11 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "80:80"
+      - "80:80"   # HTTP
+      - "443:443" # HTTPS
     volumes:
       - './nginx.conf:/etc/nginx/nginx.conf'
+      - './certs:/etc/letsencrypt/live/easydev.club'  # Путь для сертификатов
     depends_on:
       - backend
       - frontend
@@ -20,13 +22,6 @@ services:
   backend:
     build:
       context: ./ # Путь к Dockerfile для бэкенда
-    environment:
-      - ENV=dev
-      - DBSTRING=host=localhost port=5432 user=postgres password=easydev dbname=postgres sslmode=disable
-      - HTTP_SERVER_ADDRESS=0.0.0.0:8082
-      - HTTP_SERVER_TIMEOUT=4s
-      - HTTP_SERVER_IDLE_TIMEOUT=60s
-      - HTTP_SERVER_USER=s4bb4t
     networks:
       - dev
 
