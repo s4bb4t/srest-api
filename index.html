@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My App</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #333333 25%, #1e1e1e 75%);
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background-color: #2c2c2c;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        button {
+            background-color: #007aff;
+            border: none;
+            color: #ffffff;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0051a2;
+        }
+        button:disabled {
+            background-color: #444;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to My App</h1>
+        <button id="registerButton">Register</button>
+        <button id="loginButton">Login</button>
+        <button id="profileButton">Profile</button>
+    </div>
+
+    <script>
+        const apiUrl = 'http://51.250.113.72:8082/api/v1';
+
+        document.getElementById('registerButton').addEventListener('click', function() {
+            const login = prompt('Enter your login:');
+            const username = prompt('Enter your username:');
+            const password = prompt('Enter your password:');
+            const email = prompt('Enter your email:');
+            const phoneNumber = prompt('Enter your phone number:');
+            
+            fetch(`${apiUrl}/auth/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    login,
+                    username,
+                    password,
+                    email,
+                    phoneNumber
+                })
+            })
+            .then(response => response.json())
+            .then(data => alert('Registration successful!'))
+            .catch(error => alert('Error during registration.'));
+        });
+
+        document.getElementById('loginButton').addEventListener('click', function() {
+            const login = prompt('Enter your login:');
+            const password = prompt('Enter your password:');
+            
+            fetch(`${apiUrl}/auth/signin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    login,
+                    password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                localStorage.setItem('token', data.token);
+                alert('Login successful!');
+            })
+            .catch(error => alert('Error during login.'));
+        });
+
+        document.getElementById('profileButton').addEventListener('click', function() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                fetch(`${apiUrl}/user/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Profile loaded. Check console for details.');
+                    console.log(data);
+                })
+                .catch(error => alert('Error loading profile.'));
+            } else {
+                alert('You need to log in first.');
+            }
+        });
+    </script>
+</body>
+</html>
