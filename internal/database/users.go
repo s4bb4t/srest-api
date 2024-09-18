@@ -1,9 +1,7 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/lib/pq"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
@@ -14,25 +12,10 @@ func (s *Storage) Add(u u.User) (int, error) {
 	const op = "database.postgres.Add"
 
 	stmt, err := s.db.Prepare(`
-		INSERT INTO public.users (
-			id, login, username, email, password, date, phone_number
-		) VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO public.users (login, username, email, password, phone_number) VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
-	}
-
-	var maxID sql.NullInt64
-
-	err = s.db.QueryRow(`SELECT MAX(id) FROM public.users;`).Scan(&maxID)
-	if err != nil {
-		return 0, fmt.Errorf("%s: %v", op, err)
-	}
-
-	if !maxID.Valid {
-		maxID.Int64 = 1
-	} else {
-		maxID.Int64 += 1
 	}
 
 	pwd, err := password.HashPassword(u.Password)
@@ -40,7 +23,7 @@ func (s *Storage) Add(u u.User) (int, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	res, err := stmt.Exec(maxID.Int64, u.Login, u.Username, u.Email, string(pwd), time.Now().Format("2006-01-02 15:04:05"), u.PhoneNumber)
+	_, err = stmt.Exec(u.Login, u.Username, u.Email, string(pwd), u.PhoneNumber)
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" { // Код ошибки 23505 означает нарушение уникальности
 			return 0, fmt.Errorf("%s: user already exists", op)
@@ -48,12 +31,11 @@ func (s *Storage) Add(u u.User) (int, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	n, err := res.RowsAffected()
-	if err != nil || n == 0 {
-		return 0, fmt.Errorf("%s, failed to get RowsAffected: %v", op, err)
-	}
+	var id int
+	row := stmt.QueryRow(`SELECT id FROM public.users WHERE login = $1`, u.Login)
+	row.Scan(&id)
 
-	return int(maxID.Int64), nil
+	return id, nil
 }
 
 func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
