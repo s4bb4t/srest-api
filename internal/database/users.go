@@ -1,9 +1,7 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/lib/pq"
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
@@ -14,33 +12,19 @@ func (s *Storage) Add(u u.User) (int, error) {
 	const op = "database.postgres.Add"
 
 	stmt, err := s.db.Prepare(`
-		INSERT INTO public.users (
-			id, login, username, email, password, date, phone_number
-		) VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO public.users (login, username, email, password, phone_number) VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
-
-	var maxID sql.NullInt64
-
-	err = s.db.QueryRow(`SELECT MAX(id) FROM public.users;`).Scan(&maxID)
-	if err != nil {
-		return 0, fmt.Errorf("%s: %v", op, err)
-	}
-
-	if !maxID.Valid {
-		maxID.Int64 = 1
-	} else {
-		maxID.Int64 += 1
-	}
+	defer stmt.Close()
 
 	pwd, err := password.HashPassword(u.Password)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	res, err := stmt.Exec(maxID.Int64, u.Login, u.Username, u.Email, string(pwd), time.Now().Format("2006-01-02 15:04:05"), u.PhoneNumber)
+	_, err = stmt.Exec(u.Login, u.Username, u.Email, string(pwd), u.PhoneNumber)
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" { // Код ошибки 23505 означает нарушение уникальности
 			return 0, fmt.Errorf("%s: user already exists", op)
@@ -48,12 +32,11 @@ func (s *Storage) Add(u u.User) (int, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	n, err := res.RowsAffected()
-	if err != nil || n == 0 {
-		return 0, fmt.Errorf("%s, failed to get RowsAffected: %v", op, err)
-	}
+	var id int
+	row := stmt.QueryRow(`SELECT id FROM public.users WHERE login = $1`, u.Login)
+	row.Scan(&id)
 
-	return int(maxID.Int64), nil
+	return id, nil
 }
 
 func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
@@ -63,6 +46,7 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 	if err != nil {
 		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT password FROM public.users WHERE login = $1`): %v", op, err)
 	}
+	defer stmt.Close()
 
 	var pwd string
 
@@ -107,6 +91,7 @@ func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
 	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(val, id)
 	if err != nil {
@@ -135,6 +120,7 @@ func (s *Storage) Remove(id int) (int64, error) {
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(id)
 	if err != nil {
@@ -222,16 +208,17 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	const op = "database.postgres.UpdateUser"
 
 	var exists bool
-	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE login = $1 OR email = $2)`)
+	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE email = $1)`)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
-	if err = stmt.QueryRow(u.Login, u.Email).Scan(&exists); err != nil {
+	if err = stmt.QueryRow(u.Email).Scan(&exists); err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 	if exists {
-		return -2, fmt.Errorf("%s: login or email already used", op)
+		return -2, fmt.Errorf("%s: email already used", op)
 	}
 
 	tx, err := s.db.Begin()
@@ -241,12 +228,12 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 
 	defer tx.Rollback()
 
-	if u.Login != "" {
-		_, err = tx.Exec(`UPDATE public.users SET login = $1 WHERE id = $2`, u.Login, id)
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-	}
+	// if u.Login != "" {
+	// 	_, err = tx.Exec(`UPDATE public.users SET login = $1 WHERE id = $2`, u.Login, id)
+	// 	if err != nil {
+	// 		return -1, fmt.Errorf("%s: %v", op, err)
+	// 	}
+	// }
 
 	if u.Username != "" {
 		_, err = tx.Exec(`UPDATE public.users SET username = $1 WHERE id = $2`, u.Username, id)
@@ -288,6 +275,7 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(id, token)
 	if err != nil {
@@ -304,6 +292,7 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query(token)
 	if err != nil {
@@ -332,6 +321,7 @@ func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	if err = stmt.QueryRow(id).Scan(&exists); err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)

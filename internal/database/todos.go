@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"time"
 
 	t "github.com/sabbatD/srest-api/internal/lib/todoConfig"
 )
@@ -11,41 +10,28 @@ import (
 func (s *Storage) Create(t t.TodoRequest) (int64, error) {
 	const op = "database.postgres.CreateTodo"
 
-	stmt, err := s.db.Prepare(`
-		INSERT INTO public.todos (
-			id, title, created, is_done
-		) VALUES ($1, $2, $3, $4)
-	`)
+	query := `
+		INSERT INTO public.todos (title, is_done)
+		VALUES ($1, $2)
+		RETURNING id
+	`
+	stmt, err := s.db.Prepare(query)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
-	var maxID sql.NullInt64
-
-	err = s.db.QueryRow(`SELECT MAX(id) FROM public.todos;`).Scan(&maxID)
-	if err != nil {
-		return 0, fmt.Errorf("%s: %v", op, err)
-	}
-
-	if !maxID.Valid {
-		maxID.Int64 = 1
-	} else {
-		maxID.Int64 += 1
-	}
-
+	var id int64
 	if t.IsDone != nil {
-		_, err = stmt.Exec(maxID.Int64, t.Title, time.Now().Format("2006-01-02 15:04:05"), *t.IsDone)
-		if err != nil {
-			return 0, fmt.Errorf("%s: %v", op, err)
-		}
+		err = stmt.QueryRow(t.Title, *t.IsDone).Scan(&id)
 	} else {
-		_, err = stmt.Exec(maxID.Int64, t.Title, time.Now().Format("2006-01-02 15:04:05"), false)
-		if err != nil {
-			return 0, fmt.Errorf("%s: %v", op, err)
-		}
+		err = stmt.QueryRow(t.Title, false).Scan(&id)
+	}
+	if err != nil {
+		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	return maxID.Int64, nil
+	return id, nil
 }
 
 func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
@@ -54,6 +40,8 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	var stmt *sql.Stmt
 	var err error
 	var res sql.Result
+
+	defer stmt.Close()
 
 	if t.Title == "" {
 		stmt, err = s.db.Prepare(`UPDATE public.todos SET is_done = $1 WHERE id = $2`)
@@ -113,6 +101,7 @@ func (s *Storage) Delete(id int) (int64, error) {
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(id)
 	if err != nil {
