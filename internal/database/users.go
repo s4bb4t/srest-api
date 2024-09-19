@@ -299,11 +299,7 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 	var id int
 
 	if err := row.Scan(&id); err != nil {
-		return "", 0, fmt.Errorf("%s: %v", op, err)
-	}
-
-	if id == 0 {
-		return "expired", 0, nil
+		return "expired", 0, fmt.Errorf("%s: %v", op, err)
 	}
 
 	return token, id, nil
