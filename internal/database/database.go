@@ -3,8 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"path/filepath"
-	"runtime"
 
 	"github.com/pressly/goose/v3"
 )
@@ -25,7 +23,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
-	migrationsDir := getMigrationsDir()
+	migrationsDir := "../../internal/database/"
 
 	if err := runMigrations(db, migrationsDir); err != nil {
 		return nil, fmt.Errorf("%s: %v", op, err)
@@ -44,10 +42,4 @@ func runMigrations(db *sql.DB, migrationsDir string) error {
 	}
 
 	return nil
-}
-
-func getMigrationsDir() string {
-	_, b, _, _ := runtime.Caller(0) // Получаем путь к файлу
-	basePath := filepath.Dir(b)
-	return filepath.Join(basePath, "../migrations") // Относительный путь от текущего файла
 }
