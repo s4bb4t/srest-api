@@ -118,6 +118,15 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Retrieve user's profile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful retrieval of user profile.",
@@ -175,6 +184,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update user's profile",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "User data payload",
                         "name": "UserData",
@@ -293,6 +309,15 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Block user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "User successfully blocked.",
@@ -335,6 +360,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update user's rights",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "User data for updating rights",
                         "name": "UserData",
@@ -388,6 +420,15 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Unlock user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "User successfully unblocked.",
@@ -1067,11 +1108,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 60,
                     "minLength": 6
-                },
-                "login": {
-                    "type": "string",
-                    "maxLength": 60,
-                    "minLength": 2
                 },
                 "phoneNumber": {
                     "type": "string"

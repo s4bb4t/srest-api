@@ -113,6 +113,7 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
+// @Param id path int true "ID of the user"
 // @Success 200 {object} u.TableUser "Successful retrieval of user profile."
 // @Failure 400 {object} string "Invalid or missing user ID."
 // @Failure 401 {object} string "Unauthorized access. Bearer token missing or invalid."
@@ -164,6 +165,7 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Accept json
 // @Produce json
+// @Param id path int true "ID of the user"
 // @Param UserData body u.PutUser true "User data payload"
 // @Security BearerAuth
 // @Success 200 {object} u.TableUser "User profile updated successfully."
@@ -301,6 +303,7 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
+// @Param id path int true "ID of the user"
 // @Success 200 {object} u.TableUser "User successfully blocked."
 // @Failure 400 {object} string "Invalid or missing user ID."
 // @Failure 404 {object} string "User not found."
@@ -321,6 +324,7 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
+// @Param id path int true "ID of the user"
 // @Success 200 {object} u.TableUser "User successfully unblocked."
 // @Failure 400 {object} string "Invalid or missing user ID."
 // @Failure 404 {object} string "User not found."
@@ -341,6 +345,7 @@ func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Accept json
 // @Produce json
+// @Param id path int true "ID of the user"
 // @Param UserData body UpdateRequest true "User data for updating rights"
 // @Success 200 {object} u.TableUser "Rights successfully updated."
 // @Failure 400 {object} string "Invalid request payload or missing ID."

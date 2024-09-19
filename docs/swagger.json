@@ -115,6 +115,15 @@
                     "admin"
                 ],
                 "summary": "Retrieve user's profile",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful retrieval of user profile.",
@@ -172,6 +181,13 @@
                 ],
                 "summary": "Update user's profile",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "User data payload",
                         "name": "UserData",
@@ -290,6 +306,15 @@
                     "admin"
                 ],
                 "summary": "Block user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "User successfully blocked.",
@@ -332,6 +357,13 @@
                 ],
                 "summary": "Update user's rights",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "User data for updating rights",
                         "name": "UserData",
@@ -385,6 +417,15 @@
                     "admin"
                 ],
                 "summary": "Unlock user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "User successfully unblocked.",
@@ -1064,11 +1105,6 @@
                     "type": "string",
                     "maxLength": 60,
                     "minLength": 6
-                },
-                "login": {
-                    "type": "string",
-                    "maxLength": 60,
-                    "minLength": 2
                 },
                 "phoneNumber": {
                     "type": "string"

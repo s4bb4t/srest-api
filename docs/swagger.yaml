@@ -77,10 +77,6 @@ definitions:
         maxLength: 60
         minLength: 6
         type: string
-      login:
-        maxLength: 60
-        minLength: 2
-        type: string
       phoneNumber:
         type: string
       username:
@@ -260,6 +256,12 @@ paths:
       - admin
     get:
       description: Retrieves a user's profile by their ID.
+      parameters:
+      - description: ID of the user
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -297,6 +299,11 @@ paths:
       - application/json
       description: Updates the details of a user by accepting a JSON payload.
       parameters:
+      - description: ID of the user
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: User data payload
         in: body
         name: UserData
@@ -338,6 +345,12 @@ paths:
   /admin/users/{id}/block:
     post:
       description: Blocks a user by their ID, disabling their account.
+      parameters:
+      - description: ID of the user
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -369,6 +382,11 @@ paths:
       description: Updates specific fields related to user's rights by accepting a
         JSON payload.
       parameters:
+      - description: ID of the user
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: User data for updating rights
         in: body
         name: UserData
@@ -400,6 +418,12 @@ paths:
   /admin/users/{id}/unlock:
     post:
       description: Unblocks a user by their ID, re-enabling their account.
+      parameters:
+      - description: ID of the user
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
