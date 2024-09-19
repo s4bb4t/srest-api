@@ -11,31 +11,24 @@ import (
 func (s *Storage) Add(u u.User) (int, error) {
 	const op = "database.postgres.Add"
 
-	stmt, err := s.db.Prepare(`
-		INSERT INTO public.users (login, username, email, password, phone_number) VALUES ($1, $2, $3, $4, $5)
-	`)
-	if err != nil {
-		return 0, fmt.Errorf("%s: %v", op, err)
-	}
-	defer stmt.Close()
-
 	pwd, err := password.HashPassword(u.Password)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	_, err = stmt.Exec(u.Login, u.Username, u.Email, string(pwd), u.PhoneNumber)
+	var id int
+	err = s.db.QueryRow(`
+		INSERT INTO public.users (login, username, email, password, phone_number)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id
+	`, u.Login, u.Username, u.Email, string(pwd), u.PhoneNumber).Scan(&id)
+
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code == "23505" { // Код ошибки 23505 означает нарушение уникальности
 			return 0, fmt.Errorf("%s: user already exists", op)
 		}
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
-
-	var id int
-	row := stmt.QueryRow(`SELECT id FROM public.users WHERE login = $1`, u.Login)
-	row.Scan(&id)
-	fmt.Println(id)
 
 	return id, nil
 }
