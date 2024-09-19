@@ -39,9 +39,9 @@ func runMigrations(db *sql.DB, migrationsDir string) error {
 	}
 
 	// Сброс миграций
-	if err := goose.Reset(db, migrationsDir); err != nil {
-		return fmt.Errorf("error resetting migrations: %v", err)
-	}
+	// if err := goose.Reset(db, migrationsDir); err != nil {
+	// 	return fmt.Errorf("error resetting migrations: %v", err)
+	// }
 
 	if err := goose.Up(db, migrationsDir); err != nil {
 		return fmt.Errorf("error running migrations: %v", err)
