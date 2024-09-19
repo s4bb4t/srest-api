@@ -35,6 +35,7 @@ func (s *Storage) Add(u u.User) (int, error) {
 	var id int
 	row := stmt.QueryRow(`SELECT id FROM public.users WHERE login = $1`, u.Login)
 	row.Scan(&id)
+	fmt.Println(id)
 
 	return id, nil
 }
@@ -190,6 +191,7 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	if err != nil {
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
+	defer rows.Close()
 
 	var user u.TableUser
 
