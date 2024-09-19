@@ -23,7 +23,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
-	migrationsDir := "./migrations"
+	migrationsDir := "srest-api/internal/database/migrations"
 
 	if err := runMigrations(db, migrationsDir); err != nil {
 		return nil, fmt.Errorf("%s: %v", op, err)
