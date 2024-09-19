@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
 	"github.com/pressly/goose/v3"
 )
@@ -14,13 +13,6 @@ type Storage struct {
 
 func SetupDataBase(dbStr string) (*Storage, error) {
 	const op = "database.postgres.New"
-
-	// Вывести текущую рабочую директорию
-	dir, err := os.Getwd()
-	if err != nil {
-		return nil, fmt.Errorf("%s: unable to get current directory: %v", op, err)
-	}
-	fmt.Println("Current working directory:", dir)
 
 	db, err := sql.Open("postgres", dbStr)
 	if err != nil {
