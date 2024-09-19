@@ -261,19 +261,11 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 func (s *Storage) SaveRefreshToken(token string, id int) error {
 	const op = "database.postgres.SaveRefreshToken"
 
-	// Debugging - print current time
-	var currentTime string
-	err := s.db.QueryRow(`SELECT NOW()`).Scan(&currentTime)
-	if err != nil {
-		return fmt.Errorf("%s: %v", op, err)
-	}
-	fmt.Println("Current Time:", currentTime)
-
 	stmt, err := s.db.Prepare(`
-		INSERT INTO public.tokens (user_id, token, date) 
-		VALUES ($1, $2, NOW()) 
+		INSERT INTO public.tokens (user_id, token) 
+		VALUES ($1, $2) 
 		ON CONFLICT (user_id) 
-		DO UPDATE SET token = EXCLUDED.token, date = NOW()
+		DO UPDATE SET token = EXCLUDED.token
 	`)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
@@ -291,15 +283,7 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 func (s *Storage) RefreshToken(token string) (string, int, error) {
 	const op = "database.postgres.RefreshToken"
 
-	// Debugging - print current time
-	var currentTime string
-	err := s.db.QueryRow(`SELECT NOW()`).Scan(&currentTime)
-	if err != nil {
-		return "", 0, fmt.Errorf("%s: %v", op, err)
-	}
-	fmt.Println("Current Time:", currentTime)
-
-	stmt, err := s.db.Prepare(`SELECT user_id, token FROM public.tokens WHERE token = $1 AND date > NOW()`)
+	stmt, err := s.db.Prepare(`SELECT user_id, token FROM public.tokens WHERE token = $1 and date > NOW()`)
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
@@ -309,7 +293,7 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
-	defer rows.Close()
+	defer rows.Close() // Ensure rows are closed
 
 	if rows.Next() {
 		var res string
