@@ -31,7 +31,7 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
-	migrationsDir := "../../internal/database/migrations"
+	migrationsDir := "/internal/database/migrations"
 	fmt.Println("Migrations directory:", migrationsDir) // Проверить путь
 
 	if err := runMigrations(db, migrationsDir); err != nil {
