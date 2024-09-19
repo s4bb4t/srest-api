@@ -17,6 +17,7 @@ func (s *Storage) Add(u u.User) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	pwd, err := password.HashPassword(u.Password)
 	if err != nil {
@@ -45,6 +46,7 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 	if err != nil {
 		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT password FROM public.users WHERE login = $1`): %v", op, err)
 	}
+	defer stmt.Close()
 
 	var pwd string
 
@@ -89,6 +91,7 @@ func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
 	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(val, id)
 	if err != nil {
@@ -117,6 +120,7 @@ func (s *Storage) Remove(id int) (int64, error) {
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	res, err := stmt.Exec(id)
 	if err != nil {
@@ -204,16 +208,17 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	const op = "database.postgres.UpdateUser"
 
 	var exists bool
-	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE login = $1 OR email = $2)`)
+	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE email = $1)`)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
-	if err = stmt.QueryRow(u.Login, u.Email).Scan(&exists); err != nil {
+	if err = stmt.QueryRow(u.Email).Scan(&exists); err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
 	if exists {
-		return -2, fmt.Errorf("%s: login or email already used", op)
+		return -2, fmt.Errorf("%s: email already used", op)
 	}
 
 	tx, err := s.db.Begin()
@@ -223,12 +228,12 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 
 	defer tx.Rollback()
 
-	if u.Login != "" {
-		_, err = tx.Exec(`UPDATE public.users SET login = $1 WHERE id = $2`, u.Login, id)
-		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
-		}
-	}
+	// if u.Login != "" {
+	// 	_, err = tx.Exec(`UPDATE public.users SET login = $1 WHERE id = $2`, u.Login, id)
+	// 	if err != nil {
+	// 		return -1, fmt.Errorf("%s: %v", op, err)
+	// 	}
+	// }
 
 	if u.Username != "" {
 		_, err = tx.Exec(`UPDATE public.users SET username = $1 WHERE id = $2`, u.Username, id)
@@ -270,6 +275,7 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(id, token)
 	if err != nil {
@@ -286,6 +292,7 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query(token)
 	if err != nil {
@@ -314,6 +321,7 @@ func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
+	defer stmt.Close()
 
 	if err = stmt.QueryRow(id).Scan(&exists); err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
