@@ -9,7 +9,6 @@ type User struct {
 }
 
 type PutUser struct {
-	Login       string `json:"login,omitempty" validate:"min=2,max=60,alpha"`
 	Username    string `json:"username,omitempty" validate:"min=1,max=60,alphanumunicode"`
 	Email       string `json:"email,omitempty" validate:"min=6,max=60,alphanumunicode"`
 	PhoneNumber string `json:"phoneNumber" validate:"e164"`
