@@ -30,21 +30,21 @@ type AdminHandler interface {
 
 // All godoc
 // @Summary Get all users
-// @Description Gets users by accepting a url query payload containing filters.
-// Requires an Authorization header with a "Bearer token" for authentication.
+// @Description Fetches a list of users based on optional query parameters such as filters and sorting.
+// Requires Authorization header with Bearer token for authentication.
 // @Tags admin
 // @Produce json
-// @Param search query string false "search in username or email"
-// @Param sortBy query string false "sortBy email or username or id. Default - id."
-// @Param sortOrder query string false "sortOrder asc or desc or none."
-// @Param isBlocked query bool false "block status"
-// @Param limit query int false "limit of users for query"
-// @Param offset query int false "offset"
+// @Param search query string false "Filter users by username or email"
+// @Param sortBy query string false "Sort by 'email', 'username', or 'id'. Default is 'id'."
+// @Param sortOrder query string false "Sort order: 'asc', 'desc', or 'none'. Default is 'asc'."
+// @Param isBlocked query bool false "Filter by block status (true/false)"
+// @Param limit query int false "Limit the number of users returned (default is 20)"
+// @Param offset query int false "Offset for pagination (default is 0)"
 // @Security BearerAuth
-// @Success 200 {object} u.MetaResponse "Retrieve successful. Returns users."
-// @Failure 401 {object} string "User context not found."
-// @Failure 403 {object} string "Not enough rights."
-// @Failure 500 {object} string "Internal error."
+// @Success 200 {object} u.MetaResponse "Successful retrieval of users."
+// @Failure 401 {object} string "Unauthorized access. Bearer token missing or invalid."
+// @Failure 403 {object} string "Insufficient permissions."
+// @Failure 500 {object} string "Internal server error."
 // @Router /admin/users [get]
 func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -108,17 +108,17 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 
 // Profile godoc
 // @Summary Retrieve user's profile
-// @Description Retrieves user's profile by id.
-// Requires an Authorization header with a "Bearer token" for authentication.
+// @Description Retrieves a user's profile by their ID.
+// Requires Authorization header with Bearer token for authentication.
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} u.TableUser "Retrieve successful. Returns user."
-// @Failure 400 {object} string "Missing or wrong id."
-// @Failure 401 {object} string "User context not found."
-// @Failure 403 {object} string "Not enough rights."
-// @Failure 404 {object} string "No such user."
-// @Failure 500 {object} string "Internal error."
+// @Success 200 {object} u.TableUser "Successful retrieval of user profile."
+// @Failure 400 {object} string "Invalid or missing user ID."
+// @Failure 401 {object} string "Unauthorized access. Bearer token missing or invalid."
+// @Failure 403 {object} string "Insufficient permissions."
+// @Failure 404 {object} string "User not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /admin/users/{id} [get]
 func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -158,22 +158,21 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 }
 
 // UpdateUser godoc
-// @Summary Update user's fields
-// @Description Updates user by id by accepting a JSON payload containing user.
-// Requires an Authorization header with a "Bearer token" for authentication.
+// @Summary Update user's profile
+// @Description Updates the details of a user by accepting a JSON payload.
+// Requires Authorization header with Bearer token for authentication.
 // @Tags admin
 // @Accept json
 // @Produce json
-// @Param UserData body u.PutUser true "Any user data"
+// @Param UserData body u.PutUser true "User data payload"
 // @Security BearerAuth
-// @Success 200 {object} u.TableUser "Update successful. Returns user ok."
-// @Failure 400 {object} string "failed to deserialize json request."
-// @Failure 400 {object} string "Missing or wrong id."
-// @Failure 400 {object} string "Login or email already used."
-// @Failure 401 {object} string "User context not found."
-// @Failure 403 {object} string "Not enough rights."
-// @Failure 404 {object} string "No such user."
-// @Failure 500 {object} string "Internal error."
+// @Success 200 {object} u.TableUser "User profile updated successfully."
+// @Failure 400 {object} string "Invalid request payload or ID."
+// @Failure 400 {object} string "Duplicate login or email."
+// @Failure 401 {object} string "Unauthorized access. Bearer token missing or invalid."
+// @Failure 403 {object} string "Insufficient permissions."
+// @Failure 404 {object} string "User not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /admin/users/{id} [put]
 func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -249,17 +248,17 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 // Remove godoc
 // @Summary Remove user
-// @Description Removes user by id in url.
-// Requires an Authorization header with a "Bearer token" for authentication.
+// @Description Deletes a user by their ID.
+// Requires Authorization header with Bearer token for authentication.
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} string "Remove successful. Returns ok."
-// @Failure 400 {object} string "Missing or wrong id."
-// @Failure 401 {object} string "User context not found."
-// @Failure 403 {object} string "Not enough rights."
-// @Failure 404 {object} string "No such user."
-// @Failure 500 {object} string "Internal error."
+// @Success 200 {object} string "User successfully removed."
+// @Failure 400 {object} string "Invalid or missing user ID."
+// @Failure 401 {object} string "Unauthorized access. Bearer token missing or invalid."
+// @Failure 403 {object} string "Insufficient permissions."
+// @Failure 404 {object} string "User not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /admin/users/{id} [delete]
 func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -297,16 +296,15 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 // Block godoc
 // @Summary Block user
-// @Description Blocks user by id in url.
-// Requires an Authorization header with a "Bearer token" for authentication.
+// @Description Blocks a user by their ID, disabling their account.
+// Requires Authorization header with Bearer token for authentication.
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} u.TableUser "Block successful. Returns user ok."
-// @Failure 400 {object} string "Missing or wrong id."
-// @Failure 400 {object} string "No such field."
-// @Failure 404 {object} string "No such user."
-// @Failure 500 {object} string "Internal error."
+// @Success 200 {object} u.TableUser "User successfully blocked."
+// @Failure 400 {object} string "Invalid or missing user ID."
+// @Failure 404 {object} string "User not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /admin/users/{id}/block [post]
 func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -318,16 +316,15 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 // Unlock godoc
 // @Summary Unlock user
-// @Description Unlocks user by id in url.
-// Requires an Authorization header with a "Bearer token" for authentication.
+// @Description Unblocks a user by their ID, re-enabling their account.
+// Requires Authorization header with Bearer token for authentication.
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} u.TableUser "Unlock successful. Returns user ok."
-// @Failure 400 {object} string "Missing or wrong id."
-// @Failure 400 {object} string "No such field."
-// @Failure 404 {object} string "No such user."
-// @Failure 500 {object} string "Internal error."
+// @Success 200 {object} u.TableUser "User successfully unblocked."
+// @Failure 400 {object} string "Invalid or missing user ID."
+// @Failure 404 {object} string "User not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /admin/users/{id}/unlock [post]
 func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -339,17 +336,17 @@ func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 // Update godoc
 // @Summary Update user's rights
-// @Description Updates user by id by accepting a JSON payload containing user's rights.
+// @Description Updates specific fields related to user's rights by accepting a JSON payload.
+// Requires Authorization header with Bearer token for authentication.
 // @Tags admin
 // @Accept json
 // @Produce json
-// @Param UserData body UpdateRequest true "Complete user data"
-// @Success 200 {object} u.TableUser "Update successful. Returns ok."
-// @Failure 400 {object} string "failed to deserialize json request."
-// @Failure 400 {object} string "Missing or wrong id."
+// @Param UserData body UpdateRequest true "User data for updating rights"
+// @Success 200 {object} u.TableUser "Rights successfully updated."
+// @Failure 400 {object} string "Invalid request payload or missing ID."
 // @Failure 400 {object} string "No such field."
-// @Failure 404 {object} string "No such user."
-// @Failure 500 {object} string "Internal error."
+// @Failure 404 {object} string "User not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /admin/users/{id}/rights [post]
 func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
