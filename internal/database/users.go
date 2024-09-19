@@ -277,6 +277,7 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 		return fmt.Errorf("%s: %v", op, err)
 	}
 
+	fmt.Println(token, id)
 	return nil
 }
 
@@ -303,6 +304,7 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 		}
 		return token, id, nil
 	}
+	fmt.Println(token)
 
 	return "expired", 0, nil
 }
