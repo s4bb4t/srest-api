@@ -29,7 +29,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Gets users by accepting a url query payload containing filters.",
+                "description": "Fetches a list of users based on optional query parameters such as filters and sorting.",
                 "produces": [
                     "application/json"
                 ],
@@ -40,62 +40,62 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "search in username or email",
+                        "description": "Filter users by username or email",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "sortBy email or username or id. Default - id.",
+                        "description": "Sort by 'email', 'username', or 'id'. Default is 'id'.",
                         "name": "sortBy",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "sortOrder asc or desc or none.",
+                        "description": "Sort order: 'asc', 'desc', or 'none'. Default is 'asc'.",
                         "name": "sortOrder",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "description": "block status",
+                        "description": "Filter by block status (true/false)",
                         "name": "isBlocked",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "limit of users for query",
+                        "description": "Limit the number of users returned (default is 20)",
                         "name": "limit",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "offset",
+                        "description": "Offset for pagination (default is 0)",
                         "name": "offset",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Retrieve successful. Returns users.",
+                        "description": "Successful retrieval of users.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.MetaResponse"
                         }
                     },
                     "401": {
-                        "description": "User context not found.",
+                        "description": "Unauthorized access. Bearer token missing or invalid.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "403": {
-                        "description": "Not enough rights.",
+                        "description": "Insufficient permissions.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -110,7 +110,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieves user's profile by id.",
+                "description": "Retrieves a user's profile by their ID.",
                 "produces": [
                     "application/json"
                 ],
@@ -120,37 +120,37 @@ const docTemplate = `{
                 "summary": "Retrieve user's profile",
                 "responses": {
                     "200": {
-                        "description": "Retrieve successful. Returns user.",
+                        "description": "Successful retrieval of user profile.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
-                        "description": "Missing or wrong id.",
+                        "description": "Invalid or missing user ID.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
-                        "description": "User context not found.",
+                        "description": "Unauthorized access. Bearer token missing or invalid.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "403": {
-                        "description": "Not enough rights.",
+                        "description": "Insufficient permissions.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "No such user.",
+                        "description": "User not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -163,7 +163,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates user by id by accepting a JSON payload containing user.",
+                "description": "Updates the details of a user by accepting a JSON payload.",
                 "consumes": [
                     "application/json"
                 ],
@@ -173,10 +173,10 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Update user's fields",
+                "summary": "Update user's profile",
                 "parameters": [
                     {
-                        "description": "Any user data",
+                        "description": "User data payload",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
@@ -187,37 +187,37 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Update successful. Returns user ok.",
+                        "description": "User profile updated successfully.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
-                        "description": "Login or email already used.",
+                        "description": "Duplicate login or email.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
-                        "description": "User context not found.",
+                        "description": "Unauthorized access. Bearer token missing or invalid.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "403": {
-                        "description": "Not enough rights.",
+                        "description": "Insufficient permissions.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "No such user.",
+                        "description": "User not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -230,7 +230,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Removes user by id in url.",
+                "description": "Deletes a user by their ID.",
                 "produces": [
                     "application/json"
                 ],
@@ -240,37 +240,37 @@ const docTemplate = `{
                 "summary": "Remove user",
                 "responses": {
                     "200": {
-                        "description": "Remove successful. Returns ok.",
+                        "description": "User successfully removed.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "Missing or wrong id.",
+                        "description": "Invalid or missing user ID.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "401": {
-                        "description": "User context not found.",
+                        "description": "Unauthorized access. Bearer token missing or invalid.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "403": {
-                        "description": "Not enough rights.",
+                        "description": "Insufficient permissions.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "No such user.",
+                        "description": "User not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -285,7 +285,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Blocks user by id in url.",
+                "description": "Blocks a user by their ID, disabling their account.",
                 "produces": [
                     "application/json"
                 ],
@@ -295,25 +295,25 @@ const docTemplate = `{
                 "summary": "Block user",
                 "responses": {
                     "200": {
-                        "description": "Block successful. Returns user ok.",
+                        "description": "User successfully blocked.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
-                        "description": "No such field.",
+                        "description": "Invalid or missing user ID.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "No such user.",
+                        "description": "User not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -323,7 +323,7 @@ const docTemplate = `{
         },
         "/admin/users/{id}/rights": {
             "post": {
-                "description": "Updates user by id by accepting a JSON payload containing user's rights.",
+                "description": "Updates specific fields related to user's rights by accepting a JSON payload.",
                 "consumes": [
                     "application/json"
                 ],
@@ -336,7 +336,7 @@ const docTemplate = `{
                 "summary": "Update user's rights",
                 "parameters": [
                     {
-                        "description": "Complete user data",
+                        "description": "User data for updating rights",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
@@ -347,7 +347,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Update successful. Returns ok.",
+                        "description": "Rights successfully updated.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
@@ -359,13 +359,13 @@ const docTemplate = `{
                         }
                     },
                     "404": {
-                        "description": "No such user.",
+                        "description": "User not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -380,7 +380,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Unlocks user by id in url.",
+                "description": "Unblocks a user by their ID, re-enabling their account.",
                 "produces": [
                     "application/json"
                 ],
@@ -390,25 +390,25 @@ const docTemplate = `{
                 "summary": "Unlock user",
                 "responses": {
                     "200": {
-                        "description": "Unlock successful. Returns user ok.",
+                        "description": "User successfully unblocked.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_userConfig.TableUser"
                         }
                     },
                     "400": {
-                        "description": "No such field.",
+                        "description": "Invalid or missing user ID.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "No such user.",
+                        "description": "User not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
