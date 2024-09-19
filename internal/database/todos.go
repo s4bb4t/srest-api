@@ -41,8 +41,6 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	var err error
 	var res sql.Result
 
-	defer stmt.Close()
-
 	if t.Title == "" {
 		stmt, err = s.db.Prepare(`UPDATE public.todos SET is_done = $1 WHERE id = $2`)
 		if err != nil {
@@ -88,6 +86,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 		return n, fmt.Errorf("%s: no task with id: %v", op, id)
 	}
 
+	stmt.Close()
 	return n, nil
 }
 
