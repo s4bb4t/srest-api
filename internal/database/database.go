@@ -38,11 +38,6 @@ func runMigrations(db *sql.DB, migrationsDir string) error {
 		return fmt.Errorf("error setting postgres dialect: %v", err)
 	}
 
-	// Сброс миграций
-	if err := goose.Reset(db, migrationsDir); err != nil {
-		return fmt.Errorf("error resetting migrations: %v", err)
-	}
-
 	if err := goose.Up(db, migrationsDir); err != nil {
 		return fmt.Errorf("error running migrations: %v", err)
 	}
