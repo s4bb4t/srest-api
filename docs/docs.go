@@ -574,31 +574,31 @@ const docTemplate = `{
         },
         "/todos": {
             "get": {
-                "description": "Gets all tasks and returns a JSON containing task data.",
+                "description": "Retrieves all tasks with optional filtering by status (e.g., completed or in-progress).",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "todo"
                 ],
-                "summary": "Get all tasks",
+                "summary": "Retrieve all tasks",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "all, completed, or inWork",
+                        "description": "Filter tasks by status: all, completed, or inWork",
                         "name": "filter",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Retrieved successfully. Returns status code OK.",
+                        "description": "Tasks retrieved successfully.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.MetaResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -606,7 +606,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Handles the creation of a new task by accepting a JSON payload containing task data.",
+                "description": "Creates a new task by accepting a JSON payload with the task's details.",
                 "consumes": [
                     "application/json"
                 ],
@@ -619,7 +619,7 @@ const docTemplate = `{
                 "summary": "Create a new task",
                 "parameters": [
                     {
-                        "description": "Complete task data for creation",
+                        "description": "Task data for creating a new task",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
@@ -630,19 +630,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Creation successful. Returns task with status code OK.",
+                        "description": "Task successfully created, returns the created task.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
                         }
                     },
                     "400": {
-                        "description": "failed to deserialize json request.",
+                        "description": "Invalid request body or missing/incorrect fields.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -652,35 +652,44 @@ const docTemplate = `{
         },
         "/todos/{id}": {
             "get": {
-                "description": "Gets a task by ID in the URL and returns a JSON containing task data.",
+                "description": "Retrieves a specific task by its ID from the URL.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "todo"
                 ],
-                "summary": "Get task",
+                "summary": "Retrieve a task by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the task to retrieve",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Retrieved successfully. Returns task and status code OK.",
+                        "description": "Task retrieved successfully.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
                         }
                     },
                     "400": {
-                        "description": "Missing or wrong id.",
+                        "description": "Invalid or missing task ID.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "No such task.",
+                        "description": "Task not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -688,7 +697,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Handles the update of a task by accepting a JSON payload containing task data.",
+                "description": "Updates an existing task by accepting a JSON payload with the updated task details.",
                 "consumes": [
                     "application/json"
                 ],
@@ -698,10 +707,17 @@ const docTemplate = `{
                 "tags": [
                     "todo"
                 ],
-                "summary": "Update task",
+                "summary": "Update an existing task",
                 "parameters": [
                     {
-                        "description": "Complete task data for update",
+                        "type": "integer",
+                        "description": "ID of the task to update",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated task data",
                         "name": "UserData",
                         "in": "body",
                         "required": true,
@@ -712,25 +728,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Update successful. Returns task with status code OK.",
+                        "description": "Task updated successfully, returns the updated task.",
                         "schema": {
                             "$ref": "#/definitions/github_com_sabbatD_srest-api_internal_lib_todoConfig.Todo"
                         }
                     },
                     "400": {
-                        "description": "Invalid IsDone field.",
+                        "description": "Invalid request body, missing/incorrect fields, or invalid ID.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "No such task.",
+                        "description": "Task not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
@@ -738,35 +754,44 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes a task by ID in the URL.",
+                "description": "Deletes a task by its ID from the URL.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "todo"
                 ],
-                "summary": "Delete task",
+                "summary": "Delete a task by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the task to delete",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Deletion successful. Returns status code OK.",
+                        "description": "Task deleted successfully.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "Missing or wrong id.",
+                        "description": "Invalid or missing task ID.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "No such task.",
+                        "description": "Task not found.",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal error.",
+                        "description": "Internal server error.",
                         "schema": {
                             "type": "string"
                         }
