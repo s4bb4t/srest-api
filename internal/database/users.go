@@ -262,8 +262,8 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 	const op = "database.postgres.SaveRefreshToken"
 
 	stmt, err := s.db.Prepare(`
-		INSERT INTO public.tokens (user_id, token) 
-		VALUES ($1, $2) 
+		INSERT INTO public.tokens (user_id, token, date) 
+		VALUES ($1, $2, NOW()) 
 		ON CONFLICT (user_id) 
 		DO UPDATE SET token = EXCLUDED.token
 	`)
