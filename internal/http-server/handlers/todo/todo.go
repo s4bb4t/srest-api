@@ -1,3 +1,6 @@
+// Package todo provides handlers for managing tasks in a TODO application.
+// It supports operations such as creating, updating, retrieving, and deleting tasks.
+// The handlers accept and return JSON data, and include support for filtering tasks based on their status.
 package todo
 
 import (
@@ -23,15 +26,14 @@ type TodoHandler interface {
 
 // Create godoc
 // @Summary Create a new task
-// @Description Handles the creation of a new task by accepting a JSON payload containing task data.
+// @Description Creates a new task by accepting a JSON payload with the task's details.
 // @Tags todo
 // @Accept json
 // @Produce json
-// @Param UserData body t.TodoRequest true "Complete task data for creation"
-// @Success 200 {object}  t.Todo "Creation successful. Returns task with status code OK."
-// @Failure 400 {object} string "Invalid IsDone field."
-// @Failure 400 {object} string "failed to deserialize json request."
-// @Failure 500 {object} string "Internal error."
+// @Param UserData body t.TodoRequest true "Task data for creating a new task"
+// @Success 200 {object}  t.Todo "Task successfully created, returns the created task."
+// @Failure 400 {object} string "Invalid request body or missing/incorrect fields."
+// @Failure 500 {object} string "Internal server error."
 // @Router /todos [post]
 func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -70,13 +72,13 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 }
 
 // Get All godoc
-// @Summary Get all tasks
-// @Description Gets all tasks and returns a JSON containing task data.
+// @Summary Retrieve all tasks
+// @Description Retrieves all tasks with optional filtering by status (e.g., completed or in-progress).
 // @Tags todo
 // @Produce json
-// @Param filter query string false "all, completed, or inWork"
-// @Success 200 {object} t.MetaResponse "Retrieved successfully. Returns status code OK."
-// @Failure 500 {object} string "Internal error."
+// @Param filter query string false "Filter tasks by status: all, completed, or inWork"
+// @Success 200 {object} t.MetaResponse "Tasks retrieved successfully."
+// @Failure 500 {object} string "Internal server error."
 // @Router /todos [get]
 func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -107,14 +109,15 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 }
 
 // Get godoc
-// @Summary Get task
-// @Description Gets a task by ID in the URL and returns a JSON containing task data.
+// @Summary Retrieve a task by ID
+// @Description Retrieves a specific task by its ID from the URL.
 // @Tags todo
 // @Produce json
-// @Success 200 {object}  t.Todo "Retrieved successfully. Returns task and status code OK."
-// @Failure 400 {object} string "Missing or wrong id."
-// @Failure 404 {object} string "No such task."
-// @Failure 500 {object} string "Internal error."
+// @Param id path int true "ID of the task to retrieve"
+// @Success 200 {object}  t.Todo "Task retrieved successfully."
+// @Failure 400 {object} string "Invalid or missing task ID."
+// @Failure 404 {object} string "Task not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /todos/{id} [get]
 func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -149,18 +152,17 @@ func Get(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 }
 
 // Update godoc
-// @Summary Update task
-// @Description Handles the update of a task by accepting a JSON payload containing task data.
+// @Summary Update an existing task
+// @Description Updates an existing task by accepting a JSON payload with the updated task details.
 // @Tags todo
 // @Accept json
 // @Produce json
-// @Param UserData body t.TodoRequest true "Complete task data for update"
-// @Success 200 {object}  t.Todo "Update successful. Returns task with status code OK."
-// @Failure 400 {object} string "failed to deserialize json request."
-// @Failure 400 {object} string "Missing or wrong id."
-// @Failure 400 {object} string "Invalid IsDone field."
-// @Failure 404 {object} string "No such task."
-// @Failure 500 {object} string "Internal error."
+// @Param id path int true "ID of the task to update"
+// @Param UserData body t.TodoRequest true "Updated task data"
+// @Success 200 {object}  t.Todo "Task updated successfully, returns the updated task."
+// @Failure 400 {object} string "Invalid request body, missing/incorrect fields, or invalid ID."
+// @Failure 404 {object} string "Task not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /todos/{id} [put]
 func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -227,14 +229,15 @@ func Update(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 }
 
 // Delete godoc
-// @Summary Delete task
-// @Description Deletes a task by ID in the URL.
+// @Summary Delete a task by ID
+// @Description Deletes a task by its ID from the URL.
 // @Tags todo
 // @Produce json
-// @Success 200 {object} string "Deletion successful. Returns status code OK."
-// @Failure 400 {object} string "Missing or wrong id."
-// @Failure 404 {object} string "No such task."
-// @Failure 500 {object} string "Internal error."
+// @Param id path int true "ID of the task to delete"
+// @Success 200 {object} string "Task deleted successfully."
+// @Failure 400 {object} string "Invalid or missing task ID."
+// @Failure 404 {object} string "Task not found."
+// @Failure 500 {object} string "Internal server error."
 // @Router /todos/{id} [delete]
 func Delete(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
