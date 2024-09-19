@@ -298,19 +298,18 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
-
-	var res string
-	var id int
+	defer rows.Close() // Ensure rows are closed
 
 	if rows.Next() {
+		var res string
+		var id int
 		if err := rows.Scan(&id, &res); err != nil {
 			return "", 0, fmt.Errorf("%s: %v", op, err)
 		}
-	} else {
-		return "expired", 0, nil
+		return token, id, nil
 	}
 
-	return token, id, nil
+	return "expired", 0, nil
 }
 
 func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {

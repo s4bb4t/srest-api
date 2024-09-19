@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS public.tokens (
     user_id SERIAL PRIMARY KEY, 
     token TEXT NOT NULL,
-    date TIMESTAMPT DEFAULT NOW()
+    date TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- +goose Down
