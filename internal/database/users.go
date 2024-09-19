@@ -261,6 +261,14 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 func (s *Storage) SaveRefreshToken(token string, id int) error {
 	const op = "database.postgres.SaveRefreshToken"
 
+	// Debugging - print current time
+	var currentTime string
+	err := s.db.QueryRow(`SELECT NOW()`).Scan(&currentTime)
+	if err != nil {
+		return fmt.Errorf("%s: %v", op, err)
+	}
+	fmt.Println("Current Time:", currentTime)
+
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.tokens (user_id, token, date) 
 		VALUES ($1, $2, NOW()) 
