@@ -21,7 +21,7 @@ COPY --from=builder /app/srest-api /usr/local/bin/srest-api
 COPY config /usr/local/bin/config
 
 # Устанавливаем переменную окружения
-ENV CONFIG_PATH=/usr/local/bin/config/dev.yaml
+ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml
 
 # Устанавливаем рабочую директорию
 WORKDIR /usr/local/bin
