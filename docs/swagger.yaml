@@ -222,6 +222,12 @@ paths:
   /admin/users/{id}:
     delete:
       description: Deletes a user by their ID.
+      parameters:
+      - description: ID of the user
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:

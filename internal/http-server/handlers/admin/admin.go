@@ -255,6 +255,7 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Tags admin
 // @Produce json
 // @Security BearerAuth
+// @Param id path int true "ID of the user"
 // @Success 200 {object} string "User successfully removed."
 // @Failure 400 {object} string "Invalid or missing user ID."
 // @Failure 401 {object} string "Unauthorized access. Bearer token missing or invalid."

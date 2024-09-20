@@ -254,6 +254,15 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Remove user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "User successfully removed.",
