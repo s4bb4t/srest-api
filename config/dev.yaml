@@ -1,5 +1,5 @@
   env: "dev" # local, dev, prod
-  dbstring: "host=localhost port=5432 user=postgres password=easydev dbname=postgres sslmode=disable"
+  dbstring: "host=51.250.113.72 port=5432 user=postgres password=easydev dbname=postgres sslmode=disable"
   http_server: 
     address: "0.0.0.0:8082"
     timeout: 4s 
