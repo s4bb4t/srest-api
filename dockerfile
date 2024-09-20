@@ -20,6 +20,9 @@ COPY --from=builder /app/srest-api /usr/local/bin/srest-api
 # Копируем конфигурационные файлы приложения
 COPY config /usr/local/bin/config
 
+# Копируем миграции
+COPY internal/database/migrations /usr/local/bin/internal/database/migrations
+
 # Устанавливаем переменную окружения
 ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml
 
@@ -31,4 +34,3 @@ EXPOSE 8082
 
 # Запускаем приложение
 CMD ["srest-api"]
- 
