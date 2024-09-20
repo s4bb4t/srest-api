@@ -12,7 +12,7 @@ services:
       - "443:443" # HTTPS
     volumes:
       - './nginx.conf:/etc/nginx/nginx.conf'
-      - './certs:/etc/letsencrypt/live/easydev.club'  # Путь для сертификатов
+      - './certs:/etc/letsencrypt/live/easydev'  # Путь для сертификатов
     depends_on:
       - backend
       - frontend
@@ -27,8 +27,6 @@ services:
 
   frontend:
     image: nginx:alpine
-    ports:
-      - "8080:80"
     volumes:
       - './index.html:/usr/share/nginx/html/index.html'
     networks:
