@@ -10,7 +10,7 @@ services:
       - "443:443" # HTTPS
     volumes:
       - './nginx.conf:/etc/nginx/nginx.conf'
-      - './certs:/etc/letsencrypt/live/easydev'
+      - './certs:/etc/letsencrypt/live/easydev'  # Монтируем директорию с сертификатами
     depends_on:
       - backend
       - frontend
