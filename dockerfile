@@ -23,9 +23,6 @@ COPY config /usr/local/bin/config
 # Копируем миграции
 COPY internal/database/migrations /usr/local/bin/internal/database/migrations
 
-# Копируем сертификаты
-COPY /etc/letsencrypt/live/easydev/ /etc/nginx/certs/
-
 # Устанавливаем переменную окружения
 ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml
 
