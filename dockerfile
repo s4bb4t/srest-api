@@ -14,6 +14,9 @@ RUN GOOS=linux GOARCH=amd64 go build -o /app/srest-api ./cmd/sapi
 # Финальный образ
 FROM alpine:latest
 
+# Устанавливаем Nginx
+RUN apk add --no-cache nginx
+
 # Копируем собранное приложение
 COPY --from=builder /app/srest-api /usr/local/bin/srest-api
 
@@ -23,14 +26,18 @@ COPY config /usr/local/bin/config
 # Копируем миграции
 COPY internal/database/migrations /usr/local/bin/internal/database/migrations
 
+# Копируем конфигурацию Nginx
+COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
+
 # Устанавливаем переменную окружения
 ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml
 
 # Устанавливаем рабочую директорию
 WORKDIR /usr/local/bin
 
-# Открываем порт для приложения
+# Открываем порты для приложения и Nginx
 EXPOSE 80
+EXPOSE 443
 
-# Запускаем приложение
-CMD ["srest-api"]
+# Запускаем Nginx и приложение
+CMD ["sh", "-c", "nginx && srest-api"]
