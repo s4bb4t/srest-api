@@ -32,12 +32,9 @@ COPY ./nginx.conf /etc/nginx/nginx.conf
 # Устанавливаем переменную окружения
 ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml
 
-# Устанавливаем рабочую директорию
-WORKDIR /usr/local/bin
-
 # Открываем порты для приложения и Nginx
 EXPOSE 80
 EXPOSE 443
 
 # Запускаем Nginx и приложение
-CMD ["sh", "-c", "nginx && srest-api"]
+CMD ["sh", "-c", "nginx && /usr/local/bin/srest-api"]

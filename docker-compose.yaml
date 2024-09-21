@@ -21,7 +21,7 @@ services:
 
   backend:
     build:
-      context: ./  # Убедитесь, что у вас есть Dockerfile в этом пути
+      context: ./  
     environment:
       - CONFIG_PATH=/usr/local/bin/config/prod.yaml
     networks:
@@ -30,6 +30,6 @@ services:
   frontend:
     image: nginx:alpine
     volumes:
-      - './index.html:/usr/share/nginx/html/index.html'  # Подключаем фронтенд
+      - './index.html:/usr/share/nginx/html/index.html' 
     networks:
       - dev
