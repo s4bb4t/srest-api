@@ -27,7 +27,7 @@ COPY config /usr/local/bin/config
 COPY internal/database/migrations /usr/local/bin/internal/database/migrations
 
 # Копируем конфигурацию Nginx
-COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
 # Устанавливаем переменную окружения
 ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml
