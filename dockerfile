@@ -4,7 +4,7 @@ FROM golang:1.22-alpine AS builder
 WORKDIR /app
 
 # Копируем файлы go.mod и go.sum и загружаем зависимости
-COPY go.mod go.sum ./ 
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Копируем исходный код и компилируем приложение

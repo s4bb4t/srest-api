@@ -1,3 +1,5 @@
+version: '3.8'
+
 networks:
   dev:
     driver: bridge
@@ -5,13 +7,14 @@ networks:
 services:
   nginx:
     build:
-      context: ./  
+      context: ./
     ports:
-      - "80:80"  
+      - "80:80"
       - "443:443"
     volumes:
       - './nginx/nginx.conf:/etc/nginx/nginx.conf'
-      - '/home/admin/certs/easydev:/etc/nginx/certs'
+      - './index.html:/usr/share/nginx/html/index.html'  # Подключаем фронтенд
+      - '../../certs/easydev:/usr/local/bin/certs'  # Монтируем сертификаты
     depends_on:
       - backend
       - frontend
@@ -20,7 +23,7 @@ services:
 
   backend:
     build:
-      context: ./
+      context: ./  # Убедитесь, что у вас есть Dockerfile в этом пути
     environment:
       - CONFIG_PATH=/usr/local/bin/config/prod.yaml
     networks:
