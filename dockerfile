@@ -24,7 +24,7 @@ COPY --from=builder /app/srest-api /usr/local/bin/srest-api
 COPY config /usr/local/bin/config
 
 # Копируем миграции
-COPY internal/database/migrations /usr/local/bin/internal/database/migrations
+COPY ./internal/database/migrations /usr/local/bin/internal/database/migrations
 
 # Копируем конфигурацию Nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
