@@ -24,17 +24,3 @@ services:
       context: ./
     networks:
       - dev
-
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: easydev
-      POSTGRES_DB: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - dev
-
-volumes:
-  postgres_data:

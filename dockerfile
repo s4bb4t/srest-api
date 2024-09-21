@@ -30,7 +30,7 @@ ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml
 WORKDIR /usr/local/bin
 
 # Открываем порт для приложения
-EXPOSE 8082
+EXPOSE 80
 
 # Запускаем приложение
 CMD ["srest-api"]
