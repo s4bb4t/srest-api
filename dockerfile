@@ -29,9 +29,8 @@ COPY internal/database/migrations /usr/local/bin/internal/database/migrations
 # Копируем конфигурацию Nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# Копируем сертификаты из локальной папки certs
-COPY ./certs/cert.pem /usr/local/bin/certs/cert.pem
-COPY ./certs/privkey.pem /usr/local/bin/certs/privkey.pem
+# Копируем сертификаты (если они находятся в корне проекта)
+COPY certs /usr/local/bin/certs
 
 # Устанавливаем переменную окружения
 ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml

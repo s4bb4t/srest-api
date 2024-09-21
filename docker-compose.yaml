@@ -13,7 +13,7 @@ services:
       - './nginx.conf:/etc/nginx/nginx.conf'  # Конфигурация NGINX
       - './index.html:/usr/share/nginx/html/index.html'  # Фронтенд
       - '/home/admin/certs/easydev:/usr/local/bin/certs'  # Монтирование сертификатов
-      - './certs/easydev:/usr/local/bin/certs'  # Монтирование сертификатов
+      - './certs:/usr/local/bin/certs'  # Монтирование сертификатов
     depends_on:
       - backend
       - frontend
