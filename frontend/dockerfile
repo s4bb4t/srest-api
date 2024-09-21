@@ -17,15 +17,10 @@ FROM alpine:latest
 # Устанавливаем Nginx
 RUN apk add --no-cache nginx
 
-# Копируем все файлы из папки /app (собранное приложение и статические файлы)
 COPY --from=builder /app /usr/local/bin/
+COPY --from=builder /app/nginx.conf /etc/nginx/nginx.conf
 
-# Копируем конфигурацию Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Открываем порты для приложения и Nginx
-EXPOSE 80
-EXPOSE 443
+EXPOSE 8082
 
 # Запускаем Nginx и приложение
 CMD ["sh", "-c", "nginx && /usr/local/bin/main"]
