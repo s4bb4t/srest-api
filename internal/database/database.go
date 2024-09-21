@@ -11,7 +11,7 @@ type Storage struct {
 	db *sql.DB
 }
 
-func SetupDataBase(dbStr string) (*Storage, error) {
+func SetupDataBase(dbStr, env string) (*Storage, error) {
 	const op = "database.postgres.New"
 
 	db, err := sql.Open("postgres", dbStr)
@@ -23,11 +23,13 @@ func SetupDataBase(dbStr string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
-	migrationsDir := "./internal/database/migrations"
-	fmt.Println("Migrations directory:", migrationsDir) // Проверить путь
+	if env != "prod" {
+		migrationsDir := "./internal/database/migrations"
+		fmt.Println("Migrations directory:", migrationsDir) // Проверить путь
 
-	if err := runMigrations(db, migrationsDir); err != nil {
-		return nil, fmt.Errorf("%s: %v", op, err)
+		if err := runMigrations(db, migrationsDir); err != nil {
+			return nil, fmt.Errorf("%s: %v", op, err)
+		}
 	}
 
 	return &Storage{db: db}, nil

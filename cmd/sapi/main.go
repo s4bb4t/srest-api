@@ -48,7 +48,7 @@ func main() {
 	log.Info("Starting sAPI server")
 	log.Debug("Debug mode enabled")
 
-	storage, err := sdb.SetupDataBase(cfg.DbString)
+	storage, err := sdb.SetupDataBase(cfg.DbString, cfg.Env)
 	if err != nil {
 		log.Error("Failed to setup database", sl.Err(err))
 		os.Exit(1)
