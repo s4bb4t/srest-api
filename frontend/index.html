@@ -3,26 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TODO List</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>sAPI TODO</title>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <header class="parallax">
-    <h1>My To-Do List</h1>
+    <h1>sAPI To-Do List</h1>
   </header>
   
   <main>
     <div class="todo-container">
-      <input type="text" id="taskInput" placeholder="Enter new task...">
-      <button id="addTask">Add Task</button>
+      <form id="taskForm">
+        <input type="text" id="taskInput" placeholder="Enter new task..." required>
+        <button type="submit" id="addTask">Add Task</button>
+      </form>
       <ul id="taskList"></ul>
     </div>
   </main>
 
   <footer>
-    <p>&copy; 2024 - Designed with Apple style</p>
+    <p>&copy; 2024 - Designed by s4bb4t for EASYDEV</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="/static/app.js"></script>
 </body>
 </html>

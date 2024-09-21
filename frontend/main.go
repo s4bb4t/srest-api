@@ -10,31 +10,37 @@ import (
 
 func main() {
 	route := chi.NewRouter()
-	route.Route("/", func(router chi.Router) {
-		router.Use(CORSMiddleware)
+	route.Use(CORSMiddleware)
 
-		router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			t, err := template.ParseFiles("index.html")
-			if err != nil {
-				fmt.Fprint(w, err.Error())
-			}
-
-			t.ExecuteTemplate(w, "main", nil)
-		})
-
-		srv := &http.Server{
-			Addr:    "0.0.0.0:8082",
-			Handler: route,
+	// Обработка маршрута для todos
+	route.Get("/todos", func(w http.ResponseWriter, r *http.Request) {
+		t, err := template.ParseFiles("./index.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
-		if err := srv.ListenAndServe(); err != nil {
-			fmt.Println("failed to start server")
+		err = t.Execute(w, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-
-		fmt.Println("server stopped")
 	})
 
+	// Маршрут для статических файлов
+	route.Get("/static/*", http.HandlerFunc(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))).ServeHTTP))
+
+	// Запускаем сервер
+	srv := &http.Server{
+		Addr:    "0.0.0.0:8082",
+		Handler: route,
+	}
+
+	fmt.Println("Starting server on :8082")
+	if err := srv.ListenAndServe(); err != nil {
+		fmt.Println("failed to start server:", err)
+	}
 }
+
 func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
