@@ -11,7 +11,7 @@ import (
 type Config struct {
 	Env        string `yaml:"env" env-default:"local"`
 	DbString   string `yaml:"dbstring" env-required:"true"`
-	HTTPServer `yaml:"http_ server"`
+	HTTPServer `yaml:"http_server"`
 }
 
 type HTTPServer struct {
