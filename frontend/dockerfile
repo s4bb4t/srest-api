@@ -1,15 +1,40 @@
-# Используем официальный образ NGINX для фронтенда
-FROM nginx:alpine
+# Этап сборки
+FROM golang:1.22-alpine AS builder
 
-# Копируем все файлы из папки ./frontend в стандартную директорию NGINX для статических файлов
-COPY ./ /usr/share/nginx/html
+WORKDIR /app
 
-# Убедимся, что права доступа установлены корректно
-RUN chmod -R 755 /usr/share/nginx/html
+# Копируем файлы go.mod и go.sum и загружаем зависимости
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Открываем порты 80 и 443
+# Копируем исходный код и компилируем приложение
+COPY . . 
+RUN GOOS=linux GOARCH=amd64 go build -o /app/main .
+
+# Финальный образ
+FROM alpine:latest
+
+# Устанавливаем Nginx
+RUN apk add --no-cache nginx
+
+# Копируем собранное приложение
+COPY --from=builder /app/main /usr/local/bin/main
+
+# Копируем конфигурационные файлы приложения, если они есть
+COPY config /usr/local/bin/config
+
+# Копируем сертификаты (если они находятся в корне проекта)
+COPY certs /usr/local/bin/certs
+
+# Копируем конфигурацию Nginx
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+# Устанавливаем переменную окружения
+ENV CONFIG_PATH=/usr/local/bin/config/prod.yaml
+
+# Открываем порты для приложения и Nginx
 EXPOSE 80
 EXPOSE 443
 
-# Запускаем NGINX
-CMD ["nginx", "-g", "daemon off;"]
+# Запускаем Nginx и приложение
+CMD ["sh", "-c", "nginx && /usr/local/bin/main"]
