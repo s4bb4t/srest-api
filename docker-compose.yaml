@@ -29,8 +29,7 @@ services:
       - dev
 
   frontend:
-    image: nginx:alpine
-    volumes:
-      - './index.html:/usr/share/nginx/html/index.html' 
+    build:
+      context: ./frontend
     networks:
       - dev

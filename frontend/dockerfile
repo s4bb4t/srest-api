@@ -1,0 +1,15 @@
+# Используем официальный образ NGINX для фронтенда
+FROM nginx:alpine
+
+# Копируем все файлы из папки ./frontend в стандартную директорию NGINX для статических файлов
+COPY ./frontend /usr/share/nginx/html
+
+# Убедимся, что права доступа установлены корректно
+RUN chmod -R 755 /usr/share/nginx/html
+
+# Открываем порты 80 и 443
+EXPOSE 80
+EXPOSE 443
+
+# Запускаем NGINX
+CMD ["nginx", "-g", "daemon off;"]
