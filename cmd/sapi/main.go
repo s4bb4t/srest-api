@@ -64,9 +64,15 @@ func main() {
 		router.Use(CORSMiddleware)
 
 		// swagger endpoint
-		router.Get("/swagger/*", httpSwagger.Handler(
-			httpSwagger.URL("http://51.250.113.72:8082/api/v1/swagger/doc.json"),
-		))
+		if cfg.Env != "prod" {
+			router.Get("/swagger/*", httpSwagger.Handler(
+				httpSwagger.URL("http://51.250.113.72:8082/api/v1/swagger/doc.json"),
+			))
+		} else {
+			router.Get("/swagger/*", httpSwagger.Handler(
+				httpSwagger.URL("http://easydev.club/api/v1/swagger/doc.json"),
+			))
+		}
 
 		// Unknown users handlers
 		router.Route("/auth", func(u chi.Router) {
