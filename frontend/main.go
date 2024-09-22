@@ -14,7 +14,7 @@ func main() {
 
 	// Поправлено: изменен путь к файлу index.html
 	route.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		t, err := template.ParseFiles("/usr/local/bin/index.html")
+		t, err := template.ParseFiles("/usr/local/bin/frontend/index.html")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
