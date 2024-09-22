@@ -9,39 +9,72 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       margin: 0;
       padding: 0;
+      background-color: #121212;
       color: #fff;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      background-color: #121212;
     }
 
-    header.parallax {
-      background-image: url('https://example.com/apple-bg.jpg'); /* Замените на свой фон */
+    header {
+      position: relative;
       height: 100vh;
-      background-attachment: fixed;
-      background-position: center;
-      background-size: cover;
       display: flex;
       justify-content: center;
       align-items: center;
+      text-align: center;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .background-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.5;
+      height: 100%;
+      width: auto;
+      pointer-events: none;
+      transition: transform 0.2s ease;
     }
 
     h1 {
       font-size: 4rem;
+      z-index: 1;
+    }
+
+    .links-header {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .links-header a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: white;
+      font-size: 1.2rem;
+      transition: color 0.3s;
+    }
+
+    .links-header a:hover {
+      color: #007aff;
     }
 
     main {
       padding: 20px;
+      max-width: 600px;
+      margin: -60px auto 50px auto;
+      position: relative;
+      z-index: 1;
     }
 
     .todo-container {
       background: rgba(30, 30, 30, 0.8);
-      border-radius: 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-      max-width: 600px;
-      margin: -80px auto 50px auto;
+      border-radius: 10px;
       padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
 
     form {
@@ -51,20 +84,18 @@
 
     #taskInput {
       flex: 1;
-      padding: 15px;
-      font-size: 1rem;
-      border-radius: 10px;
+      padding: 10px;
       border: 1px solid #ccc;
+      border-radius: 5px;
       margin-right: 10px;
     }
 
     button {
+      padding: 10px 15px;
       background-color: #007aff;
       border: none;
-      padding: 15px 20px;
       color: white;
-      font-size: 1rem;
-      border-radius: 10px;
+      border-radius: 5px;
       cursor: pointer;
     }
 
@@ -79,13 +110,12 @@
 
     li {
       background-color: #3a3a3a;
-      padding: 15px;
+      padding: 10px;
       margin-bottom: 10px;
-      border-radius: 10px;
+      border-radius: 5px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
 
     li button {
@@ -93,7 +123,6 @@
       border: none;
       padding: 5px 10px;
       color: white;
-      font-size: 0.8rem;
       border-radius: 5px;
     }
 
@@ -107,22 +136,36 @@
       background-color: #1a1a1a;
     }
 
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 3rem;
-      }
+    .redirect-effect {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.5s;
+      visibility: hidden;
+    }
 
-      .todo-container {
-        width: 90%;
-      }
+    .redirect-effect.show {
+      visibility: visible;
+      opacity: 1;
     }
   </style>
 </head>
 <body>
-  <header class="parallax">
-    <h1>sAPI To-Do List</h1>
+  <header>
+    <img class="background-image" src="https://i.imgur.com/639GvdA.jpg" alt="Background Image">
+    <h1>sAPI TODO</h1>
   </header>
-  
+
+  <div class="links-header">
+    <a href="https://t.me/seledkovti" class="link" data-link="seledkovti">seledkovti</a>
+    <a href="https://t.me/s4bb4t" class="link" data-link="s4bb4t">s4bb4t</a>
+  </div>
+
   <main>
     <div class="todo-container">
       <form id="taskForm">
@@ -134,104 +177,115 @@
   </main>
 
   <footer>
-    <p>&copy; 2024 - Designed with Apple style</p>
+    <p>&copy; 2024 - Designed by ChatGPT. Developed by s4bb4t</p>
   </footer>
 
+  <div id="redirectEffect" class="redirect-effect"></div>
+
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const taskInput = document.getElementById('taskInput');
-    const taskList = document.getElementById('taskList');
-    const addTaskButton = document.getElementById('addTask');
-    const taskForm = document.getElementById('taskForm');
+    document.addEventListener('mousemove', (event) => {
+      const image = document.querySelector('.background-image');
+      const x = (event.clientX / window.innerWidth) * -50 - 10;
+      const y = (event.clientY / window.innerHeight) * -50 - 10;
+      image.style.transform = `translate(-50%, -50%) scale(1) translate(${x}px, ${y}px)`;
+    });
 
-    // Fetch all tasks from the API
+    document.querySelectorAll('.links-header a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const redirectOverlay = document.getElementById('redirectEffect');
+        const targetUrl = e.currentTarget.href;
+
+        redirectOverlay.classList.add('show');
+
+        setTimeout(() => {
+          window.location.href = targetUrl;
+        }, 1500);
+      });
+    });
+
     function fetchTasks() {
-        fetch('https://easydev.club/api/v1/todos')
-            .then(response => response.json())
-            .then(data => {
-                taskList.innerHTML = ''; // Очистка списка задач
-                data.data.forEach(task => {
-                    addTaskToUI(task);
-                });
-            })
-            .catch(error => console.error('Ошибка при получении задач:', error));
-    }
-
-    // Добавить задачу в интерфейс
-    function addTaskToUI(task) {
-        const li = document.createElement('li');
-        
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = task.isDone;
-        checkbox.onchange = () => updateTaskStatus(task.id, checkbox.checked);
-        
-        li.appendChild(checkbox);
-        li.appendChild(document.createTextNode(task.title));
-        
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.onclick = () => deleteTask(task.id, li);
-        
-        li.appendChild(deleteButton);
-        taskList.appendChild(li);
-    }
-
-    // Обновить статус задачи
-    function updateTaskStatus(taskId, isDone) {
-        fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ isDone: isDone })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка при обновлении статуса задачи');
-            }
-        })
-        .catch(error => console.error(error));
-    }
-
-    // Добавить новую задачу
-    taskForm.onsubmit = (e) => {
-        e.preventDefault();  // Предотвратить отправку формы
-        const taskTitle = taskInput.value;
-        if (taskTitle.trim() === '') return;
-
-        fetch('https://easydev.club/api/v1/todos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ title: taskTitle })
-        })
+      fetch('https://easydev.club/api/v1/todos')
         .then(response => response.json())
-        .then(task => {
+        .then(data => {
+          const taskList = document.getElementById('taskList');
+          taskList.innerHTML = '';
+          data.data.forEach(task => {
             addTaskToUI(task);
-            taskInput.value = ''; // Очистить ввод
+          });
         })
-        .catch(error => console.error('Ошибка при добавлении задачи:', error));
+        .catch(error => console.error('Ошибка при получении задач:', error));
+    }
+
+    function addTaskToUI(task) {
+      const taskList = document.getElementById('taskList');
+      const li = document.createElement('li');
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = task.isDone;
+      checkbox.onchange = () => updateTaskStatus(task.id, checkbox.checked);
+
+      li.appendChild(checkbox);
+      li.appendChild(document.createTextNode(task.title));
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.onclick = () => deleteTask(task.id, li);
+
+      li.appendChild(deleteButton);
+      taskList.appendChild(li);
+    }
+
+    function updateTaskStatus(taskId, isDone) {
+      fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ isDone: isDone })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Ошибка при обновлении статуса задачи');
+        }
+      })
+      .catch(error => console.error(error));
+    }
+
+    document.getElementById('taskForm').onsubmit = (e) => {
+      e.preventDefault();
+      const taskInput = document.getElementById('taskInput');
+      const taskTitle = taskInput.value;
+      if (taskTitle.trim() === '') return;
+
+      fetch('https://easydev.club/api/v1/todos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title: taskTitle })
+      })
+      .then(response => response.json())
+      .then(task => {
+        addTaskToUI(task);
+        taskInput.value = '';
+      })
+      .catch(error => console.error('Ошибка при добавлении задачи:', error));
     };
 
-    // Удалить задачу
     function deleteTask(taskId, taskElement) {
-        fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
-            method: 'DELETE'
-        })
-        .then(() => {
-            taskElement.remove();
-        })
-        .catch(error => console.error('Ошибка при удалении задачи:', error));
+      fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
+        method: 'DELETE'
+      })
+      .then(() => {
+        taskElement.remove();
+      })
+      .catch(error => console.error('Ошибка при удалении задачи:', error));
     }
 
-    // Получить задачи при загрузке
     fetchTasks();
-
-    // Обновлять список задач каждую минуту
     setInterval(fetchTasks, 60000);
-});
   </script>
 </body>
 </html>

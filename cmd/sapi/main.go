@@ -70,7 +70,7 @@ func main() {
 			))
 		} else {
 			router.Get("/swagger/*", httpSwagger.Handler(
-				httpSwagger.URL("http://easydev.club/api/v1/swagger/doc.json"),
+				httpSwagger.URL("https://easydev.club/api/v1/swagger/doc.json"),
 			))
 		}
 
