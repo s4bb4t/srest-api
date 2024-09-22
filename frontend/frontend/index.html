@@ -1,20 +1,205 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>sAPI</title>
-  <link rel="icon" href="logo.png" type="image/png">
-  <link rel="stylesheet" href="styles.css">
+  <title>sAPI To-Do List</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      background-color: #121212;
+    }
+
+    header.parallax {
+      background-image: url('https://example.com/apple-bg.jpg'); /* Замените на свой фон */
+      height: 100vh;
+      background-attachment: fixed;
+      background-position: center;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    h1 {
+      font-size: 4rem;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    .todo-container {
+      background: rgba(30, 30, 30, 0.8);
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      max-width: 600px;
+      margin: -80px auto 50px auto;
+      padding: 20px;
+    }
+
+    form {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    #taskInput {
+      flex: 1;
+      padding: 15px;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+    }
+
+    button {
+      background-color: #007aff;
+      border: none;
+      padding: 15px 20px;
+      color: white;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005bb5;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background-color: #3a3a3a;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    li button {
+      background-color: red;
+      border: none;
+      padding: 5px 10px;
+      color: white;
+      font-size: 0.8rem;
+      border-radius: 5px;
+    }
+
+    li button:hover {
+      background-color: darkred;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #1a1a1a;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 3rem;
+      }
+
+      .todo-container {
+        width: 90%;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="parallax">
-    <h1>СДЕЛАЙТЕ ФРОНТЕНД ПЖ</h1>
+    <h1>sAPI To-Do List</h1>
   </header>
   
+  <main>
+    <div class="todo-container">
+      <form id="taskForm">
+        <input type="text" id="taskInput" placeholder="Enter new task..." required>
+        <button type="submit" id="addTask">Add Task</button>
+      </form>
+      <ul id="taskList"></ul>
+    </div>
+  </main>
+
   <footer>
-    <p>&copy; 2024 - s4bb4t</p>
+    <p>&copy; 2024 - Designed with Apple style</p>
   </footer>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const taskInput = document.getElementById('taskInput');
+      const taskList = document.getElementById('taskList');
+      const taskForm = document.getElementById('taskForm');
+
+      // Fetch all tasks from the API
+      function fetchTasks() {
+        fetch('https://easydev.club/api/v1/todos')
+          .then(response => response.json())
+          .then(data => {
+            data.forEach(task => {
+              addTaskToUI(task);
+            });
+          });
+      }
+
+      // Add task to UI
+      function addTaskToUI(task) {
+        const li = document.createElement('li');
+        li.textContent = task.title;
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteTask(task.id, li);
+
+        li.appendChild(deleteButton);
+        taskList.appendChild(li);
+      }
+
+      // Add new task
+      taskForm.onsubmit = (e) => {
+        e.preventDefault();  // Prevent form submission
+        const taskTitle = taskInput.value;
+        if (taskTitle.trim() === '') return;
+
+        fetch('https://easydev.club/api/v1/todos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title: taskTitle })
+        })
+        .then(response => response.json())
+        .then(task => {
+          addTaskToUI(task);
+          taskInput.value = ''; // Clear input
+        });
+      };
+
+      // Delete task
+      function deleteTask(taskId, taskElement) {
+        fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
+          method: 'DELETE'
+        })
+        .then(() => {
+          taskElement.remove();
+        });
+      }
+
+      // Fetch tasks on load
+      fetchTasks();
+    });
+  </script>
 </body>
 </html>
