@@ -29,6 +29,8 @@ services:
       - dev
 
   frontend:
+    volumes:
+      - /home/admin/frontend:/usr/local/bin/frontend
     build:
       context: ./frontend
     networks:
