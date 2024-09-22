@@ -1,5 +1,5 @@
 # Этап сборки
-FROM golang:1.23.1-alpine AS frontBuilder
+FROM golang:1.23.1-alpine AS front_builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ FROM alpine:latest
 RUN apk add --no-cache nginx
 
 # Копируем собранное приложение
-COPY --from=frontBuilder /app/main /usr/local/bin/main
+COPY --from=front_builder /app/main /usr/local/bin/main
 
 # Устанавливаем права на выполнение для бинарного файла
 RUN chmod +x /usr/local/bin/main
