@@ -22,7 +22,7 @@ import (
 )
 
 // @title           sAPI
-// @version         v0.2.0
+// @version         v0.3.1
 // @description     This is a RESTful API service for EasyDev. It provides various user management functionalities such as user registration, authentication, profile updates, and admin operations.
 
 // @contact.name   s4bb4t
@@ -31,7 +31,7 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      51.250.113.72:8082
+// @host      easydev.club
 
 // @BasePath  /api/v1
 
@@ -40,7 +40,7 @@ import (
 // @name Authorization
 // @description JWT Bearer token required for accessing protected routes. Format: Bearer <token>
 
-// @schemes http
+// @schemes http https
 func main() {
 	cfg := config.MustLoad()
 
