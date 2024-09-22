@@ -14,7 +14,7 @@ func main() {
 
 	// Обработка маршрута для todos
 	route.Get("/todos", func(w http.ResponseWriter, r *http.Request) {
-		t, err := template.ParseFiles("./index.html")
+		t, err := template.ParseFiles("index.html")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
