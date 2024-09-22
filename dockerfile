@@ -1,5 +1,5 @@
 # Этап сборки
-FROM golang:1.22-alpine AS builder
+FROM golang:1.22-alpine AS mainBuilder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ FROM alpine:latest
 RUN apk add --no-cache nginx
 
 # Копируем собранное приложение
-COPY --from=builder /app/srest-api /usr/local/bin/srest-api
+COPY --from=mainBuilder /app/srest-api /usr/local/bin/srest-api
 
 # Копируем конфигурационные файлы приложения
 COPY config /usr/local/bin/config
