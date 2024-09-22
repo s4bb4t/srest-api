@@ -28,7 +28,7 @@ func main() {
 	route.Get("/static/*", http.HandlerFunc(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))).ServeHTTP))
 
 	srv := &http.Server{
-		Addr:    "0.0.0.0:8082",
+		Addr:    "0.0.0.0:8081",
 		Handler: route,
 	}
 

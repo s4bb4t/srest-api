@@ -20,7 +20,8 @@ RUN apk add --no-cache nginx
 COPY --from=builder /app /usr/local/bin/
 COPY --from=builder /app/nginx.conf /etc/nginx/extra-conf.d/nginx.conf
 
-EXPOSE 8082
+EXPOSE 80
+EXPOSE 443
 
 # Запускаем Nginx и приложение
 CMD ["sh", "-c", "nginx && /usr/local/bin/main"]
