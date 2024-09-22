@@ -17,7 +17,13 @@ FROM alpine:latest
 # Устанавливаем Nginx
 RUN apk add --no-cache nginx
 
-COPY --from=frontBuilder /app /usr/local/bin/main
+# Копируем собранное приложение
+COPY --from=frontBuilder /app/main /usr/local/bin/main
+
+# Устанавливаем права на выполнение для бинарного файла
+RUN chmod +x /usr/local/bin/main
+
+# Копируем конфигурацию Nginx
 COPY --from=frontBuilder /app/nginx.conf /etc/nginx/extra-conf.d/nginx.conf
 
 EXPOSE 80
