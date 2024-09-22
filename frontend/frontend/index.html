@@ -138,68 +138,100 @@
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const taskInput = document.getElementById('taskInput');
-      const taskList = document.getElementById('taskList');
-      const taskForm = document.getElementById('taskForm');
+document.addEventListener('DOMContentLoaded', () => {
+    const taskInput = document.getElementById('taskInput');
+    const taskList = document.getElementById('taskList');
+    const addTaskButton = document.getElementById('addTask');
+    const taskForm = document.getElementById('taskForm');
 
-      // Fetch all tasks from the API
-      function fetchTasks() {
+    // Fetch all tasks from the API
+    function fetchTasks() {
         fetch('https://easydev.club/api/v1/todos')
-          .then(response => response.json())
-          .then(data => {
-            data.forEach(task => {
-              addTaskToUI(task);
-            });
-          });
-      }
+            .then(response => response.json())
+            .then(data => {
+                taskList.innerHTML = ''; // Очистка списка задач
+                data.data.forEach(task => {
+                    addTaskToUI(task);
+                });
+            })
+            .catch(error => console.error('Ошибка при получении задач:', error));
+    }
 
-      // Add task to UI
-      function addTaskToUI(task) {
+    // Добавить задачу в интерфейс
+    function addTaskToUI(task) {
         const li = document.createElement('li');
-        li.textContent = task.title;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.isDone;
+        checkbox.onchange = () => updateTaskStatus(task.id, checkbox.checked);
+        
+        li.appendChild(checkbox);
+        li.appendChild(document.createTextNode(task.title));
         
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
         deleteButton.onclick = () => deleteTask(task.id, li);
-
+        
         li.appendChild(deleteButton);
         taskList.appendChild(li);
-      }
+    }
 
-      // Add new task
-      taskForm.onsubmit = (e) => {
-        e.preventDefault();  // Prevent form submission
+    // Обновить статус задачи
+    function updateTaskStatus(taskId, isDone) {
+        fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ isDone: isDone })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при обновлении статуса задачи');
+            }
+        })
+        .catch(error => console.error(error));
+    }
+
+    // Добавить новую задачу
+    taskForm.onsubmit = (e) => {
+        e.preventDefault();  // Предотвратить отправку формы
         const taskTitle = taskInput.value;
         if (taskTitle.trim() === '') return;
 
         fetch('https://easydev.club/api/v1/todos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ title: taskTitle })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title: taskTitle })
         })
         .then(response => response.json())
         .then(task => {
-          addTaskToUI(task);
-          taskInput.value = ''; // Clear input
-        });
-      };
+            addTaskToUI(task);
+            taskInput.value = ''; // Очистить ввод
+        })
+        .catch(error => console.error('Ошибка при добавлении задачи:', error));
+    };
 
-      // Delete task
-      function deleteTask(taskId, taskElement) {
+    // Удалить задачу
+    function deleteTask(taskId, taskElement) {
         fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
-          method: 'DELETE'
+            method: 'DELETE'
         })
         .then(() => {
-          taskElement.remove();
-        });
-      }
+            taskElement.remove();
+        })
+        .catch(error => console.error('Ошибка при удалении задачи:', error));
+    }
 
-      // Fetch tasks on load
-      fetchTasks();
-    });
+    // Получить задачи при загрузке
+    fetchTasks();
+
+    // Обновлять список задач каждую минуту
+    setInterval(fetchTasks, 60000);
+});
   </script>
 </body>
 </html>
