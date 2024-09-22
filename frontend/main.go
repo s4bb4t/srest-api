@@ -12,8 +12,9 @@ func main() {
 	route := chi.NewRouter()
 	route.Use(CORSMiddleware)
 
+	// Поправлено: изменен путь к файлу index.html
 	route.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		t, err := template.ParseFiles("index.html")
+		t, err := template.ParseFiles("/usr/local/bin/index.html")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -25,7 +26,8 @@ func main() {
 		}
 	})
 
-	route.Get("/static/*", http.HandlerFunc(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))).ServeHTTP))
+	// Поправлено: явное подключение статики
+	route.Get("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("/usr/local/bin/static"))).ServeHTTP)
 
 	srv := &http.Server{
 		Addr:    "0.0.0.0:8081",
