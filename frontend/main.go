@@ -26,9 +26,6 @@ func main() {
 		}
 	})
 
-	// Поправлено: явное подключение статики
-	route.Get("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("/usr/local/bin/static"))).ServeHTTP)
-
 	srv := &http.Server{
 		Addr:    "0.0.0.0:8081",
 		Handler: route,

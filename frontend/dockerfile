@@ -24,8 +24,7 @@ COPY --from=front_builder /app/main /usr/local/bin/main
 RUN chmod +x /usr/local/bin/main
 
 # Поправлено: изменены пути к статическим файлам, если они находятся в корне проекта
-COPY ./static /usr/local/bin/static
-COPY ./index.html /usr/local/bin/index.html
+COPY ./front /usr/local/bin/
 
 # Копируем конфигурацию Nginx
 COPY ./nginx.conf /etc/nginx/extra-conf.d/nginx.conf
