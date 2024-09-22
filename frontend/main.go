@@ -12,8 +12,7 @@ func main() {
 	route := chi.NewRouter()
 	route.Use(CORSMiddleware)
 
-	// Обработка маршрута для todos
-	route.Get("/todos", func(w http.ResponseWriter, r *http.Request) {
+	route.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		t, err := template.ParseFiles("index.html")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -26,10 +25,8 @@ func main() {
 		}
 	})
 
-	// Маршрут для статических файлов
 	route.Get("/static/*", http.HandlerFunc(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))).ServeHTTP))
 
-	// Запускаем сервер
 	srv := &http.Server{
 		Addr:    "0.0.0.0:8082",
 		Handler: route,
