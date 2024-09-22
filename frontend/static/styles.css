@@ -2,7 +2,8 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   padding: 0;
-  color: #fff;
+  color: #ffffff;
+  background-color: #1c1c1c;
   overflow-x: hidden;
   scroll-behavior: smooth;
 }
@@ -24,17 +25,19 @@ h1 {
 }
 
 main {
-  color: #2e2e2e;
+  color: #f0f0f0;
   padding: 20px;
 }
 
 .todo-container {
-  background: rgba(30, 30, 30, 0.8);
+  background: rgba(30, 30, 30, 0.85);
   border-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
   max-width: 600px;
   margin: -80px auto 50px auto;
   padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
 form {
@@ -49,6 +52,8 @@ form {
   border-radius: 10px;
   border: 1px solid #ccc;
   margin-right: 10px;
+  background-color: #3a3a3a;
+  color: #ffffff;
 }
 
 button {
@@ -71,14 +76,14 @@ ul {
 }
 
 li {
-  background-color: #3a3a3a;
+  background-color: #4b4b4b;
   padding: 15px;
   margin-bottom: 10px;
   border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 li button {
@@ -98,14 +103,4 @@ footer {
   text-align: center;
   padding: 20px;
   background-color: #1a1a1a;
-}
-
-@media (max-width: 768px) {
-  h1 {
-      font-size: 3rem;
-  }
-
-  .todo-container {
-      width: 90%;
-  }
 }
