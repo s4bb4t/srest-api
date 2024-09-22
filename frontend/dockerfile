@@ -23,7 +23,7 @@ COPY --from=front_builder /app/main /usr/local/bin/main
 # Устанавливаем права на выполнение для бинарного файла
 RUN chmod +x /usr/local/bin/main
 
-COPY ./front /usr/local/bin/frontend
+COPY ./frontend /usr/local/bin/frontend
 
 # Копируем конфигурацию Nginx
 COPY ./nginx.conf /etc/nginx/extra-conf.d/nginx.conf
