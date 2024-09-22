@@ -23,12 +23,9 @@ COPY --from=frontBuilder /app/main /usr/local/bin/main
 # Устанавливаем права на выполнение для бинарного файла
 RUN chmod +x /usr/local/bin/main
 
-# Копируем статические файлы для фронтенда
-# Поправлено: добавлено копирование статических файлов в нужную директорию
-COPY ./frontend/static /usr/local/bin/static
-
-# Копируем файл index.html для обслуживания через Nginx
-COPY ./frontend/index.html /usr/local/bin/index.html
+# Поправлено: изменены пути к статическим файлам, если они находятся в корне проекта
+COPY ./static /usr/local/bin/static
+COPY ./index.html /usr/local/bin/index.html
 
 # Копируем конфигурацию Nginx
 COPY ./nginx.conf /etc/nginx/extra-conf.d/nginx.conf
