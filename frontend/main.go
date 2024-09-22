@@ -32,7 +32,7 @@ func main() {
 		Handler: route,
 	}
 
-	fmt.Println("Starting server on :8082")
+	fmt.Println("Starting server on :8081")
 	if err := srv.ListenAndServe(); err != nil {
 		fmt.Println("failed to start server:", err)
 	}
