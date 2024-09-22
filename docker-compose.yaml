@@ -30,7 +30,7 @@ services:
 
   frontend:
     volumes:
-      - /home/admin/frontend:/usr/local/bin/frontend
+      - /home/admin/frontend:/mnt/frontend
     build:
       context: ./frontend
     networks:
