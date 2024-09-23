@@ -152,7 +152,7 @@ definitions:
       refresh:
         type: string
     type: object
-host: 51.250.113.72:8082
+host: easydev.club
 info:
   contact:
     email: s4bb4t@yandex.ru
@@ -164,7 +164,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: sAPI
-  version: v0.2.0
+  version: v0.3.1
 paths:
   /admin/users:
     get:
@@ -809,6 +809,7 @@ paths:
       - user
 schemes:
 - http
+- https
 securityDefinitions:
   BearerAuth:
     description: 'JWT Bearer token required for accessing protected routes. Format:

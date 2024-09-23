@@ -1,6 +1,7 @@
 {
     "schemes": [
-        "http"
+        "http",
+        "https"
     ],
     "swagger": "2.0",
     "info": {
@@ -14,9 +15,9 @@
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "version": "v0.2.0"
+        "version": "v0.3.1"
     },
-    "host": "51.250.113.72:8082",
+    "host": "easydev.club",
     "basePath": "/api/v1",
     "paths": {
         "/admin/users": {

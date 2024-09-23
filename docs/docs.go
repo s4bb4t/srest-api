@@ -1240,10 +1240,10 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "v0.2.0",
-	Host:             "51.250.113.72:8082",
+	Version:          "v0.3.1",
+	Host:             "easydev.club",
 	BasePath:         "/api/v1",
-	Schemes:          []string{"http"},
+	Schemes:          []string{"http", "https"},
 	Title:            "sAPI",
 	Description:      "This is a RESTful API service for EasyDev. It provides various user management functionalities such as user registration, authentication, profile updates, and admin operations.",
 	InfoInstanceName: "swagger",
