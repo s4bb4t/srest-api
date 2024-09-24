@@ -1,48 +1,48 @@
-name: Deploy App
+# name: Deploy App
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    env:
-      HOST: admin@easydev.club
-      DEPLOY_DIRECTORY: /home/admin/apps/sapi_test
-      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     env:
+#       HOST: admin@easydev.club
+#       DEPLOY_DIRECTORY: /home/admin/apps/sapi_test
+#       DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
 
-      - name: Install SSH and Rsync
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ssh rsync
+#       - name: Install SSH and Rsync
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y ssh rsync
 
-      - name: Set up SSH key
-        run: |
-          echo "${{ env.DEPLOY_SSH_KEY }}" > deploy_key.pem
-          chmod 755 deploy_key.pem
+#       - name: Set up SSH key
+#         run: |
+#           echo "${{ env.DEPLOY_SSH_KEY }}" > deploy_key.pem
+#           chmod 755 deploy_key.pem
 
-      - name: Test SSH connection
-        run: |
-          ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }}
+#       - name: Test SSH connection
+#         run: |
+#           ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }}
 
-      # - name: Deploy to VM
-      #   run: |
-      #     rsync -avz --delete -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
+#       # - name: Deploy to VM
+#       #   run: |
+#       #     rsync -avz --delete -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
 
-      # - name: Run setup script
-      #   run: |
-      #     ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "bash ${{ env.DEPLOY_DIRECTORY }}/setup_sapi.sh"
-      #     sudo touch /home/admin/apps/srest-api/config.env && \
-      #     sudo chmod 600 /home/admin/apps/srest-api/config.env && \
-      #     echo 'CONFIG_PATH=/home/admin/apps/srest-api/config/dev.yaml' | sudo tee /home/admin/apps/srest-api/config.env > /dev/null && \
+#       # - name: Run setup script
+#       #   run: |
+#       #     ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "bash ${{ env.DEPLOY_DIRECTORY }}/setup_sapi.sh"
+#       #     sudo touch /home/admin/apps/srest-api/config.env && \
+#       #     sudo chmod 600 /home/admin/apps/srest-api/config.env && \
+#       #     echo 'CONFIG_PATH=/home/admin/apps/srest-api/config/dev.yaml' | sudo tee /home/admin/apps/srest-api/config.env > /dev/null && \
 
-      #     cd /home/admin/apps/srest-api/ && \
-      #     GOOS=linux GOARCH=amd64 go build -buildvcs=false -o /home/admin/apps/srest-api/cmd/sapi/sapi ./cmd/sapi && \
+#       #     cd /home/admin/apps/srest-api/ && \
+#       #     GOOS=linux GOARCH=amd64 go build -buildvcs=false -o /home/admin/apps/srest-api/cmd/sapi/sapi ./cmd/sapi && \
 
-      #     sudo rm -rf deployment && \
+#       #     sudo rm -rf deployment && \
