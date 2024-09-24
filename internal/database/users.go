@@ -265,7 +265,7 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 		INSERT INTO public.tokens (user_id, token, date) 
 		VALUES ($1, $2, NOW() + INTERVAL '12 hours') 
 		ON CONFLICT (user_id) 
-		DO UPDATE SET token = EXCLUDED.token 
+		DO UPDATE SET token = EXCLUDED.token, date = NOW() + INTERVAL '12 hours'
 	`)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
