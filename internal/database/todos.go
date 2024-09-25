@@ -40,6 +40,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	var stmt *sql.Stmt
 	var err error
 	var res sql.Result
+	defer stmt.Close()
 
 	if t.Title == "" {
 		stmt, err = s.db.Prepare(`UPDATE public.todos SET is_done = $1 WHERE id = $2`)
@@ -86,7 +87,6 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 		return n, fmt.Errorf("%s: no task with id: %v", op, id)
 	}
 
-	stmt.Close()
 	return n, nil
 }
 
@@ -126,6 +126,7 @@ func (s *Storage) GetTodo(id int) (t.Todo, error) {
 	if err != nil {
 		return t.Todo{}, fmt.Errorf("%s: %v", op, err)
 	}
+	defer rows.Close()
 
 	var todo t.Todo
 
@@ -159,6 +160,7 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 	if err != nil {
 		return nil, t.TodoInfo{}, 0, fmt.Errorf("%s: %v", op, err)
 	}
+	defer rows.Close()
 
 	var result []t.Todo
 	var todo t.Todo

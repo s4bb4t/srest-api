@@ -142,6 +142,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	if err != nil {
 		return result, fmt.Errorf("%s: %v", op, err)
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		result.Meta.TotalAmount++
@@ -223,13 +224,6 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 
 	defer tx.Rollback()
 
-	// if u.Login != "" {
-	// 	_, err = tx.Exec(`UPDATE public.users SET login = $1 WHERE id = $2`, u.Login, id)
-	// 	if err != nil {
-	// 		return -1, fmt.Errorf("%s: %v", op, err)
-	// 	}
-	// }
-
 	if u.Username != "" {
 		_, err = tx.Exec(`UPDATE public.users SET username = $1 WHERE id = $2`, u.Username, id)
 		if err != nil {
@@ -293,7 +287,7 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
-	defer rows.Close() // Ensure rows are closed
+	defer rows.Close()
 
 	if rows.Next() {
 		var res string
