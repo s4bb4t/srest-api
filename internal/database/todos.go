@@ -149,13 +149,13 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 	query := ``
 	switch filter {
 	case "all":
-		query = `SELECT * FROM public.todos`
+		query = `SELECT * FROM public.todos ORDER BY id ASC`
 	case "completed":
-		query = `SELECT * FROM public.todos WHERE is_done = true`
+		query = `SELECT * FROM public.todos WHERE is_done = true ORDER BY id ASC`
 	case "inWork":
-		query = `SELECT * FROM public.todos WHERE is_done = false`
+		query = `SELECT * FROM public.todos WHERE is_done = false ORDER BY id ASC`
 	default:
-		query = `SELECT * FROM public.todos`
+		query = `SELECT * FROM public.todos ORDER BY id ASC`
 	}
 
 	rows, err := s.db.Query(query)
