@@ -23,7 +23,7 @@ func SetupDataBase(dbStr, env string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
 
-	if env == "local" {
+	if env != "prod" {
 		migrationsDir := "./internal/database/migrations"
 		fmt.Println("Migrations directory:", migrationsDir) // Проверить путь
 
