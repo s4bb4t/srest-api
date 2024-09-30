@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE IF NOT EXISTS public.todos (
+CREATE TABLE IF NOT EXISTS dev.todos (
     id SERIAL PRIMARY KEY,
     title TEXT,
     created TIMESTAMPTZ DEFAULT NOW(),
@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS public.todos (
 );
 
 -- +goose Down
-DROP TABLE IF EXISTS public.todos;
+DROP TABLE IF EXISTS dev.todos;
