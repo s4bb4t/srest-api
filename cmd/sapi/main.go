@@ -38,7 +38,7 @@ import (
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
-// @description JWT Bearer token required for accessing protected routes. Format: Bearer <token>
+// @description JWT Bearer token required for accessing protected routes. Format: "Bearer <token>"
 
 // @schemes http https
 func main() {
