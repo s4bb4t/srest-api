@@ -27,7 +27,7 @@ type UserContext struct {
 }
 
 func NewAccessToken(id int, admin bool) (string, error) {
-	expirationTime := time.Now().Add(2 * time.Hour)
+	expirationTime := time.Now().Add(5 * time.Minute)
 	claims := &Claims{
 		UserId:  id,
 		IsAdmin: admin,

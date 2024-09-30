@@ -18,7 +18,7 @@ func (s *Storage) Add(u u.User) (int, error) {
 
 	var id int
 	err = s.db.QueryRow(`
-		INSERT INTO public.users (login, username, email, password, phone_number)
+		INSERT INTO dev.users (login, username, email, password, phone_number)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id
 	`, u.Login, u.Username, u.Email, string(pwd), u.PhoneNumber).Scan(&id)
@@ -36,9 +36,9 @@ func (s *Storage) Add(u u.User) (int, error) {
 func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 	const op = "database.postgres.Auth"
 
-	stmt, err := s.db.Prepare(`SELECT password FROM public.users WHERE login = $1`)
+	stmt, err := s.db.Prepare(`SELECT password FROM dev.users WHERE login = $1`)
 	if err != nil {
-		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT password FROM public.users WHERE login = $1`): %v", op, err)
+		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT password FROM dev.users WHERE login = $1`): %v", op, err)
 	}
 	defer stmt.Close()
 
@@ -52,9 +52,9 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		return user, fmt.Errorf("%s.password.CheckPassword: %v", op, err)
 	}
 
-	stmt, err = s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE login = $1`)
+	stmt, err = s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM dev.users WHERE login = $1`)
 	if err != nil {
-		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE login = $1`): %v", op, err)
+		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM dev.users WHERE login = $1`): %v", op, err)
 	}
 
 	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
@@ -79,7 +79,7 @@ func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 	default:
 		return -2, fmt.Errorf("%s: no such field: %v", op, field)
 	}
-	query := fmt.Sprintf(`UPDATE public.users SET %s = $1 WHERE id = $2`, field)
+	query := fmt.Sprintf(`UPDATE dev.users SET %s = $1 WHERE id = $2`, field)
 
 	stmt, err := s.db.Prepare(query)
 	if err != nil {
@@ -108,7 +108,7 @@ func (s *Storage) Remove(id int) (int64, error) {
 	const op = "database.postgres.RemoveUser"
 
 	stmt, err := s.db.Prepare(`
-	DELETE FROM public.users 
+	DELETE FROM dev.users 
 		WHERE id = $1
 	`)
 	if err != nil {
@@ -136,7 +136,7 @@ func (s *Storage) Remove(id int) (int64, error) {
 func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	const op = "database.postgres.GetAllUsers"
 
-	query := `SELECT 1 FROM public.users`
+	query := `SELECT 1 FROM dev.users`
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -151,7 +151,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 
 	query = `
 		SELECT id, username, email, date, is_blocked, is_admin
-		FROM public.users
+		FROM dev.users
 		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
 		AND is_blocked = $2
 		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
@@ -181,7 +181,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 func (s *Storage) Get(id int) (u.TableUser, error) {
 	const op = "database.postgres.GetUser"
 
-	rows, err := s.db.Query(`SELECT id, username, email, date, is_blocked, is_admin, phone_number FROM public.users WHERE id = $1`, id)
+	rows, err := s.db.Query(`SELECT id, username, email, date, is_blocked, is_admin, phone_number FROM dev.users WHERE id = $1`, id)
 	if err != nil {
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
@@ -204,7 +204,7 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	const op = "database.postgres.UpdateUser"
 
 	var exists bool
-	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE email = $1)`)
+	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM dev.users WHERE email = $1)`)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
@@ -225,21 +225,21 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	defer tx.Rollback()
 
 	if u.Username != "" {
-		_, err = tx.Exec(`UPDATE public.users SET username = $1 WHERE id = $2`, u.Username, id)
+		_, err = tx.Exec(`UPDATE dev.users SET username = $1 WHERE id = $2`, u.Username, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
 	}
 
 	if u.Email != "" {
-		_, err = tx.Exec(`UPDATE public.users SET email = $1 WHERE id = $2`, u.Email, id)
+		_, err = tx.Exec(`UPDATE dev.users SET email = $1 WHERE id = $2`, u.Email, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
 	}
 
 	if u.PhoneNumber != "" {
-		_, err = tx.Exec(`UPDATE public.users SET phone_number = $1 WHERE id = $2`, u.PhoneNumber, id)
+		_, err = tx.Exec(`UPDATE dev.users SET phone_number = $1 WHERE id = $2`, u.PhoneNumber, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -256,10 +256,10 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 	const op = "database.postgres.SaveRefreshToken"
 
 	stmt, err := s.db.Prepare(`
-		INSERT INTO public.tokens (user_id, token, date) 
-		VALUES ($1, $2, NOW() + INTERVAL '12 hours') 
+		INSERT INTO dev.tokens (user_id, token, date) 
+		VALUES ($1, $2, NOW() + INTERVAL '20 minutes') 
 		ON CONFLICT (user_id) 
-		DO UPDATE SET token = EXCLUDED.token, date = NOW() + INTERVAL '12 hours'
+		DO UPDATE SET token = EXCLUDED.token, date = NOW() + INTERVAL '20 minutes'
 	`)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
@@ -277,7 +277,7 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 func (s *Storage) RefreshToken(token string) (string, int, error) {
 	const op = "database.postgres.RefreshToken"
 
-	stmt, err := s.db.Prepare(`SELECT user_id, token FROM public.tokens WHERE token = $1 and date > NOW()`)
+	stmt, err := s.db.Prepare(`SELECT user_id, token FROM dev.tokens WHERE token = $1 and date > NOW()`)
 	if err != nil {
 		return "", 0, fmt.Errorf("%s: %v", op, err)
 	}
@@ -305,7 +305,7 @@ func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 	const op = "database.postgres.ChangePassword"
 
 	var exists bool
-	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE id = $1)`)
+	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM dev.users WHERE id = $1)`)
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
 	}
@@ -331,7 +331,7 @@ func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 			return 0, fmt.Errorf("%s: %v", op, err)
 		}
 
-		_, err = tx.Exec(`UPDATE public.users SET password = $1 WHERE id = $2`, pwd, id)
+		_, err = tx.Exec(`UPDATE dev.users SET password = $1 WHERE id = $2`, pwd, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}

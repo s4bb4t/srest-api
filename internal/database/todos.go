@@ -11,7 +11,7 @@ func (s *Storage) Create(t t.TodoRequest) (int64, error) {
 	const op = "database.postgres.CreateTodo"
 
 	query := `
-		INSERT INTO public.todos (title, is_done)
+		INSERT INTO dev.todos (title, is_done)
 		VALUES ($1, $2)
 		RETURNING id
 	`
@@ -42,7 +42,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	var res sql.Result
 
 	if t.Title == "" {
-		stmt, err = s.db.Prepare(`UPDATE public.todos SET is_done = $1 WHERE id = $2`)
+		stmt, err = s.db.Prepare(`UPDATE dev.todos SET is_done = $1 WHERE id = $2`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -56,7 +56,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	}
 
 	if t.IsDone == nil {
-		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1 WHERE id = $2`)
+		stmt, err = s.db.Prepare(`UPDATE dev.todos SET title = $1 WHERE id = $2`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -69,7 +69,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	}
 
 	if t.Title != "" && t.IsDone != nil {
-		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1, is_done = $2 WHERE id = $3`)
+		stmt, err = s.db.Prepare(`UPDATE dev.todos SET title = $1, is_done = $2 WHERE id = $3`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -96,7 +96,7 @@ func (s *Storage) Delete(id int) (int64, error) {
 	const op = "database.postgres.DeleteTodo"
 
 	stmt, err := s.db.Prepare(`
-	DELETE FROM public.todos 
+	DELETE FROM dev.todos 
 		WHERE id = $1
 	`)
 	if err != nil {
@@ -124,7 +124,7 @@ func (s *Storage) Delete(id int) (int64, error) {
 func (s *Storage) GetTodo(id int) (t.Todo, error) {
 	const op = "database.postgres.GetTodo"
 
-	rows, err := s.db.Query(`SELECT * FROM public.todos WHERE id = $1`, id)
+	rows, err := s.db.Query(`SELECT * FROM dev.todos WHERE id = $1`, id)
 	if err != nil {
 		return t.Todo{}, fmt.Errorf("%s: %v", op, err)
 	}
@@ -149,13 +149,13 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 	query := ``
 	switch filter {
 	case "all":
-		query = `SELECT * FROM public.todos ORDER BY id ASC`
+		query = `SELECT * FROM dev.todos ORDER BY id ASC`
 	case "completed":
-		query = `SELECT * FROM public.todos WHERE is_done = true ORDER BY id ASC`
+		query = `SELECT * FROM dev.todos WHERE is_done = true ORDER BY id ASC`
 	case "inWork":
-		query = `SELECT * FROM public.todos WHERE is_done = false ORDER BY id ASC`
+		query = `SELECT * FROM dev.todos WHERE is_done = false ORDER BY id ASC`
 	default:
-		query = `SELECT * FROM public.todos ORDER BY id ASC`
+		query = `SELECT * FROM dev.todos ORDER BY id ASC`
 	}
 
 	rows, err := s.db.Query(query)
@@ -177,7 +177,7 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 
 	var info t.TodoInfo
 
-	query = `SELECT is_done FROM public.todos`
+	query = `SELECT is_done FROM dev.todos`
 
 	rows, err = s.db.Query(query)
 	if err != nil {
