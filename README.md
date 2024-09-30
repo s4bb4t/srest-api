@@ -50,7 +50,7 @@ RESTful API сервис для EasyDev. Предоставляет функци
 
 ## Хост
 
-- **URL**: [http://51.250.113.72:8082/api/v1](http://51.250.113.72:8082/api/v1)
+- **URL**: [http://easydev.club/api/v1](http://easydev.club/api/v1)
 
 ## Безопасность
 
@@ -58,7 +58,7 @@ RESTful API сервис для EasyDev. Предоставляет функци
 
 ### Swagger
 
-- **Путь**: [Swagger документация](http://51.250.113.72:8082/api/v1/swagger/index.html#)
+- **Путь**: [Swagger документация](http://easydev.club/api/v1/swagger/index.html#)
 
 ---
 
