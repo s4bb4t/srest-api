@@ -10,7 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var jwtKey = []byte("YouAreKissedSabbatsAss")
+var jwtKey = []byte(`b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABDIsCk4b4SwgpWaZXbeuCXUAAAAEAAAAAEAAAGXAAAAB3NzaC1yc2EAAAADAQABAAABgQCwN27MXT2rYoNIzwqPtHxIBiJhlPLWEAakzCxQesr8W0hBHrMBWfsVvYhCF+l4vdPwcTL6Vav6FefAQICrgEpnMtzT3i25KT4vV/4Q07oqhNvNp`)
 
 type CxtKey string
 
@@ -45,38 +45,23 @@ func NewAccessToken(id int, admin bool) (string, error) {
 	return tokenString, nil
 }
 
-func NewRefreshToken() string {
+func NewRefreshToken() (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	key := []byte(strconv.Itoa(int(time.Now().Unix())))
 	tokenString, err := token.SignedString(key)
 	if err != nil {
-		return ""
+		return "", err
 	}
 
-	return tokenString
+	return tokenString, nil
 }
 
 func JWTAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodOptions {
-			next.ServeHTTP(w, r)
-			return
-		}
 
-		// cookie, err := r.Cookie("token")
-		// if err != nil {
-		// 	if err == http.ErrNoCookie {
-		// 		http.Error(w, "Authorization cookie is missing", http.StatusUnauthorized)
-		// 		return
-		// 	}
-		// 	http.Error(w, err.Error(), http.StatusBadRequest)
-		// 	return
-		// }
-		// tokenString := cookie.Value // раскоммент
+		tokenString := r.Header.Get("Authorization")
 
-		tokenString := r.Header.Get("Authorization") // коммент
-
-		tokenString = strings.TrimPrefix(tokenString, "Bearer ") // коммент
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
 
 		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {

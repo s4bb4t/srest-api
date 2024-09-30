@@ -31,14 +31,14 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      easydev.club
+// @host      51.250.113.72:8082
 
 // @BasePath  /api/v1
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
-// @description JWT Bearer token required for accessing protected routes. Format: Bearer <token>
+// @description JWT Bearer token required for accessing protected routes. Format: "Bearer <token>"
 
 // @schemes http https
 func main() {

@@ -94,6 +94,10 @@ func GetAll(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 			return
 		}
 
+		if todos == nil {
+			todos = []t.Todo{}
+		}
+
 		response := t.MetaResponse{
 			Data: todos,
 			Info: info,
