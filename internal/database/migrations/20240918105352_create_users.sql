@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE IF NOT EXISTS dev.users (
+CREATE TABLE IF NOT EXISTS public.users (
     id SERIAL PRIMARY KEY, 
     login TEXT UNIQUE,
     username TEXT,
@@ -14,4 +14,4 @@ CREATE TABLE IF NOT EXISTS dev.users (
 );
 
 -- +goose Down
-DROP TABLE IF EXISTS dev.users;
+DROP TABLE IF EXISTS public.users;
