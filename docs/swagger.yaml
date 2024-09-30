@@ -152,7 +152,7 @@ definitions:
       refresh:
         type: string
     type: object
-host: easydev.club
+host: 51.250.113.72:8082
 info:
   contact:
     email: s4bb4t@yandex.ru
