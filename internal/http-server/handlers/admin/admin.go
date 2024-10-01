@@ -419,7 +419,12 @@ func contextAdmin(r *http.Request) (bool, error) {
 	if !ok {
 		return false, fmt.Errorf("Unauthorized")
 	}
-	return userContext.IsAdmin, nil
+	select {
+	case <-r.Context().Done():
+		return false, fmt.Errorf("request context cancelled")
+	default:
+		return userContext.IsAdmin, nil
+	}
 }
 
 func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) bool {

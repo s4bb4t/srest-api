@@ -284,23 +284,29 @@ func Profile(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		user, err := User.Get(userContext.UserId)
-		if err != nil {
-			if err.Error() == "database.postgres.Get: no such user" {
-				log.Info(err.Error())
+		select {
+		case <-r.Context().Done():
+			log.Info("Request context cancelled")
+			return
+		default:
+			user, err := User.Get(userContext.UserId)
+			if err != nil {
+				if err.Error() == "database.postgres.Get: no such user" {
+					log.Info(err.Error())
 
-				http.Error(w, "No such user", http.StatusBadRequest)
+					http.Error(w, "No such user", http.StatusBadRequest)
 
+					return
+				}
+				util.InternalError(w, r, log, err)
 				return
 			}
-			util.InternalError(w, r, log, err)
-			return
+
+			log.Info("User successfully retrieved")
+			log.Debug(fmt.Sprintf("user: %v", user))
+
+			render.JSON(w, r, user)
 		}
-
-		log.Info("User successfully retrieved")
-		log.Debug(fmt.Sprintf("user: %v", user))
-
-		render.JSON(w, r, user)
 	}
 }
 
@@ -343,36 +349,48 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		n, err := User.UpdateUser(req, userContext.UserId)
-		if err != nil {
-			if n == 0 {
-				log.Info(err.Error())
+		select {
+		case <-r.Context().Done():
+			log.Info("Request context cancelled")
+			return
+		default:
+			n, err := User.UpdateUser(req, userContext.UserId)
+			if err != nil {
+				if n == 0 {
+					log.Info(err.Error())
 
-				http.Error(w, "No such user", http.StatusNotFound)
+					http.Error(w, "No such user", http.StatusNotFound)
 
-				return
-			} else if n == -2 {
+					return
+				} else if n == -2 {
 
-				log.Info(err.Error())
+					log.Info(err.Error())
 
-				http.Error(w, "Login or email already used", http.StatusBadRequest)
+					http.Error(w, "Login or email already used", http.StatusBadRequest)
 
+					return
+				}
+				util.InternalError(w, r, log, err)
 				return
 			}
-			util.InternalError(w, r, log, err)
-			return
+
+			select {
+			case <-r.Context().Done():
+				log.Info("Request context cancelled")
+				return
+			default:
+				user, err := User.Get(userContext.UserId)
+				if err != nil {
+					util.InternalError(w, r, log, err)
+					return
+				}
+
+				log.Info("Successfully updated user")
+				log.Debug(fmt.Sprintf("user: %v to %v with email %v", userContext, req.Username, req.Email))
+
+				render.JSON(w, r, user)
+			}
 		}
-
-		user, err := User.Get(userContext.UserId)
-		if err != nil {
-			util.InternalError(w, r, log, err)
-			return
-		}
-
-		log.Info("Successfully updated user")
-		log.Debug(fmt.Sprintf("user: %v to %v with email %v", userContext, req.Username, req.Email))
-
-		render.JSON(w, r, user)
 	}
 }
 
@@ -411,20 +429,26 @@ func ChangePassword(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		user, err := User.ChangePassword(req, userContext.UserId)
-		if err != nil {
-			if err.Error() == "database.postgres.ChangePassword: no such user" {
-				log.Info(err.Error())
+		select {
+		case <-r.Context().Done():
+			log.Info("Request context cancelled")
+			return
+		default:
+			user, err := User.ChangePassword(req, userContext.UserId)
+			if err != nil {
+				if err.Error() == "database.postgres.ChangePassword: no such user" {
+					log.Info(err.Error())
 
-				http.Error(w, "No such user", http.StatusNotFound)
+					http.Error(w, "No such user", http.StatusNotFound)
 
+					return
+				}
+				util.InternalError(w, r, log, err)
 				return
 			}
-			util.InternalError(w, r, log, err)
-			return
-		}
 
-		log.Info("User's password successfully changed")
-		log.Debug(fmt.Sprintf("user: %v", user))
+			log.Info("User's password successfully changed")
+			log.Debug(fmt.Sprintf("user: %v", user))
+		}
 	}
 }
