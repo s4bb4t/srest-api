@@ -22,7 +22,7 @@ import (
 )
 
 // @title           sAPI
-// @version         v0.3.1
+// @version         v0.3.2
 // @description     This is a RESTful API service for EasyDev. It provides various user management functionalities such as user registration, authentication, profile updates, and admin operations.
 
 // @contact.name   s4bb4t

@@ -16,10 +16,10 @@ import (
 )
 
 type AccessToken struct {
-	Token string `json:"access"`
+	Token string `json:"accessToken"`
 }
 type RefreshToken struct {
-	Token string `json:"refresh"`
+	Token string `json:"refreshToken"`
 }
 
 type Tokens struct {
