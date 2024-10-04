@@ -15,7 +15,7 @@
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "version": "v0.3.1"
+        "version": "v0.3.2"
     },
     "host": "easydev.club",
     "basePath": "/api/v1",
@@ -1209,7 +1209,7 @@
         "internal_http-server_handlers_user.RefreshToken": {
             "type": "object",
             "properties": {
-                "refresh": {
+                "refreshToken": {
                     "type": "string"
                 }
             }
@@ -1217,10 +1217,10 @@
         "internal_http-server_handlers_user.Tokens": {
             "type": "object",
             "properties": {
-                "access": {
+                "accessToken": {
                     "type": "string"
                 },
-                "refresh": {
+                "refreshToken": {
                     "type": "string"
                 }
             }
@@ -1228,7 +1228,7 @@
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "description": "JWT Bearer token required for accessing protected routes. Format: Bearer \u003ctoken\u003e",
+            "description": "JWT Bearer token required for accessing protected routes. Format: \"Bearer \u003ctoken\u003e\"",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

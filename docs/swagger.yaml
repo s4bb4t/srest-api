@@ -142,14 +142,14 @@ definitions:
     type: object
   internal_http-server_handlers_user.RefreshToken:
     properties:
-      refresh:
+      refreshToken:
         type: string
     type: object
   internal_http-server_handlers_user.Tokens:
     properties:
-      access:
+      accessToken:
         type: string
-      refresh:
+      refreshToken:
         type: string
     type: object
 host: easydev.club
@@ -164,7 +164,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: sAPI
-  version: v0.3.1
+  version: v0.3.2
 paths:
   /admin/users:
     get:
@@ -813,7 +813,7 @@ schemes:
 securityDefinitions:
   BearerAuth:
     description: 'JWT Bearer token required for accessing protected routes. Format:
-      Bearer <token>'
+      "Bearer <token>"'
     in: header
     name: Authorization
     type: apiKey

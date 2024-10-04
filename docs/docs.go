@@ -1211,7 +1211,7 @@ const docTemplate = `{
         "internal_http-server_handlers_user.RefreshToken": {
             "type": "object",
             "properties": {
-                "refresh": {
+                "refreshToken": {
                     "type": "string"
                 }
             }
@@ -1219,10 +1219,10 @@ const docTemplate = `{
         "internal_http-server_handlers_user.Tokens": {
             "type": "object",
             "properties": {
-                "access": {
+                "accessToken": {
                     "type": "string"
                 },
-                "refresh": {
+                "refreshToken": {
                     "type": "string"
                 }
             }
@@ -1230,7 +1230,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
-            "description": "JWT Bearer token required for accessing protected routes. Format: Bearer \u003ctoken\u003e",
+            "description": "JWT Bearer token required for accessing protected routes. Format: \"Bearer \u003ctoken\u003e\"",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -1240,7 +1240,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "v0.3.1",
+	Version:          "v0.3.2",
 	Host:             "easydev.club",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"http", "https"},
