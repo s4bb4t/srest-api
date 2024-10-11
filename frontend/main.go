@@ -27,6 +27,7 @@ func main() {
 	})
 
 	route.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("/usr/local/bin/frontend/assets"))))
+	route.Handle("/*", http.StripPrefix("/", http.FileServer(http.Dir("/usr/local/bin/frontend"))))
 
 	srv := &http.Server{
 		Addr:    "0.0.0.0:8081",
