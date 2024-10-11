@@ -1,35 +1,18 @@
-# Этап сборки
-FROM golang:1.23.1-alpine AS front_builder
-
-WORKDIR /app
-
-# Копируем файлы go.mod и go.sum и загружаем зависимости
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Копируем исходный код и компилируем приложение
-COPY . . 
-RUN GOOS=linux GOARCH=amd64 go build -o /app/main .
-
 # Финальный образ
 FROM alpine:latest
 
 # Устанавливаем Nginx
 RUN apk add --no-cache nginx
 
-# Копируем собранное приложение
-COPY --from=front_builder /app/main /usr/local/bin/main
-
-# Устанавливаем права на выполнение для бинарного файла
-RUN chmod +x /usr/local/bin/main
-
+# Копируем статические файлы фронтенда
 COPY ./frontend /usr/local/bin/frontend
 
 # Копируем конфигурацию Nginx
 COPY ./nginx.conf /etc/nginx/extra-conf.d/nginx.conf
 
+# Открываем порты для HTTP и HTTPS
 EXPOSE 80
 EXPOSE 443
 
-# Запускаем Nginx и приложение
-CMD ["sh", "-c", "nginx && /usr/local/bin/main"]
+# Запускаем Nginx
+CMD ["nginx", "-g", "daemon off;"]
