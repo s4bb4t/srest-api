@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -12,7 +13,7 @@ func main() {
 	route := chi.NewRouter()
 	route.Use(CORSMiddleware)
 
-	// Поправлено: изменен путь к файлу index.html
+	// Отдаем только index.html
 	route.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		t, err := template.ParseFiles("/usr/local/bin/frontend/index.html")
 		if err != nil {
@@ -26,8 +27,14 @@ func main() {
 		}
 	})
 
-	route.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir("/usr/local/bin/frontend/assets"))))
-	route.Handle("/*", http.StripPrefix("/", http.FileServer(http.Dir("/usr/local/bin/frontend"))))
+	// Обработчик для доступа к статическим файлам только для самого сервиса
+	route.Handle("/*", http.StripPrefix("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if isInternalRequest(r) {
+			http.FileServer(http.Dir("/usr/local/bin/frontend")).ServeHTTP(w, r)
+		} else {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+		}
+	})))
 
 	srv := &http.Server{
 		Addr:    "0.0.0.0:8081",
@@ -38,6 +45,18 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		fmt.Println("failed to start server:", err)
 	}
+}
+
+// Функция для проверки, является ли запрос локальным
+func isInternalRequest(r *http.Request) bool {
+	ip := r.RemoteAddr
+	parts := strings.Split(ip, ":")
+	if len(parts) > 0 {
+		if parts[0] == "127.0.0.1" || parts[0] == "::1" {
+			return true // Запрос с локального адреса
+		}
+	}
+	return false // Запрос с внешнего адреса
 }
 
 func CORSMiddleware(next http.Handler) http.Handler {
