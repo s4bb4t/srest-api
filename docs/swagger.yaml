@@ -808,7 +808,6 @@ paths:
       tags:
       - user
 schemes:
-- http
 - https
 securityDefinitions:
   BearerAuth:
