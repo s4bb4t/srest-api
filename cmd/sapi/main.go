@@ -40,7 +40,7 @@ import (
 // @name Authorization
 // @description JWT Bearer token required for accessing protected routes. Format: "Bearer <token>"
 
-// @schemes http https
+// @schemes https
 func main() {
 	cfg := config.MustLoad()
 
