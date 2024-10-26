@@ -83,11 +83,9 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 
 		limitStr := r.URL.Query().Get("limit")
 		q.Limit, E = strconv.Atoi(limitStr)
-		if E != nil || q.Limit < 20 {
+		if E != nil || q.Limit < 0 {
 			q.Limit = 20
 		}
-
-		fmt.Println("http", limitStr, q.Limit, E)
 
 		offsetStr := r.URL.Query().Get("offset")
 		q.Offset, E = strconv.Atoi(offsetStr)

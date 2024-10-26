@@ -170,8 +170,6 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		LIMIT $3 OFFSET $4;
 	`
 
-	fmt.Println("db", q.Limit, q.Offset)
-
 	rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.Limit, q.Offset)
 	if err != nil {
 		return result, fmt.Errorf("%s: %v", op, err)
