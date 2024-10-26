@@ -354,6 +354,11 @@
         },
         "/admin/users/{id}/rights": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Updates specific fields related to user's rights by accepting a JSON payload.",
                 "consumes": [
                     "application/json"

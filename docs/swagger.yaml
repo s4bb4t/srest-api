@@ -418,6 +418,8 @@ paths:
           description: Internal server error.
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Update user's rights
       tags:
       - admin
