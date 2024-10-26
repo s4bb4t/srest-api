@@ -75,8 +75,8 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 			q.SortOrder = "ASC"
 		}
 
-		isblockedStr := r.URL.Query().Get("isBlocked")
-		q.IsBlocked, E = strconv.ParseBool(isblockedStr)
+		isBlockedStr := r.URL.Query().Get("isBlocked")
+		q.IsBlocked, E = strconv.ParseBool(isBlockedStr)
 		if E != nil {
 			q.IsBlocked = false
 		}
@@ -86,6 +86,8 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 		if E != nil || q.Limit < 20 {
 			q.Limit = 20
 		}
+
+		fmt.Println("http", limitStr, q.Limit, E)
 
 		offsetStr := r.URL.Query().Get("offset")
 		q.Offset, E = strconv.Atoi(offsetStr)
@@ -318,7 +320,7 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	}
 }
 
-// Unlock godoc
+// Unblock godoc
 // @Summary Unlock user
 // @Description Unblocks a user by their ID, re-enabling their account.
 // Requires Authorization header with Bearer token for authentication.
@@ -345,6 +347,7 @@ func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // Requires Authorization header with Bearer token for authentication.
 // @Tags admin
 // @Accept json
+// @Security BearerAuth
 // @Produce json
 // @Param id path int true "ID of the user"
 // @Param UserData body UpdateRequest true "User data for updating rights"
@@ -360,9 +363,9 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		// if !AdmCheck(w, r, log) {
-		// 	return
-		// }
+		if !AdmCheck(w, r, log) {
+			return
+		}
 
 		var req UpdateRequest
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
@@ -417,7 +420,7 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 func contextAdmin(r *http.Request) (bool, error) {
 	userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 	if !ok {
-		return false, fmt.Errorf("Unauthorized")
+		return false, fmt.Errorf("unauthorized")
 	}
 	return userContext.IsAdmin, nil
 }

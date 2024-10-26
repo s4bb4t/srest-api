@@ -82,9 +82,11 @@ func main() {
 		})
 
 		// Authenticated user handlers
-		// JWTAuthMiddleware used for authenticating users with jwt token from heade with prefix "Bearer "
+		// JWTAuthMiddleware used for authenticating users with jwt token from header with prefix "Bearer "
 		router.Route("/user", func(u chi.Router) {
 			u.Use(access.JWTAuthMiddleware)
+
+			u.Get("/logout", user.Profile(log, storage))
 
 			u.Get("/profile", user.Profile(log, storage))
 			u.Put("/profile", user.UpdateUser(log, storage))
@@ -92,8 +94,8 @@ func main() {
 		})
 
 		// Authenticated admin handlers
-		// JWTAuthMiddleware used for authenticating users with jwt token from heade with prefix "Bearer "
-		// All of handlers use AdmCheck.
+		// JWTAuthMiddleware used for authenticating users with jwt token from header with prefix "Bearer "
+		// All of the handlers use AdmCheck.
 		router.Route("/admin", func(r chi.Router) {
 			r.Use(access.JWTAuthMiddleware)
 
@@ -106,8 +108,6 @@ func main() {
 			r.Post("/users/{id}/block", admin.Block(log, storage))
 			r.Post("/users/{id}/unblock", admin.Unblock(log, storage))
 			r.Post("/users/{id}/rights", admin.Update(log, storage))
-
-			r.Post("/users/registrate", user.Register(log, storage))
 		})
 
 		router.Route("/todos", func(t chi.Router) {

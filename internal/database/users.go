@@ -74,6 +74,18 @@ func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 	switch field {
 	case "admin":
 		field = "is_admin"
+	case "isadmin":
+		field = "is_admin"
+	case "IsAdmin":
+		field = "is_admin"
+	case "isAdmin":
+		field = "is_admin"
+	case "IsBlock":
+		field = "is_admin"
+	case "isblock":
+		field = "is_admin"
+	case "isBlock":
+		field = "is_admin"
 	case "block":
 		field = "is_blocked"
 	default:
@@ -157,6 +169,8 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
 		LIMIT $3 OFFSET $4;
 	`
+
+	fmt.Println("db", q.Limit, q.Offset)
 
 	rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.Limit, q.Offset)
 	if err != nil {
