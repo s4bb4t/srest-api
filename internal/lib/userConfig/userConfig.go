@@ -9,9 +9,9 @@ type User struct {
 }
 
 type PutUser struct {
-	Username    string `json:"username,omitempty" validate:"min=1,max=60,alphanumunicode"`
-	Email       string `json:"email,omitempty" validate:"min=6,max=60,alphanumunicode"`
-	PhoneNumber string `json:"phoneNumber" validate:"omitempty,e164"`
+	Username    string `json:"username,omitempty" validate:"omitempty,min=1,max=60,alphanumunicode"`
+	Email       string `json:"email,omitempty" validate:"omitempty,email"`
+	PhoneNumber string `json:"phoneNumber,omitempty" validate:"omitempty,e164"`
 }
 
 type Pwd struct {
