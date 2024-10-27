@@ -215,20 +215,6 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	const op = "database.postgres.UpdateUser"
 
-	var exists bool
-	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE email = $1)`)
-	if err != nil {
-		return -1, fmt.Errorf("%s: %v", op, err)
-	}
-	defer stmt.Close()
-
-	if err = stmt.QueryRow(u.Email).Scan(&exists); err != nil {
-		return -1, fmt.Errorf("%s: %v", op, err)
-	}
-	if exists {
-		return -2, fmt.Errorf("%s: email already used", op)
-	}
-
 	tx, err := s.db.Begin()
 	if err != nil {
 		return -1, fmt.Errorf("%s: %v", op, err)
@@ -244,6 +230,20 @@ func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	}
 
 	if u.Email != "" {
+		var exists bool
+		stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE email = $1)`)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+		defer stmt.Close()
+
+		if err = stmt.QueryRow(u.Email).Scan(&exists); err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+		if exists {
+			return -2, fmt.Errorf("%s: email already used", op)
+		}
+
 		_, err = tx.Exec(`UPDATE public.users SET email = $1 WHERE id = $2`, u.Email, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
