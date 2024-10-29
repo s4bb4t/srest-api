@@ -74,8 +74,6 @@ definitions:
   github_com_sabbatD_srest-api_internal_lib_userConfig.PutUser:
     properties:
       email:
-        maxLength: 60
-        minLength: 6
         type: string
       phoneNumber:
         type: string
@@ -714,6 +712,29 @@ paths:
       summary: Update an existing task
       tags:
       - todo
+  /user/logout:
+    get:
+      description: Changes user version. Close all sessions.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "401":
+          description: User context not found.
+          schema:
+            type: string
+        "500":
+          description: Internal error.
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - user
   /user/profile:
     get:
       description: Retrieves the full profile of the currently authenticated user.

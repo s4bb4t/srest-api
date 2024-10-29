@@ -433,6 +433,16 @@ func ChangePassword(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	}
 }
 
+// Logout godoc
+// @Summary Logout user
+// @Description Changes user version. Close all sessions.
+// @Tags user
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} string
+// @Failure 401 {object} string "User context not found."
+// @Failure 500 {object} string "Internal error."
+// @Router /user/logout [get]
 func Logout(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Logout"
