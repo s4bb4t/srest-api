@@ -359,7 +359,7 @@ func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 func (s *Storage) Logout(id int) error {
 	const op = "database.postgres.Logout"
 
-	stmt, err := s.db.Prepare(`UPDATE users SET version = version + 1 WHERE id = $1`)
+	stmt, err := s.db.Prepare(`UPDATE public.users SET version = version + 1 WHERE id = $1`)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -375,7 +375,7 @@ func (s *Storage) Logout(id int) error {
 func (s *Storage) UserVersion(id int) int {
 	const op = "database.postgres.UserVersion"
 
-	stmt, err := s.db.Prepare(`SELECT version FROM users WHERE id = $1`)
+	stmt, err := s.db.Prepare(`SELECT version FROM public.users WHERE id = $1`)
 	if err != nil {
 		return 0
 	}
