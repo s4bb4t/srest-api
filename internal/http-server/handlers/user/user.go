@@ -35,6 +35,8 @@ type UserHandler interface {
 	RefreshToken(token string) (string, int, error)
 	SaveRefreshToken(token string, id int) error
 	ChangePassword(u u.Pwd, id int) (int64, error)
+	Logout(id int) error
+	UserVersion(id int) int
 }
 
 // Register godoc
@@ -163,7 +165,8 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
+		ver := User.UserVersion(user.ID)
+		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin, ver)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
@@ -237,7 +240,8 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
+		ver := User.UserVersion(user.ID)
+		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin, ver)
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
 			return
@@ -426,5 +430,27 @@ func ChangePassword(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.Info("User's password successfully changed")
 		log.Debug(fmt.Sprintf("user: %v", user))
+	}
+}
+
+func Logout(log *slog.Logger, User UserHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const op = "http-server.handlers.user.Logout"
+
+		log.With(util.SlogWith(op, r)...)
+
+		userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
+		if !ok {
+			http.Error(w, "User context not found", http.StatusUnauthorized)
+			return
+		}
+
+		if err := User.Logout(userContext.UserId); err != nil {
+			util.InternalError(w, r, log, err)
+			return
+		}
+
+		log.Info("Logout success")
+		log.Debug(fmt.Sprintf("user: %v", userContext))
 	}
 }

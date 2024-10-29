@@ -11,6 +11,8 @@ type Storage struct {
 	db *sql.DB
 }
 
+var DB *sql.DB
+
 func SetupDataBase(dbStr, env string) (*Storage, error) {
 	const op = "database.postgres.New"
 
@@ -32,6 +34,7 @@ func SetupDataBase(dbStr, env string) (*Storage, error) {
 		}
 	}
 
+	DB = db
 	return &Storage{db: db}, nil
 }
 
@@ -50,4 +53,22 @@ func runMigrations(db *sql.DB, migrationsDir string) error {
 	}
 
 	return nil
+}
+
+func UserVersion(id int) int {
+	const op = "database.postgres.UserVersion"
+
+	stmt, err := DB.Prepare(`SELECT version FROM users WHERE id = $1`)
+	if err != nil {
+		return 0
+	}
+	defer stmt.Close()
+
+	ver := 0
+
+	if err := stmt.QueryRow(stmt, id).Scan(&ver); err != nil {
+		return 0
+	}
+
+	return ver
 }

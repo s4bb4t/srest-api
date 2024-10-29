@@ -2,6 +2,7 @@ package access
 
 import (
 	"context"
+	"github.com/sabbatD/srest-api/internal/database"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,8 +16,9 @@ var jwtKey = []byte(`b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAA
 type CxtKey string
 
 type Claims struct {
-	UserId  int  `json:"id"`
-	IsAdmin bool `json:"isAdmin"`
+	UserId      int  `json:"id"`
+	IsAdmin     bool `json:"isAdmin"`
+	UserVersion int  `json:"userVersion"`
 	jwt.StandardClaims
 }
 
@@ -26,11 +28,12 @@ type UserContext struct {
 	IsBlocked bool `json:"isBlocked"`
 }
 
-func NewAccessToken(id int, admin bool) (string, error) {
-	expirationTime := time.Now().Add(2 * time.Hour)
+func NewAccessToken(id int, admin bool, ver int) (string, error) {
+	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
-		UserId:  id,
-		IsAdmin: admin,
+		UserId:      id,
+		IsAdmin:     admin,
+		UserVersion: ver,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -67,6 +70,11 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
 		})
+
+		if claims.UserVersion != database.UserVersion(claims.UserId) {
+			http.Error(w, "Session ended", http.StatusUnauthorized)
+			return
+		}
 
 		if err != nil || !token.Valid {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)

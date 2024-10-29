@@ -355,3 +355,37 @@ func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 
 	return 1, nil
 }
+
+func (s *Storage) Logout(id int) error {
+	const op = "database.postgres.Logout"
+
+	stmt, err := s.db.Prepare(`UPDATE users SET version = version + 1 WHERE id = $1`)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.Exec(stmt, id); err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Storage) UserVersion(id int) int {
+	const op = "database.postgres.UserVersion"
+
+	stmt, err := s.db.Prepare(`SELECT version FROM users WHERE id = $1`)
+	if err != nil {
+		return 0
+	}
+	defer stmt.Close()
+
+	ver := 0
+
+	if err := stmt.QueryRow(stmt, id).Scan(&ver); err != nil {
+		return 0
+	}
+
+	return ver
+}
