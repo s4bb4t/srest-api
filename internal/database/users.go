@@ -365,7 +365,7 @@ func (s *Storage) Logout(id int) error {
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(stmt, id); err != nil {
+	if _, err = stmt.Exec(id); err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
