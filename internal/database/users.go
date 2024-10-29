@@ -383,7 +383,7 @@ func (s *Storage) UserVersion(id int) int {
 
 	ver := 0
 
-	if err := stmt.QueryRow(stmt, id).Scan(&ver); err != nil {
+	if err := stmt.QueryRow(id).Scan(&ver); err != nil {
 		return 0
 	}
 
