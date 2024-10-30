@@ -64,9 +64,10 @@ func UserVersion(id int) int {
 	}
 	defer stmt.Close()
 
-	ver := 0
+	var ver int
 
 	if err := stmt.QueryRow(stmt, id).Scan(&ver); err != nil {
+		fmt.Println(err.Error())
 		return 0
 	}
 	fmt.Println("UserVer from access", id, ver)
