@@ -165,8 +165,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		ver := User.UserVersion(user.ID)
-		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin, ver)
+		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
@@ -240,8 +239,7 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		ver := User.UserVersion(user.ID)
-		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin, ver)
+		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
 			return
