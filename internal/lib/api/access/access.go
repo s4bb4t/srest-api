@@ -28,12 +28,12 @@ type UserContext struct {
 	IsBlocked bool `json:"isBlocked"`
 }
 
-func NewAccessToken(id int, admin bool, ver int) (string, error) {
+func NewAccessToken(id int, admin bool) (string, error) {
 	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
 		UserId:      id,
 		IsAdmin:     admin,
-		UserVersion: ver,
+		UserVersion: database.UserVersion(id),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
