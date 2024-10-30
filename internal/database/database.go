@@ -58,7 +58,7 @@ func runMigrations(db *sql.DB, migrationsDir string) error {
 func UserVersion(id int) int {
 	const op = "database.postgres.UserVersion"
 
-	stmt, err := DB.Prepare(`SELECT version FROM users WHERE id = $1`)
+	stmt, err := DB.Prepare(`SELECT version FROM public.users WHERE id = $1`)
 	if err != nil {
 		return 0
 	}
