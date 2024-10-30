@@ -357,9 +357,10 @@ func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 }
 
 func (s *Storage) Logout(id int) error {
+	fmt.Println(id, "logout")
 	const op = "database.postgres.Logout"
 
-	stmt, err := s.db.Prepare(`UPDATE public.users SET version = version + 1 WHERE id = $1`)
+	stmt, err := s.db.Prepare(`UPDATE public.users SET version = COALESCE(version, 0) + 1 WHERE id = $1`)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
