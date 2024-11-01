@@ -175,7 +175,6 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 	} else {
-		fmt.Println("q.Blocked is NIl")
 		query = `
 		SELECT id, username, email, date, is_blocked, is_admin
 		FROM public.users
