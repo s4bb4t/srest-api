@@ -79,8 +79,7 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 		b, E := strconv.ParseBool(isBlockedStr)
 		if isBlockedStr != "" {
 			q.IsBlocked = &b
-		}
-		if E != nil {
+		} else if E != nil {
 			q.IsBlocked = &b
 		}
 
