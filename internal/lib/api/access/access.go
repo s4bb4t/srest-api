@@ -2,7 +2,6 @@ package access
 
 import (
 	"context"
-	"fmt"
 	"github.com/sabbatD/srest-api/internal/database"
 	"net/http"
 	"strconv"
@@ -40,8 +39,6 @@ func NewAccessToken(id int, admin bool) (string, error) {
 		},
 	}
 
-	fmt.Println(database.UserVersion(id))
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
@@ -74,7 +71,6 @@ func JWTAuthMiddleware(next http.Handler) http.Handler {
 			return jwtKey, nil
 		})
 
-		fmt.Println(claims.UserVersion, database.UserVersion(claims.UserId))
 		if claims.UserVersion != database.UserVersion(claims.UserId) {
 			http.Error(w, "Session ended", http.StatusUnauthorized)
 			return

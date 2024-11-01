@@ -13,7 +13,6 @@ func HashPassword(password string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", op, err)
 	}
-	fmt.Printf(string(hashedPassword))
 
 	return hashedPassword, nil
 }

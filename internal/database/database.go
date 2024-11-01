@@ -27,7 +27,6 @@ func SetupDataBase(dbStr, env string) (*Storage, error) {
 
 	if env == "local" {
 		migrationsDir := "./internal/database/migrations"
-		fmt.Println("Migrations directory:", migrationsDir) // Проверить путь
 
 		if err := runMigrations(db, migrationsDir); err != nil {
 			return nil, fmt.Errorf("%s: %v", op, err)
@@ -67,9 +66,8 @@ func UserVersion(id int) int {
 	var ver int
 
 	if err := stmt.QueryRow(id).Scan(&ver); err != nil {
-		fmt.Println(err.Error())
 		return 0
 	}
-	fmt.Println("UserVer from access", id, ver)
+
 	return ver
 }
