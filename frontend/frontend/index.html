@@ -1,291 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>sAPI To-Do List</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #121212;
-      color: #fff;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/react.svg" />
 
-    header {
-      position: relative;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
-    }
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
 
-    .background-image {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0.5;
-      height: 100%;
-      width: auto;
-      pointer-events: none;
-      transition: transform 0.2s ease;
-    }
-
-    h1 {
-      font-size: 4rem;
-      z-index: 1;
-    }
-
-    .links-header {
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      background-color: rgba(0, 0, 0, 0.8);
-      position: relative;
-    }
-
-    .links-header a {
-      margin: 0 15px;
-      text-decoration: none;
-      color: white;
-      font-size: 1.2rem;
-      transition: color 0.3s;
-    }
-
-    .links-header a:hover {
-      color: #007aff;
-    }
-
-    main {
-      padding: 20px;
-      max-width: 600px;
-      margin: -60px auto 50px auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .todo-container {
-      background: rgba(30, 30, 30, 0.8);
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    }
-
-    form {
-      display: flex;
-      margin-bottom: 20px;
-    }
-
-    #taskInput {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-right: 10px;
-    }
-
-    button {
-      padding: 10px 15px;
-      background-color: #007aff;
-      border: none;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #005bb5;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      background-color: #3a3a3a;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    li button {
-      background-color: red;
-      border: none;
-      padding: 5px 10px;
-      color: white;
-      border-radius: 5px;
-    }
-
-    li button:hover {
-      background-color: darkred;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      background-color: #1a1a1a;
-    }
-
-    .redirect-effect {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: white;
-      z-index: 10;
-      opacity: 0;
-      transition: opacity 0.5s;
-      visibility: hidden;
-    }
-
-    .redirect-effect.show {
-      visibility: visible;
-      opacity: 1;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <img class="background-image" src="https://i.imgur.com/639GvdA.jpg" alt="Background Image">
-    <h1>sAPI TODO</h1>
-  </header>
-
-  <div class="links-header">
-    <a href="https://t.me/seledkovti" class="link" data-link="seledkovti">seledkovti</a>
-    <a href="https://t.me/s4bb4t" class="link" data-link="s4bb4t">s4bb4t</a>
-  </div>
-
-  <main>
-    <div class="todo-container">
-      <form id="taskForm">
-        <input type="text" id="taskInput" placeholder="Enter new task..." required>
-        <button type="submit" id="addTask">Add Task</button>
-      </form>
-      <ul id="taskList"></ul>
-    </div>
-  </main>
-
-  <footer>
-    <p>&copy; 2024 - Designed by ChatGPT. Developed by s4bb4t</p>
-  </footer>
-
-  <div id="redirectEffect" class="redirect-effect"></div>
-
-  <script>
-    document.addEventListener('mousemove', (event) => {
-      const image = document.querySelector('.background-image');
-      const x = (event.clientX / window.innerWidth) * -50 - 10;
-      const y = (event.clientY / window.innerHeight) * -50 - 10;
-      image.style.transform = `translate(-50%, -50%) scale(1) translate(${x}px, ${y}px)`;
-    });
-
-    document.querySelectorAll('.links-header a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const redirectOverlay = document.getElementById('redirectEffect');
-        const targetUrl = e.currentTarget.href;
-
-        redirectOverlay.classList.add('show');
-
-        setTimeout(() => {
-          window.location.href = targetUrl;
-        }, 1500);
-      });
-    });
-
-    function fetchTasks() {
-      fetch('https://easydev.club/api/v1/todos')
-        .then(response => response.json())
-        .then(data => {
-          const taskList = document.getElementById('taskList');
-          taskList.innerHTML = '';
-          data.data.forEach(task => {
-            addTaskToUI(task);
-          });
-        })
-        .catch(error => console.error('Ошибка при получении задач:', error));
-    }
-
-    function addTaskToUI(task) {
-      const taskList = document.getElementById('taskList');
-      const li = document.createElement('li');
-
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = task.isDone;
-      checkbox.onchange = () => updateTaskStatus(task.id, checkbox.checked);
-
-      li.appendChild(checkbox);
-      li.appendChild(document.createTextNode(task.title));
-
-      const deleteButton = document.createElement('button');
-      deleteButton.textContent = 'Delete';
-      deleteButton.onclick = () => deleteTask(task.id, li);
-
-      li.appendChild(deleteButton);
-      taskList.appendChild(li);
-    }
-
-    function updateTaskStatus(taskId, isDone) {
-      fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ isDone: isDone })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Ошибка при обновлении статуса задачи');
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyDev | Селедков Тимур</title>
+    <script type="module" crossorigin src="/assets/index-D-NOnFbA.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DJunfnkX.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+      ;(function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            ;(m[i].a = m[i].a || []).push(arguments)
+          }
+        m[i].l = 1 * new Date()
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return
+          }
         }
-      })
-      .catch(error => console.error(error));
-    }
+        ;(k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a)
+      })(
+        window,
+        document,
+        'script',
+        'https://mc.yandex.ru/metrika/tag.js',
+        'ym',
+      )
 
-    document.getElementById('taskForm').onsubmit = (e) => {
-      e.preventDefault();
-      const taskInput = document.getElementById('taskInput');
-      const taskTitle = taskInput.value;
-      if (taskTitle.trim() === '') return;
-
-      fetch('https://easydev.club/api/v1/todos', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ title: taskTitle })
+      ym(98766212, 'init', {
+        clickmap: true,
+        trackLinks: true,
+        accurateTrackBounce: true,
+        webvisor: true,
       })
-      .then(response => response.json())
-      .then(task => {
-        addTaskToUI(task);
-        taskInput.value = '';
-      })
-      .catch(error => console.error('Ошибка при добавлении задачи:', error));
-    };
-
-    function deleteTask(taskId, taskElement) {
-      fetch(`https://easydev.club/api/v1/todos/${taskId}`, {
-        method: 'DELETE'
-      })
-      .then(() => {
-        taskElement.remove();
-      })
-      .catch(error => console.error('Ошибка при удалении задачи:', error));
-    }
-
-    fetchTasks();
-    setInterval(fetchTasks, 60000);
-  </script>
-</body>
+    </script>
+    <noscript>
+      <div>
+        <img
+          src="https://mc.yandex.ru/watch/98766212"
+          style="position: absolute; left: -9999px"
+          alt=""
+        />
+      </div>
+    </noscript>
+    <!-- /Yandex.Metrika counter -->
+  </body>
 </html>
