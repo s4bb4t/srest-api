@@ -170,7 +170,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
 		LIMIT $3 OFFSET $4;
 	`
-		rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.Limit, q.Offset)
+		rows, err = s.db.Query(query, q.SearchTerm, *q.IsBlocked, q.Limit, q.Offset)
 		if err != nil {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
