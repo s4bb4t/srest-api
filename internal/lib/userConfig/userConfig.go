@@ -48,7 +48,7 @@ type GetAllQuery struct {
 	SearchTerm string
 	SortBy     string
 	SortOrder  string
-	IsBlocked  bool
+	IsBlocked  *bool
 	Limit      int
 	Offset     int
 }

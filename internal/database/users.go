@@ -161,7 +161,8 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	}
 	result.Meta.SortBy, result.Meta.SortOrder = q.SortBy, q.SortOrder
 
-	query = `
+	if q.IsBlocked != nil {
+		query = `
 		SELECT id, username, email, date, is_blocked, is_admin
 		FROM public.users
 		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
@@ -169,11 +170,28 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
 		LIMIT $3 OFFSET $4;
 	`
-
-	rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.Limit, q.Offset)
-	if err != nil {
-		return result, fmt.Errorf("%s: %v", op, err)
+		rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.Limit, q.Offset)
+		if err != nil {
+			return result, fmt.Errorf("%s: %v", op, err)
+		}
+	} else {
+		query = `
+		SELECT id, username, email, date, is_blocked, is_admin
+		FROM public.users
+		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
+		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
+		LIMIT $2 OFFSET $3;
+	`
+		rows, err = s.db.Query(query, q.SearchTerm, q.Limit, q.Offset)
+		if err != nil {
+			return result, fmt.Errorf("%s: %v", op, err)
+		}
 	}
+
+	//rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.Limit, q.Offset)
+	//if err != nil {
+	//	return result, fmt.Errorf("%s: %v", op, err)
+	//}
 
 	var user u.TableUser
 	var users []u.TableUser

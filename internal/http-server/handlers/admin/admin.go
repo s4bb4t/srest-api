@@ -76,9 +76,10 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 		}
 
 		isBlockedStr := r.URL.Query().Get("isBlocked")
-		q.IsBlocked, E = strconv.ParseBool(isBlockedStr)
+		b, E := strconv.ParseBool(isBlockedStr)
+		q.IsBlocked = &b
 		if E != nil {
-			q.IsBlocked = false
+			q.IsBlocked = &b
 		}
 
 		limitStr := r.URL.Query().Get("limit")
