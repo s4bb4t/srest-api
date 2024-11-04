@@ -1,7 +1,6 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/lib/pq"
@@ -149,36 +148,47 @@ func (s *Storage) Remove(id int) (int64, error) {
 func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	const op = "database.postgres.GetAllUsers"
 
-	query := ``
-	var rows *sql.Rows
-	var err error
+	qParams := []any{q.SearchTerm, q.Limit, q.Offset}
+	mParams := []any{q.SearchTerm}
+
+	query := `
+		SELECT 
+			id, 
+			username, 
+			email, 
+			date, 
+			is_blocked, 
+			is_admin, 
+			phone_number
+		FROM public.users
+		WHERE $1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%'
+		`
+	metaQuery := `
+		SELECT COUNT(*)
+		FROM public.users
+		WHERE $1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%'
+		`
 
 	if q.IsBlocked != nil {
-		query = `
-		SELECT id, username, email, date, is_blocked, is_admin, phone_number
-		FROM public.users
-		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
-		AND is_blocked = $2
-		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
-		LIMIT $3 OFFSET $4;
-	`
-		rows, err = s.db.Query(query, q.SearchTerm, *q.IsBlocked, q.Limit, q.Offset)
-		if err != nil {
-			return result, fmt.Errorf("%s: %v", op, err)
-		}
-	} else {
-		query = `
-		SELECT id, username, email, date, is_blocked, is_admin, phone_number
-		FROM public.users
-		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
-		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
-		LIMIT $2 OFFSET $3;
-	`
-		rows, err = s.db.Query(query, q.SearchTerm, q.Limit, q.Offset)
-		if err != nil {
-			return result, fmt.Errorf("%s: %v", op, err)
-		}
+		query += ` AND is_blocked = $4 `
+		metaQuery += ` AND is_blocked = $2 `
+
+		qParams = append(qParams, *q.IsBlocked)
+		mParams = append(mParams, *q.IsBlocked)
 	}
+
+	query += ` ORDER BY ` + q.SortBy + ` ` + q.SortOrder + ` LIMIT $2 OFFSET $3;`
+
+	rows, err := s.db.Query(query, qParams...)
+	if err != nil {
+		return result, fmt.Errorf("%s: %v", op, err)
+	}
+
+	err = s.db.QueryRow(metaQuery, mParams...).Scan(&result.Meta.TotalAmount)
+	if err != nil {
+		return result, fmt.Errorf("%s: %v", op, err)
+	}
+
 	defer rows.Close()
 
 	var user u.TableUser
@@ -188,7 +198,6 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
-		result.Meta.TotalAmount++
 		users = append(users, user)
 	}
 
