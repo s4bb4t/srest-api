@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/lib/pq"
@@ -148,22 +149,14 @@ func (s *Storage) Remove(id int) (int64, error) {
 func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	const op = "database.postgres.GetAllUsers"
 
-	query := `SELECT 1 FROM public.users`
-
-	rows, err := s.db.Query(query)
-	if err != nil {
-		return result, fmt.Errorf("%s: %v", op, err)
-	}
+	query := ``
+	var rows *sql.Rows
+	var err error
 	defer rows.Close()
-
-	for rows.Next() {
-		result.Meta.TotalAmount++
-	}
-	result.Meta.SortBy, result.Meta.SortOrder = q.SortBy, q.SortOrder
 
 	if q.IsBlocked != nil {
 		query = `
-		SELECT id, username, email, date, is_blocked, is_admin
+		SELECT id, username, email, date, is_blocked, is_admin, phone_number
 		FROM public.users
 		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
 		AND is_blocked = $2
@@ -176,7 +169,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		}
 	} else {
 		query = `
-		SELECT id, username, email, date, is_blocked, is_admin
+		SELECT id, username, email, date, is_blocked, is_admin, phone_number
 		FROM public.users
 		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
 		ORDER BY ` + q.SortBy + ` ` + q.SortOrder + `
@@ -188,21 +181,18 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 		}
 	}
 
-	//rows, err = s.db.Query(query, q.SearchTerm, q.IsBlocked, q.Limit, q.Offset)
-	//if err != nil {
-	//	return result, fmt.Errorf("%s: %v", op, err)
-	//}
-
 	var user u.TableUser
 	var users []u.TableUser
 	for rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin, &user.PhoneNumber); err != nil {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
+		result.Meta.TotalAmount++
 		users = append(users, user)
 	}
 
+	result.Meta.SortBy, result.Meta.SortOrder = q.SortBy, q.SortOrder
 	result.Data = users
 
 	return result, nil
