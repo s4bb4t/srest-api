@@ -152,7 +152,6 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	query := ``
 	var rows *sql.Rows
 	var err error
-	defer rows.Close()
 
 	if q.IsBlocked != nil {
 		query = `
@@ -180,6 +179,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 	}
+	defer rows.Close()
 
 	var user u.TableUser
 	var users []u.TableUser
