@@ -161,12 +161,12 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 			is_admin, 
 			phone_number
 		FROM public.users
-		WHERE $1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%'
+		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
 		`
 	metaQuery := `
 		SELECT COUNT(*)
 		FROM public.users
-		WHERE $1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%'
+		WHERE ($1 = '' OR username ILIKE '%' || $1 || '%' OR email ILIKE '%' || $1 || '%')
 		`
 
 	if q.IsBlocked != nil {
