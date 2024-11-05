@@ -454,6 +454,29 @@ paths:
       summary: Unlock user
       tags:
       - admin
+  /auth/logout:
+    post:
+      description: Changes user version. Close all sessions.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "401":
+          description: User context not found.
+          schema:
+            type: string
+        "500":
+          description: Internal error.
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - user
   /auth/refresh:
     post:
       consumes:
@@ -712,29 +735,6 @@ paths:
       summary: Update an existing task
       tags:
       - todo
-  /user/logout:
-    post:
-      description: Changes user version. Close all sessions.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "401":
-          description: User context not found.
-          schema:
-            type: string
-        "500":
-          description: Internal error.
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Logout user
-      tags:
-      - user
   /user/profile:
     get:
       description: Retrieves the full profile of the currently authenticated user.
