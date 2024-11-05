@@ -713,7 +713,7 @@ paths:
       tags:
       - todo
   /user/logout:
-    get:
+    post:
       description: Changes user version. Close all sessions.
       produces:
       - application/json

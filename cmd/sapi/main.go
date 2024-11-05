@@ -76,6 +76,8 @@ func main() {
 
 		// Unknown users handlers
 		router.Route("/auth", func(u chi.Router) {
+			u.Post("/logout", user.Logout(log, storage))
+
 			u.Post("/signup", user.Register(log, storage))
 			u.Post("/signin", user.Auth(log, storage))
 			u.Post("/refresh", user.Refresh(log, storage))
@@ -85,8 +87,6 @@ func main() {
 		// JWTAuthMiddleware used for authenticating users with jwt token from header with prefix "Bearer "
 		router.Route("/user", func(u chi.Router) {
 			u.Use(access.JWTAuthMiddleware)
-
-			u.Get("/logout", user.Logout(log, storage))
 
 			u.Get("/profile", user.Profile(log, storage))
 			u.Put("/profile", user.UpdateUser(log, storage))

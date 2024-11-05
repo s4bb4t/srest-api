@@ -376,14 +376,22 @@ func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 func (s *Storage) Logout(id int) error {
 	const op = "database.postgres.Logout"
 
-	stmt, err := s.db.Prepare(`UPDATE public.users SET version = COALESCE(version, 0) + 1 WHERE id = $1`)
+	res, err := s.db.Exec(`UPDATE public.users SET version = COALESCE(version, 0) + 1 WHERE id = $1`, id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
-	defer stmt.Close()
 
-	if _, err = stmt.Exec(id); err != nil {
+	if n, err := res.RowsAffected(); err != nil {
 		return fmt.Errorf("%s: %w", op, err)
+	} else if n != 1 {
+		return fmt.Errorf("%s: %s", op, "no rows affected")
+	}
+
+	_, err = s.db.Exec(`
+		DELETE FROM public.tokens
+		WHERE user_id = $1`, id)
+	if err != nil {
+		return fmt.Errorf("%s: %v", op, err)
 	}
 
 	return nil

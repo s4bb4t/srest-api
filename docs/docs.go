@@ -855,7 +855,7 @@ const docTemplate = `{
             }
         },
         "/user/logout": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []

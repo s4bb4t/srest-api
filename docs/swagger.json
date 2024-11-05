@@ -852,7 +852,7 @@
             }
         },
         "/user/logout": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []

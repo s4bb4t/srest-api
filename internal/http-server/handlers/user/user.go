@@ -378,7 +378,7 @@ func UpdateUser(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	}
 }
 
-// UpdatePassword godoc
+// ChangePassword godoc
 // @Summary Update user' Password
 // @Description Updates the user's password with new data provided in the JSON payload.
 // The user must be authenticated and provide a valid JWT token.
@@ -440,7 +440,7 @@ func ChangePassword(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Success 200 {object} string
 // @Failure 401 {object} string "User context not found."
 // @Failure 500 {object} string "Internal error."
-// @Router /user/logout [get]
+// @Router /user/logout [post]
 func Logout(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Logout"
