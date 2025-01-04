@@ -29,7 +29,7 @@ type TableUser struct {
 	Email       string `json:"email"`
 	Date        string `json:"date"`
 	IsBlocked   bool   `json:"isBlocked"`
-	IsAdmin     bool   `json:"isAdmin"`
+	Role        string `json:"role"`
 	PhoneNumber string `json:"phoneNumber"`
 }
 

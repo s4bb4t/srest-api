@@ -2,6 +2,7 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -165,7 +166,16 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
+		var role byte
+		switch user.Role {
+		case "ADMIN":
+			role = 2
+		case "MODERATOR":
+			role = 1
+		default:
+			role = 0
+		}
+		accessToken, err := access.NewAccessToken(user.ID, role)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
@@ -176,6 +186,15 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT refreshToken"))
 			return
 		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refreshToken",
+			Value:    refreshToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+			MaxAge:   3600,
+		})
 
 		if err := User.SaveRefreshToken(refreshToken, user.ID); err != nil {
 			util.InternalError(w, r, log, err)
@@ -208,19 +227,19 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		var req RefreshToken
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			log.Error("failed to decode request", sl.Err(err))
-
-			http.Error(w, "failed to deserialize json request", http.StatusBadRequest)
-
+		cookie, err := r.Cookie("refreshToken")
+		if err != nil {
+			if errors.Is(err, http.ErrNoCookie) {
+				http.Error(w, "Unauthorized: no access token provided", http.StatusUnauthorized)
+				return
+			}
+			util.InternalError(w, r, log, err)
 			return
 		}
 
-		log.Info("request body decoded")
-		log.Debug("req: ", slog.Any("request", req))
+		refreshToken := cookie.Value
 
-		token, id, err := User.RefreshToken(req.Token)
+		token, id, err := User.RefreshToken(refreshToken)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
@@ -239,13 +258,22 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
+		var role byte
+		switch user.Role {
+		case "ADMIN":
+			role = 2
+		case "MODERATOR":
+			role = 1
+		default:
+			role = 0
+		}
+		accessToken, err := access.NewAccessToken(user.ID, role)
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
 			return
 		}
 
-		refreshToken, err := access.NewRefreshToken()
+		refreshToken, err = access.NewRefreshToken()
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT refreshToken"))
 			return

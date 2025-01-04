@@ -33,7 +33,7 @@ import (
 
 // @host      easydev.club
 
-// @BasePath  /api/v1
+// @BasePath  /api/v2
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -55,7 +55,7 @@ func main() {
 	}
 
 	route := chi.NewRouter()
-	route.Route("/api/v1", func(router chi.Router) {
+	route.Route("/api/v2", func(router chi.Router) {
 
 		router.Use(middleware.RequestID)
 		router.Use(middleware.Logger)

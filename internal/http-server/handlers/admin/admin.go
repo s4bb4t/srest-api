@@ -15,13 +15,19 @@ import (
 	u "github.com/sabbatD/srest-api/internal/lib/userConfig"
 )
 
+const (
+	user      byte = 0
+	moderator byte = 1
+	admin     byte = 2
+)
+
 type UpdateRequest struct {
-	Field string
-	Value any
+	Roles []string `json:"roles"`
 }
 
 type AdminHandler interface {
 	UpdateField(field string, id int, val any) (int64, error)
+	UpdateRoles(id int, roles []string) (int64, error)
 	All(q u.GetAllQuery) (result u.MetaResponse, E error)
 	Remove(id int) (int64, error)
 	Get(id int) (u.TableUser, error)
@@ -52,7 +58,11 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		role, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+		if role < moderator {
 			return
 		}
 
@@ -131,7 +141,11 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		role, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+		if role < moderator {
 			return
 		}
 
@@ -186,7 +200,11 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		role, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+		if role < admin {
 			return
 		}
 
@@ -273,7 +291,11 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		role, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+		if role < admin {
 			return
 		}
 
@@ -365,7 +387,11 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		role, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+		if role < admin {
 			return
 		}
 
@@ -388,7 +414,7 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		if n, err := User.UpdateField(req.Field, id, req.Value); err != nil {
+		if n, err := User.UpdateRoles(id, req.Roles); err != nil {
 			if n == 0 {
 				log.Info(err.Error())
 
@@ -419,36 +445,22 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	}
 }
 
-func contextAdmin(r *http.Request) (bool, error) {
+func contextAdmin(r *http.Request) (byte, error) {
 	userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 	if !ok {
-		return false, fmt.Errorf("unauthorized")
+		return 0, fmt.Errorf("unauthorized")
 	}
-	return userContext.IsAdmin, nil
-}
-
-func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) bool {
-	ok, err := contextAdmin(r)
-	if !ok {
-		if err != nil {
-			http.Error(w, "User context not found", http.StatusUnauthorized)
-
-			return false
-		}
-
-		log.Info("Not enough rights")
-
-		http.Error(w, "Not enough rights", http.StatusForbidden)
-
-		return false
-	}
-	return true
+	return userContext.Role, nil
 }
 
 func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User AdminHandler, op, field string, value bool) {
 	log.With(util.SlogWith(op, r)...)
 
-	if !AdmCheck(w, r, log) {
+	role, err := contextAdmin(r)
+	if err != nil {
+		return
+	}
+	if role < moderator {
 		return
 	}
 

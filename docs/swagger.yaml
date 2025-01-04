@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /api/v2
 definitions:
   github_com_sabbatD_srest-api_internal_lib_todoConfig.Meta:
     properties:

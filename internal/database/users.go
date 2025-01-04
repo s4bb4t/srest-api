@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/lib/pq"
@@ -30,6 +31,12 @@ func (s *Storage) Add(u u.User) (int, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
+	_, err = s.db.ExecContext(context.Background(), `INSERT INTO public.roles (user_id, role)
+	values ($1, $2)`, id, "USER")
+	if err != nil {
+		return 0, fmt.Errorf("%s: INSERT INTO public.roles (user_id, role)\n\tvalues ($1, $2): %v", op, err)
+	}
+
 	return id, nil
 }
 
@@ -57,15 +64,58 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE login = $1`): %v", op, err)
 	}
 
-	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
+	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked)
 	if err != nil {
 		return user, fmt.Errorf("%s.stmt.QueryRow(u.Login).Scan(user): %v", op, err)
 	}
 	if user.IsBlocked {
-		user.IsAdmin = false
+		user.Role = "USER"
+	}
+
+	err = s.db.QueryRow(`select role from roles where user_id = $1`, user.ID).Scan(&user.Role)
+	if err != nil {
+		return user, fmt.Errorf("%s/select role from roles where user_id = $1: %v", op, err)
 	}
 
 	return user, nil
+}
+
+func (s *Storage) UpdateRoles(id int, roles []string) (int64, error) {
+	const op = "database.postgres.UpdateUserField"
+
+	role := "USER"
+	for _, r := range roles {
+		if r == "ADMIN" {
+			role = r
+			break
+		} else if r == "MODERATOR" {
+			role = r
+		}
+	}
+
+	query := `UPDATE public.roles SET role = $1 WHERE user_id = $2`
+
+	stmt, err := s.db.Prepare(query)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %w with parameters:%v, %v", op, err, id, role)
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Exec(role, id)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %w with parameters:%v, %v", op, err, id, role)
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return -1, fmt.Errorf("%s: %w with parameters:%v, %v", op, err, id, role)
+	}
+
+	if n == 0 {
+		return n, fmt.Errorf("%s: no users with id: %v", op, id)
+	}
+
+	return n, nil
 }
 
 func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
@@ -193,8 +243,9 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 
 	var user u.TableUser
 	var users []u.TableUser
+	var isAdmin bool
 	for rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin, &user.PhoneNumber); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin, &user.PhoneNumber); err != nil {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
@@ -217,13 +268,19 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	defer rows.Close()
 
 	var user u.TableUser
+	var isAdmin bool
 
 	if rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin, &user.PhoneNumber); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin, &user.PhoneNumber); err != nil {
 			return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 		}
 	} else {
 		return u.TableUser{}, fmt.Errorf("%s: no such user", op)
+	}
+
+	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(&user.Role)
+	if err != nil {
+		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
 
 	return user, nil

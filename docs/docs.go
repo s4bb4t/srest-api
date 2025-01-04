@@ -1282,7 +1282,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "v0.3.2",
 	Host:             "easydev.club",
-	BasePath:         "/api/v1",
+	BasePath:         "/api/v2",
 	Schemes:          []string{"https"},
 	Title:            "sAPI",
 	Description:      "This is a RESTful API service for EasyDev. It provides various user management functionalities such as user registration, authentication, profile updates, and admin operations.",
