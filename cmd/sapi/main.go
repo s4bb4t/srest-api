@@ -66,11 +66,11 @@ func main() {
 		// swagger endpoint
 		if cfg.Env != "prod" {
 			router.Get("/swagger/*", httpSwagger.Handler(
-				httpSwagger.URL("http://51.250.113.72:8082/api/v1/swagger/doc.json"),
+				httpSwagger.URL("http://51.250.113.72:8082/api/v2/swagger/doc.json"),
 			))
 		} else {
 			router.Get("/swagger/*", httpSwagger.Handler(
-				httpSwagger.URL("https://easydev.club/api/v1/swagger/doc.json"),
+				httpSwagger.URL("https://easydev.club/api/v2/swagger/doc.json"),
 			))
 		}
 
