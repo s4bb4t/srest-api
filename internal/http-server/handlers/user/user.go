@@ -25,7 +25,6 @@ type RefreshToken struct {
 
 type Tokens struct {
 	AccessToken
-	RefreshToken
 }
 
 type UserHandler interface {
@@ -204,7 +203,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Info("successfully logged in")
 		log.Debug(fmt.Sprintf("user: %v", req))
 
-		render.JSON(w, r, Tokens{AccessToken{accessToken}, RefreshToken{refreshToken}})
+		render.JSON(w, r, Tokens{AccessToken{accessToken}})
 	}
 }
 
@@ -287,7 +286,7 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Info("successfully refreshed access token")
 		log.Debug(fmt.Sprintf("user: %v", refreshToken))
 
-		render.JSON(w, r, Tokens{AccessToken{accessToken}, RefreshToken{refreshToken}})
+		render.JSON(w, r, Tokens{AccessToken{accessToken}})
 	}
 }
 
