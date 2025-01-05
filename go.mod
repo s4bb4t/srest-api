@@ -1,8 +1,6 @@
 module github.com/sabbatD/srest-api
 
-go 1.23.0
-
-toolchain go1.23.1
+go 1.23.1
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
