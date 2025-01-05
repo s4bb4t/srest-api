@@ -15,7 +15,8 @@ services:
       - '/home/admin/certs/easydev:/usr/local/bin/certs'  # Монтирование сертификатов
       - './certs:/usr/local/bin/certs'  # Монтирование сертификатов
     depends_on:
-      - backend
+      - backend-v1
+      - backend-v2
       - frontend
     networks:
       - dev
