@@ -284,6 +284,9 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	if err != nil {
 		if user.ID != 0 {
 			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, 'USER')`, user.ID)
+
+			user.Role = "USER"
+
 			if err != nil {
 				return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 			}
