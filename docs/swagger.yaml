@@ -451,7 +451,7 @@ paths:
       tags:
       - admin
   /auth/refresh:
-    get:
+    post:
       consumes:
       - application/json
       description: Recieve a user's refresh token in JSON format.

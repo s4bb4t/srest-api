@@ -209,7 +209,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 401 {object} string "Invalid credentials: token is expired - must auth again."
 // @Failure 500 {object} string "Internal error."
-// @Router /auth/refresh [get]
+// @Router /auth/refresh [post]
 func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Refresh"

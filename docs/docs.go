@@ -472,7 +472,7 @@ const docTemplate = `{
             }
         },
         "/auth/refresh": {
-            "get": {
+            "post": {
                 "description": "Recieve a user's refresh token in JSON format.",
                 "consumes": [
                     "application/json"

@@ -54,11 +54,6 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		return user, fmt.Errorf("%s.stmt.QueryRow(u.Login): %v", op, err)
 	}
 
-	if pwd == "" {
-		fmt.Println("USER NOT FOUND")
-	}
-	fmt.Println(pwd)
-
 	if err := password.CheckPassword([]byte(pwd), u.Password); err != nil {
 		return user, fmt.Errorf("%s.password.CheckPassword: %v", op, err)
 	}
@@ -97,22 +92,35 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 }
 
 func (s *Storage) UpdateRoles(id int, roles []string) (int64, error) {
-	const op = "database.postgres.UpdateUserField"
+	const op = "database.postgres.UpdateRoles"
 
-	stmt, err := s.db.Prepare(`INSERT INTO public.roles (user_id, role) VALUES ($1, $2);`)
+	var exists bool
+	err := s.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM public.roles WHERE user_id = $1)`, id).Scan(&exists)
 	if err != nil {
-		return -1, fmt.Errorf("%s: %w with parameters:%v", op, err, id)
+		return -1, fmt.Errorf("%s: %w while checking existence with user_id: %d", op, err, id)
 	}
-	defer stmt.Close()
 
-	res, err := stmt.Exec(id, pq.Array(roles))
+	if exists {
+		res, err := s.db.Exec(`UPDATE public.roles SET role = $2 WHERE user_id = $1`, id, pq.Array(roles))
+		if err != nil {
+			return -1, fmt.Errorf("%s: %w while updating roles for user_id: %d", op, err, id)
+		}
+
+		n, err := res.RowsAffected()
+		if err != nil {
+			return -1, fmt.Errorf("%s: %w while fetching rows affected for user_id: %d", op, err, id)
+		}
+		return n, nil
+	}
+
+	res, err := s.db.Exec(`INSERT INTO public.roles (user_id, role) VALUES ($1, $2)`, id, pq.Array(roles))
 	if err != nil {
-		return -1, fmt.Errorf("%s: %w with parameters:%v", op, err, id)
+		return -1, fmt.Errorf("%s: %w while inserting roles for user_id: %d", op, err, id)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("%s: %w with parameters:%v", op, err, id)
+		return -1, fmt.Errorf("%s: %w while fetching rows affected for user_id: %d", op, err, id)
 	}
 
 	return n, nil
