@@ -75,15 +75,15 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		return user, fmt.Errorf("%s.stmt.QueryRow(u.Login).Scan(user): %v", op, err)
 	}
 	if user.IsBlocked {
-		user.Role = "USER"
+		user.Roles = append(user.Roles, "USER")
 	}
 
-	err = s.db.QueryRow(`select role from roles where user_id = $1`, user.ID).Scan(&user.Role)
+	err = s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(&user.Roles)
 	if err != nil {
 		if user.ID != 0 {
 			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, 'USER')`, user.ID)
 
-			user.Role = "USER"
+			user.Roles = append(user.Roles, "USER")
 
 			if err != nil {
 				return user, fmt.Errorf("%s: %v", op, err)
@@ -100,84 +100,20 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 func (s *Storage) UpdateRoles(id int, roles []string) (int64, error) {
 	const op = "database.postgres.UpdateUserField"
 
-	role := "USER"
-	for _, r := range roles {
-		if r == "ADMIN" {
-			role = r
-			break
-		} else if r == "MODERATOR" {
-			role = r
-		}
-	}
-
-	query := `UPDATE public.roles SET role = $1 WHERE user_id = $2`
-
-	stmt, err := s.db.Prepare(query)
+	stmt, err := s.db.Prepare(`INSERT INTO public.roles (user_id, role) VALUES ($1, $2);`)
 	if err != nil {
-		return -1, fmt.Errorf("%s: %w with parameters:%v, %v", op, err, id, role)
+		return -1, fmt.Errorf("%s: %w with parameters:%v", op, err, id)
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(role, id)
+	res, err := stmt.Exec(id, roles)
 	if err != nil {
-		return -1, fmt.Errorf("%s: %w with parameters:%v, %v", op, err, id, role)
+		return -1, fmt.Errorf("%s: %w with parameters:%v", op, err, id)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("%s: %w with parameters:%v, %v", op, err, id, role)
-	}
-
-	if n == 0 {
-		return n, fmt.Errorf("%s: no users with id: %v", op, id)
-	}
-
-	return n, nil
-}
-
-func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
-	const op = "database.postgres.UpdateUserField"
-
-	switch field {
-	case "admin":
-		field = "is_admin"
-	case "isadmin":
-		field = "is_admin"
-	case "IsAdmin":
-		field = "is_admin"
-	case "isAdmin":
-		field = "is_admin"
-	case "IsBlock":
-		field = "is_admin"
-	case "isblock":
-		field = "is_admin"
-	case "isBlock":
-		field = "is_admin"
-	case "block":
-		field = "is_blocked"
-	default:
-		return -2, fmt.Errorf("%s: no such field: %v", op, field)
-	}
-	query := fmt.Sprintf(`UPDATE public.users SET %s = $1 WHERE id = $2`, field)
-
-	stmt, err := s.db.Prepare(query)
-	if err != nil {
-		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
-	}
-	defer stmt.Close()
-
-	res, err := stmt.Exec(val, id)
-	if err != nil {
-		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
-	}
-
-	n, err := res.RowsAffected()
-	if err != nil {
-		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
-	}
-
-	if n == 0 {
-		return n, fmt.Errorf("%s: no users with id: %v", op, id)
+		return -1, fmt.Errorf("%s: %w with parameters:%v", op, err, id)
 	}
 
 	return n, nil
@@ -266,7 +202,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
-		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(&user.Role); err != nil {
+		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(&user.Roles); err != nil {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
@@ -291,12 +227,12 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
 
-	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(&user.Role)
+	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(&user.Roles)
 	if err != nil {
 		if user.ID != 0 {
 			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, 'USER')`, user.ID)
 
-			user.Role = "USER"
+			user.Roles = append(user.Roles, "USER")
 
 			if err != nil {
 				return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
@@ -308,6 +244,54 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	}
 
 	return user, nil
+}
+
+func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
+	const op = "database.postgres.UpdateUserField"
+
+	switch field {
+	case "admin":
+		field = "is_admin"
+	case "isadmin":
+		field = "is_admin"
+	case "IsAdmin":
+		field = "is_admin"
+	case "isAdmin":
+		field = "is_admin"
+	case "IsBlock":
+		field = "is_admin"
+	case "isblock":
+		field = "is_admin"
+	case "isBlock":
+		field = "is_admin"
+	case "block":
+		field = "is_blocked"
+	default:
+		return -2, fmt.Errorf("%s: no such field: %v", op, field)
+	}
+	query := fmt.Sprintf(`UPDATE public.users SET %s = $1 WHERE id = $2`, field)
+
+	stmt, err := s.db.Prepare(query)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Exec(val, id)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
+	}
+
+	if n == 0 {
+		return n, fmt.Errorf("%s: no users with id: %v", op, id)
+	}
+
+	return n, nil
 }
 
 func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -58,11 +59,12 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		role, err := contextAdmin(r)
+		roles, err := contextAdmin(r)
 		if err != nil {
 			return
 		}
-		if role < moderator {
+
+		if !slices.Contains(roles, "MODERATOR") {
 			return
 		}
 
@@ -141,11 +143,12 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		role, err := contextAdmin(r)
+		roles, err := contextAdmin(r)
 		if err != nil {
 			return
 		}
-		if role < moderator {
+
+		if !slices.Contains(roles, "MODERATOR") {
 			return
 		}
 
@@ -200,11 +203,12 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		role, err := contextAdmin(r)
+		roles, err := contextAdmin(r)
 		if err != nil {
 			return
 		}
-		if role < admin {
+
+		if !slices.Contains(roles, "ADMIN") {
 			return
 		}
 
@@ -291,11 +295,12 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		role, err := contextAdmin(r)
+		roles, err := contextAdmin(r)
 		if err != nil {
 			return
 		}
-		if role < admin {
+
+		if !slices.Contains(roles, "ADMIN") {
 			return
 		}
 
@@ -387,11 +392,12 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		role, err := contextAdmin(r)
+		roles, err := contextAdmin(r)
 		if err != nil {
 			return
 		}
-		if role < admin {
+
+		if !slices.Contains(roles, "ADMIN") {
 			return
 		}
 
@@ -445,22 +451,24 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	}
 }
 
-func contextAdmin(r *http.Request) (byte, error) {
+func contextAdmin(r *http.Request) ([]string, error) {
 	userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 	if !ok {
-		return 0, fmt.Errorf("unauthorized")
+		return []string{}, fmt.Errorf("unauthorized")
 	}
-	return userContext.Role, nil
+
+	return userContext.Roles, nil
 }
 
 func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User AdminHandler, op, field string, value bool) {
 	log.With(util.SlogWith(op, r)...)
 
-	role, err := contextAdmin(r)
+	roles, err := contextAdmin(r)
 	if err != nil {
 		return
 	}
-	if role < moderator {
+
+	if !slices.Contains(roles, "MODERATOR") {
 		return
 	}
 

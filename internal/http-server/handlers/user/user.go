@@ -165,16 +165,7 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		var role byte
-		switch user.Role {
-		case "ADMIN":
-			role = 2
-		case "MODERATOR":
-			role = 1
-		default:
-			role = 0
-		}
-		accessToken, err := access.NewAccessToken(user.ID, role)
+		accessToken, err := access.NewAccessToken(user.ID, user.Roles)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
@@ -256,16 +247,7 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		var role byte
-		switch user.Role {
-		case "ADMIN":
-			role = 2
-		case "MODERATOR":
-			role = 1
-		default:
-			role = 0
-		}
-		accessToken, err := access.NewAccessToken(user.ID, role)
+		accessToken, err := access.NewAccessToken(user.ID, user.Roles)
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
 			return

@@ -24,13 +24,13 @@ type AuthData struct {
 }
 
 type TableUser struct {
-	ID          int    `json:"id"`
-	Username    string `json:"username"`
-	Email       string `json:"email"`
-	Date        string `json:"date"`
-	IsBlocked   bool   `json:"isBlocked"`
-	Role        string `json:"role"`
-	PhoneNumber string `json:"phoneNumber"`
+	ID          int      `json:"id"`
+	Username    string   `json:"username"`
+	Email       string   `json:"email"`
+	Date        string   `json:"date"`
+	IsBlocked   bool     `json:"isBlocked"`
+	Roles       []string `json:"roles"`
+	PhoneNumber string   `json:"phoneNumber"`
 }
 
 type Meta struct {
