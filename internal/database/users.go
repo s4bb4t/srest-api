@@ -271,25 +271,25 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 func (s *Storage) Get(id int) (u.TableUser, error) {
 	const op = "database.postgres.GetUser"
 
-	rows, err := s.db.Query(`SELECT id, username, email, date, is_blocked, is_admin, phone_number FROM public.users WHERE id = $1`, id)
-	if err != nil {
-		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
-	}
-	defer rows.Close()
-
 	var user u.TableUser
 	var isAdmin bool
 
-	if rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin, &user.PhoneNumber); err != nil {
-			return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
-		}
-	} else {
-		return u.TableUser{}, fmt.Errorf("%s: no such user", op)
+	err := s.db.QueryRow(`SELECT id, username, email, date, is_blocked, is_admin, phone_number FROM public.users WHERE id = $1`, id).
+		Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin, &user.PhoneNumber)
+	if err != nil {
+		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
 
 	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(&user.Role)
 	if err != nil {
+		if user.ID != 0 {
+			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, 'USER')`, user.ID)
+			if err != nil {
+				return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
+			}
+
+			return user, nil
+		}
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
 
