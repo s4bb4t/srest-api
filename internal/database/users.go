@@ -1,7 +1,6 @@
 package database
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/lib/pq"
@@ -31,8 +30,8 @@ func (s *Storage) Add(u u.User) (int, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
-	_, err = s.db.ExecContext(context.Background(), `INSERT INTO public.roles (user_id, role)
-	values ($1, $2)`, id, "USER")
+	_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, id)
+
 	if err != nil {
 		return 0, fmt.Errorf("%s: INSERT INTO public.roles (user_id, role)\n\tvalues ($1, $2): %v", op, err)
 	}
@@ -78,10 +77,10 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		user.Roles = append(user.Roles, "USER")
 	}
 
-	err = s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(&user.Roles)
+	err = s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(pq.Array(&user.Roles))
 	if err != nil {
 		if user.ID != 0 {
-			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, $2)`, user.ID, pq.Array([]string{"USER"}))
+			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, user.ID)
 
 			user.Roles = append(user.Roles, "USER")
 
@@ -202,7 +201,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
-		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(&user.Roles); err != nil {
+		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(pq.Array(&user.Roles)); err != nil {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
@@ -227,10 +226,10 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
 
-	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(&user.Roles)
+	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(pq.Array(&user.Roles))
 	if err != nil {
 		if user.ID != 0 {
-			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, 'USER')`, user.ID)
+			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, user.ID)
 
 			user.Roles = append(user.Roles, "USER")
 
