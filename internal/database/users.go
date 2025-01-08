@@ -81,7 +81,7 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 	err = s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(&user.Roles)
 	if err != nil {
 		if user.ID != 0 {
-			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, $2)`, user.ID, []string{"USER"})
+			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, $2)`, user.ID, pq.Array([]string{"USER"}))
 
 			user.Roles = append(user.Roles, "USER")
 
@@ -106,7 +106,7 @@ func (s *Storage) UpdateRoles(id int, roles []string) (int64, error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(id, roles)
+	res, err := stmt.Exec(id, pq.Array(roles))
 	if err != nil {
 		return -1, fmt.Errorf("%s: %w with parameters:%v", op, err, id)
 	}
