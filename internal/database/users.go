@@ -69,7 +69,8 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE login = $1`): %v", op, err)
 	}
 
-	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked)
+	var isAdmin bool
+	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin)
 	if err != nil {
 		return user, fmt.Errorf("%s.stmt.QueryRow(u.Login).Scan(user): %v", op, err)
 	}
