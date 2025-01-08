@@ -1193,13 +1193,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "isAdmin": {
-                    "type": "boolean"
-                },
                 "isBlocked": {
                     "type": "boolean"
                 },
                 "phoneNumber": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 },
                 "username": {
@@ -1242,10 +1242,12 @@ const docTemplate = `{
         "internal_http-server_handlers_admin.UpdateRequest": {
             "type": "object",
             "properties": {
-                "field": {
-                    "type": "string"
-                },
-                "value": {}
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
             }
         },
         "internal_http-server_handlers_user.RefreshToken": {
@@ -1260,9 +1262,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accessToken": {
-                    "type": "string"
-                },
-                "refreshToken": {
                     "type": "string"
                 }
             }

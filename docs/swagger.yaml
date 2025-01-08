@@ -99,11 +99,11 @@ definitions:
         type: string
       id:
         type: integer
-      isAdmin:
-        type: boolean
       isBlocked:
         type: boolean
       phoneNumber:
+        type: string
+      role:
         type: string
       username:
         type: string
@@ -134,9 +134,10 @@ definitions:
     type: object
   internal_http-server_handlers_admin.UpdateRequest:
     properties:
-      field:
-        type: string
-      value: {}
+      roles:
+        items:
+          type: string
+        type: array
     type: object
   internal_http-server_handlers_user.RefreshToken:
     properties:
@@ -146,8 +147,6 @@ definitions:
   internal_http-server_handlers_user.Tokens:
     properties:
       accessToken:
-        type: string
-      refreshToken:
         type: string
     type: object
 host: easydev.club
