@@ -55,6 +55,10 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		return user, fmt.Errorf("%s.stmt.QueryRow(u.Login): %v", op, err)
 	}
 
+	if user.ID == 0 {
+		return user, nil
+	}
+
 	if err := password.CheckPassword([]byte(pwd), u.Password); err != nil {
 		return user, fmt.Errorf("%s.password.CheckPassword: %v", op, err)
 	}
