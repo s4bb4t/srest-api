@@ -103,8 +103,10 @@ definitions:
         type: boolean
       phoneNumber:
         type: string
-      role:
-        type: string
+      roles:
+        items:
+          type: string
+        type: array
       username:
         type: string
     type: object
