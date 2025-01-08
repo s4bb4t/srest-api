@@ -40,6 +40,6 @@ services:
     volumes:
       - /home/admin/frontend:/mnt/frontend
     build:
-      context: ./frontend
+      context: ../../srest-api/frontend
     networks:
       - dev
