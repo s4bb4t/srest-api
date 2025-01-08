@@ -214,12 +214,11 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param RefreshToken body RefreshToken true "User's refresh token"
 // @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
 // @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 401 {object} string "Invalid credentials: token is expired - must auth again."
 // @Failure 500 {object} string "Internal error."
-// @Router /auth/refresh [post]
+// @Router /auth/refresh [get]
 func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.user.Refresh"
@@ -277,6 +276,15 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT refreshToken"))
 			return
 		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "refreshToken",
+			Value:    refreshToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+			MaxAge:   3600,
+		})
 
 		if err := User.SaveRefreshToken(refreshToken, user.ID); err != nil {
 			util.InternalError(w, r, log, err)

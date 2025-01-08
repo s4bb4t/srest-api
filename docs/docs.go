@@ -419,7 +419,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/users/{id}/unlock": {
+        "/admin/users/{id}/unblock": {
             "post": {
                 "security": [
                     {
@@ -472,7 +472,7 @@ const docTemplate = `{
             }
         },
         "/auth/refresh": {
-            "post": {
+            "get": {
                 "description": "Recieve a user's refresh token in JSON format.",
                 "consumes": [
                     "application/json"
@@ -484,17 +484,6 @@ const docTemplate = `{
                     "user"
                 ],
                 "summary": "Refresh user's access token",
-                "parameters": [
-                    {
-                        "description": "User's refresh token",
-                        "name": "RefreshToken",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_http-server_handlers_user.RefreshToken"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Authentication successful. Returns a JWT token.",
@@ -1247,14 +1236,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "internal_http-server_handlers_user.RefreshToken": {
-            "type": "object",
-            "properties": {
-                "refreshToken": {
-                    "type": "string"
                 }
             }
         },

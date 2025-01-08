@@ -356,7 +356,7 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Failure 400 {object} string "Invalid or missing user ID."
 // @Failure 404 {object} string "User not found."
 // @Failure 500 {object} string "Internal server error."
-// @Router /admin/users/{id}/unlock [post]
+// @Router /admin/users/{id}/unblock [post]
 func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.admin.Unblock"

@@ -139,11 +139,6 @@ definitions:
           type: string
         type: array
     type: object
-  internal_http-server_handlers_user.RefreshToken:
-    properties:
-      refreshToken:
-        type: string
-    type: object
   internal_http-server_handlers_user.Tokens:
     properties:
       accessToken:
@@ -420,7 +415,7 @@ paths:
       summary: Update user's rights
       tags:
       - admin
-  /admin/users/{id}/unlock:
+  /admin/users/{id}/unblock:
     post:
       description: Unblocks a user by their ID, re-enabling their account.
       parameters:
@@ -454,17 +449,10 @@ paths:
       tags:
       - admin
   /auth/refresh:
-    post:
+    get:
       consumes:
       - application/json
       description: Recieve a user's refresh token in JSON format.
-      parameters:
-      - description: User's refresh token
-        in: body
-        name: RefreshToken
-        required: true
-        schema:
-          $ref: '#/definitions/internal_http-server_handlers_user.RefreshToken'
       produces:
       - application/json
       responses:
