@@ -255,6 +255,10 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
+		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(&user.Role); err != nil {
+			return result, fmt.Errorf("%s: %v", op, err)
+		}
+
 		users = append(users, user)
 	}
 
