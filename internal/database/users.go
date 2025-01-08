@@ -226,7 +226,7 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
 
-	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(&user.Roles)
+	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(pq.Array(&user.Roles))
 	if err != nil {
 		if user.ID != 0 {
 			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, user.ID)
