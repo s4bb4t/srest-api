@@ -23,7 +23,7 @@ services:
 
   backend-v1:
     build:
-      context: ../
+      context: ../../
     environment:
       - CONFIG_PATH=/usr/local/bin/config/prod.yaml
     networks:
