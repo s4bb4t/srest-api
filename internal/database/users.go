@@ -80,6 +80,17 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 
 	err = s.db.QueryRow(`select role from roles where user_id = $1`, user.ID).Scan(&user.Role)
 	if err != nil {
+		if user.ID != 0 {
+			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, 'USER')`, user.ID)
+
+			user.Role = "USER"
+
+			if err != nil {
+				return user, fmt.Errorf("%s: %v", op, err)
+			}
+
+			return user, nil
+		}
 		return user, fmt.Errorf("%s/select role from roles where user_id = $1: %v", op, err)
 	}
 
