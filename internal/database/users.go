@@ -207,6 +207,8 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	var users []u.TableUser
 	var isAdmin bool
 	for rows.Next() {
+		user.Roles = []string{"USER"}
+
 		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin, &user.PhoneNumber); err != nil {
 			return result, fmt.Errorf("%s: user scan %v", op, err)
 		}
