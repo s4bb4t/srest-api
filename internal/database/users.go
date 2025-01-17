@@ -362,9 +362,9 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.tokens (user_id, token, date) 
-		VALUES ($1, $2, NOW() + INTERVAL '12 hours') 
+		VALUES ($1, $2, NOW() + INTERVAL '8 minutes') 
 		ON CONFLICT (user_id) 
-		DO UPDATE SET token = EXCLUDED.token, date = NOW() + INTERVAL '12 hours'
+		DO UPDATE SET token = EXCLUDED.token, date = NOW() + INTERVAL '8 minutes'
 	`)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)

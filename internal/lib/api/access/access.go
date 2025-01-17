@@ -29,7 +29,7 @@ type UserContext struct {
 }
 
 func NewAccessToken(id int, roles []string) (string, error) {
-	expirationTime := time.Now().Add(1 * time.Hour)
+	expirationTime := time.Now().Add(3 * time.Minute)
 	claims := &Claims{
 		UserId:      id,
 		Roles:       roles,
