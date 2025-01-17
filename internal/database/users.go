@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/lib/pq"
@@ -73,7 +75,7 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 	}
 
 	err = s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(pq.Array(&user.Roles))
-	if err != nil {
+	if err != nil || errors.Is(err, sql.ErrNoRows) {
 		if user.ID != 0 {
 			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, user.ID)
 
@@ -209,7 +211,7 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
-		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(pq.Array(&user.Roles)); err != nil {
+		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(pq.Array(&user.Roles)); err != nil || errors.Is(err, sql.ErrNoRows) {
 			return result, fmt.Errorf("%s: %v", op, err)
 		}
 
@@ -235,7 +237,7 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 	}
 
 	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(pq.Array(&user.Roles))
-	if err != nil {
+	if err != nil || errors.Is(err, sql.ErrNoRows) {
 		if user.ID != 0 {
 			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, user.ID)
 
