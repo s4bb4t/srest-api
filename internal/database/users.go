@@ -193,12 +193,12 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 
 	rows, err := s.db.Query(query, qParams...)
 	if err != nil {
-		return result, fmt.Errorf("%s: %v", op, err)
+		return result, fmt.Errorf("%s: users req %v", op, err)
 	}
 
 	err = s.db.QueryRow(metaQuery, mParams...).Scan(&result.Meta.TotalAmount)
 	if err != nil {
-		return result, fmt.Errorf("%s: %v", op, err)
+		return result, fmt.Errorf("%s: meta req %v", op, err)
 	}
 
 	defer rows.Close()
@@ -208,11 +208,11 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 	var isAdmin bool
 	for rows.Next() {
 		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin, &user.PhoneNumber); err != nil {
-			return result, fmt.Errorf("%s: %v", op, err)
+			return result, fmt.Errorf("%s: user scan %v", op, err)
 		}
 
 		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(pq.Array(&user.Roles)); err != nil || errors.Is(err, sql.ErrNoRows) {
-			return result, fmt.Errorf("%s: %v", op, err)
+			return result, fmt.Errorf("%s: roles scan %v", op, err)
 		}
 
 		users = append(users, user)
