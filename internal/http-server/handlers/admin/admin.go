@@ -65,7 +65,7 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 		}
 
 		if !slices.Contains(roles, "MODERATOR") {
-			http.Error(w, "failed to deserialize json request", http.StatusForbidden)
+			http.Error(w, "not enough rights", http.StatusForbidden)
 
 			return
 
@@ -152,7 +152,7 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		if !slices.Contains(roles, "MODERATOR") {
-			http.Error(w, "failed to deserialize json request", http.StatusForbidden)
+			http.Error(w, "not enough rights", http.StatusForbidden)
 
 			return
 		}
@@ -214,7 +214,7 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		if !slices.Contains(roles, "ADMIN") {
-			http.Error(w, "failed to deserialize json request", http.StatusForbidden)
+			http.Error(w, "not enough rights", http.StatusForbidden)
 			return
 		}
 
@@ -307,7 +307,7 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		if !slices.Contains(roles, "ADMIN") {
-			http.Error(w, "failed to deserialize json request", http.StatusForbidden)
+			http.Error(w, "not enough rights", http.StatusForbidden)
 			return
 		}
 
@@ -405,7 +405,7 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 		}
 
 		if !slices.Contains(roles, "ADMIN") {
-			http.Error(w, "failed to deserialize json request", http.StatusForbidden)
+			http.Error(w, "not enough rights", http.StatusForbidden)
 
 			return
 		}
@@ -478,7 +478,7 @@ func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User 
 	}
 
 	if !slices.Contains(roles, "MODERATOR") {
-		http.Error(w, "failed to deserialize json request", http.StatusForbidden)
+		http.Error(w, "not enough rights", http.StatusForbidden)
 		return
 	}
 
