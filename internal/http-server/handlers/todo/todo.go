@@ -71,7 +71,7 @@ func Create(log *slog.Logger, todo TodoHandler) http.HandlerFunc {
 	}
 }
 
-// Get All godoc
+// GetAll godoc
 // @Summary Retrieve all tasks
 // @Description Retrieves all tasks with optional filtering by status (e.g., completed or in-progress).
 // @Tags todo

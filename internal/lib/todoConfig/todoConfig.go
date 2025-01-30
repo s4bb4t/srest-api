@@ -1,17 +1,21 @@
 package todoconfig
 
 type Todo struct {
-	ID      uint   `json:"id"`
-	Title   string `json:"title"`
-	Created string `json:"created"`
-	IsDone  bool   `json:"isDone"`
+	ID          uint   `json:"id"`
+	Title       string `json:"title"`
+	Created     string `json:"created"`
+	IsDone      bool   `json:"isDone"`
+	Executor    string `json:"executor,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 type Todos []Todo
 
 type TodoRequest struct {
-	Title  string `json:"title,omitempty"`
-	IsDone *bool  `json:"isDone,omitempty"`
+	Title       string `json:"title,omitempty"`
+	IsDone      *bool  `json:"isDone,omitempty"`
+	Executor    string `json:"executor,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 type TodoInfo struct {

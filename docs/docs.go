@@ -1062,6 +1062,12 @@ const docTemplate = `{
                 "created": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
+                "executor": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1090,6 +1096,12 @@ const docTemplate = `{
         "github_com_sabbatD_srest-api_internal_lib_todoConfig.TodoRequest": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "executor": {
+                    "type": "string"
+                },
                 "isDone": {
                     "type": "boolean"
                 },

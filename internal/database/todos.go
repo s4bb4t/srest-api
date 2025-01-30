@@ -11,8 +11,8 @@ func (s *Storage) Create(t t.TodoRequest) (int64, error) {
 	const op = "database.postgres.CreateTodo"
 
 	query := `
-		INSERT INTO public.todos (title, is_done)
-		VALUES ($1, $2)
+		INSERT INTO public.todos (title, is_done, description, executor)
+		VALUES ($1, $2, $3, $4)
 		RETURNING id
 	`
 	stmt, err := s.db.Prepare(query)
@@ -23,9 +23,9 @@ func (s *Storage) Create(t t.TodoRequest) (int64, error) {
 
 	var id int64
 	if t.IsDone != nil {
-		err = stmt.QueryRow(t.Title, *t.IsDone).Scan(&id)
+		err = stmt.QueryRow(t.Title, *t.IsDone, t.Description, t.Executor).Scan(&id)
 	} else {
-		err = stmt.QueryRow(t.Title, false).Scan(&id)
+		err = stmt.QueryRow(t.Title, false, t.Description, t.Executor).Scan(&id)
 	}
 	if err != nil {
 		return 0, fmt.Errorf("%s: %v", op, err)
@@ -55,12 +55,12 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 		stmt.Close()
 	}
 
-	if t.IsDone == nil {
-		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1 WHERE id = $2`)
+	if t.IsDone != nil {
+		stmt, err = s.db.Prepare(`UPDATE public.todos SET is_done = $1 WHERE id = $2`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
-		res, err = stmt.Exec(t.Title, id)
+		res, err = stmt.Exec(*t.IsDone, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -68,12 +68,36 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 		stmt.Close()
 	}
 
-	if t.Title != "" && t.IsDone != nil {
-		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1, is_done = $2 WHERE id = $3`)
+	if t.Title != "" {
+		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1, is_done = $2 WHERE id = $2`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
-		res, err = stmt.Exec(t.Title, t.IsDone, id)
+		res, err = stmt.Exec(t.Title, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+		stmt.Close()
+	}
+
+	if t.Description != "" {
+		stmt, err = s.db.Prepare(`UPDATE public.todos SET description = $1 WHERE id = $2`)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+		res, err = stmt.Exec(t.Description, id)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+		stmt.Close()
+	}
+
+	if t.Executor != "" {
+		stmt, err = s.db.Prepare(`UPDATE public.todos SET executor = $1 WHERE id = $2`)
+		if err != nil {
+			return -1, fmt.Errorf("%s: %v", op, err)
+		}
+		res, err = stmt.Exec(t.Executor, id)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
@@ -133,7 +157,7 @@ func (s *Storage) GetTodo(id int) (t.Todo, error) {
 	var todo t.Todo
 
 	if rows.Next() {
-		if err := rows.Scan(&todo.ID, &todo.Title, &todo.Created, &todo.IsDone); err != nil {
+		if err := rows.Scan(&todo.ID, &todo.Title, &todo.Created, &todo.IsDone, &todo.Description, &todo.Executor); err != nil {
 			return t.Todo{}, fmt.Errorf("%s: %v", op, err)
 		}
 	} else {
@@ -168,7 +192,7 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 	var todo t.Todo
 
 	for rows.Next() {
-		if err := rows.Scan(&todo.ID, &todo.Title, &todo.Created, &todo.IsDone); err != nil {
+		if err := rows.Scan(&todo.ID, &todo.Title, &todo.Created, &todo.IsDone, &todo.Description, &todo.Executor); err != nil {
 			return nil, t.TodoInfo{}, 0, fmt.Errorf("%s: %v", op, err)
 		}
 
