@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -16,12 +17,12 @@ import (
 )
 
 type UpdateRequest struct {
-	Field string
-	Value any
+	Roles []string `json:"roles"`
 }
 
 type AdminHandler interface {
 	UpdateField(field string, id int, val any) (int64, error)
+	UpdateRoles(id int, roles []string) (int64, error)
 	All(q u.GetAllQuery) (result u.MetaResponse, E error)
 	Remove(id int) (int64, error)
 	Get(id int) (u.TableUser, error)
@@ -52,7 +53,13 @@ func All(log *slog.Logger, Users AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		roles, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+
+		if !(slices.Contains(roles, "ADMIN") || slices.Contains(roles, "MODERATOR")) {
+			http.Error(w, "not enough rights", http.StatusForbidden)
 			return
 		}
 
@@ -131,7 +138,13 @@ func Profile(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		roles, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+
+		if !(slices.Contains(roles, "ADMIN") || slices.Contains(roles, "MODERATOR")) {
+			http.Error(w, "not enough rights", http.StatusForbidden)
 			return
 		}
 
@@ -186,7 +199,13 @@ func UpdateUser(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		roles, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+
+		if !(slices.Contains(roles, "ADMIN") || slices.Contains(roles, "MODERATOR")) {
+			http.Error(w, "not enough rights", http.StatusForbidden)
 			return
 		}
 
@@ -273,7 +292,13 @@ func Remove(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		roles, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+
+		if !slices.Contains(roles, "ADMIN") {
+			http.Error(w, "not enough rights", http.StatusForbidden)
 			return
 		}
 
@@ -334,7 +359,7 @@ func Block(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 // @Failure 400 {object} string "Invalid or missing user ID."
 // @Failure 404 {object} string "User not found."
 // @Failure 500 {object} string "Internal server error."
-// @Router /admin/users/{id}/unlock [post]
+// @Router /admin/users/{id}/unblock [post]
 func Unblock(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "http-server.handlers.admin.Unblock"
@@ -365,7 +390,14 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 
 		log.With(util.SlogWith(op, r)...)
 
-		if !AdmCheck(w, r, log) {
+		roles, err := contextAdmin(r)
+		if err != nil {
+			return
+		}
+
+		if !slices.Contains(roles, "ADMIN") {
+			http.Error(w, "not enough rights", http.StatusForbidden)
+
 			return
 		}
 
@@ -388,7 +420,7 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 			return
 		}
 
-		if n, err := User.UpdateField(req.Field, id, req.Value); err != nil {
+		if n, err := User.UpdateRoles(id, req.Roles); err != nil {
 			if n == 0 {
 				log.Info(err.Error())
 
@@ -419,36 +451,25 @@ func Update(log *slog.Logger, User AdminHandler) http.HandlerFunc {
 	}
 }
 
-func contextAdmin(r *http.Request) (bool, error) {
+func contextAdmin(r *http.Request) ([]string, error) {
 	userContext, ok := r.Context().Value(access.CxtKey("userContext")).(access.UserContext)
 	if !ok {
-		return false, fmt.Errorf("unauthorized")
+		return []string{}, fmt.Errorf("unauthorized")
 	}
-	return userContext.IsAdmin, nil
-}
 
-func AdmCheck(w http.ResponseWriter, r *http.Request, log *slog.Logger) bool {
-	ok, err := contextAdmin(r)
-	if !ok {
-		if err != nil {
-			http.Error(w, "User context not found", http.StatusUnauthorized)
-
-			return false
-		}
-
-		log.Info("Not enough rights")
-
-		http.Error(w, "Not enough rights", http.StatusForbidden)
-
-		return false
-	}
-	return true
+	return userContext.Roles, nil
 }
 
 func changeField(w http.ResponseWriter, r *http.Request, log *slog.Logger, User AdminHandler, op, field string, value bool) {
 	log.With(util.SlogWith(op, r)...)
 
-	if !AdmCheck(w, r, log) {
+	roles, err := contextAdmin(r)
+	if err != nil {
+		return
+	}
+
+	if !(slices.Contains(roles, "ADMIN") || slices.Contains(roles, "MODERATOR")) {
+		http.Error(w, "not enough rights", http.StatusForbidden)
 		return
 	}
 

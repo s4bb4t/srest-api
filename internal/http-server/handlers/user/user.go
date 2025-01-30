@@ -1,4 +1,3 @@
-// This package provides CRUD operations with User
 package user
 
 import (
@@ -153,6 +152,10 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 		log.Info("input validated")
 
 		user, err := User.Auth(req)
+		if err != nil {
+			util.InternalError(w, r, log, err)
+			return
+		}
 		if user.ID == 0 {
 			log.Info("wrong login or password")
 
@@ -160,12 +163,8 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 
 			return
 		}
-		if err != nil {
-			util.InternalError(w, r, log, err)
-			return
-		}
 
-		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
+		accessToken, err := access.NewAccessToken(user.ID, user.Roles)
 		if err != nil {
 			util.InternalError(w, r, log, err)
 			return
@@ -196,7 +195,6 @@ func Auth(log *slog.Logger, User UserHandler) http.HandlerFunc {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param RefreshToken body RefreshToken true "User's refresh token"
 // @Success 200 {object} Tokens "Authentication successful. Returns a JWT token."
 // @Failure 400 {object} string "failed to deserialize json request."
 // @Failure 401 {object} string "Invalid credentials: token is expired - must auth again."
@@ -217,9 +215,6 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		log.Info("request body decoded")
-		log.Debug("req: ", slog.Any("request", req))
-
 		token, id, err := User.RefreshToken(req.Token)
 		if err != nil {
 			util.InternalError(w, r, log, err)
@@ -239,18 +234,17 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		accessToken, err := access.NewAccessToken(user.ID, user.IsAdmin)
+		accessToken, err := access.NewAccessToken(user.ID, user.Roles)
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT accessToken"))
 			return
 		}
 
-		refreshToken, err := access.NewRefreshToken()
+		refreshToken, err = access.NewRefreshToken()
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT refreshToken"))
 			return
 		}
-
 		if err := User.SaveRefreshToken(refreshToken, user.ID); err != nil {
 			util.InternalError(w, r, log, err)
 			return
