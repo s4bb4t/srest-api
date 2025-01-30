@@ -240,7 +240,7 @@ func Refresh(log *slog.Logger, User UserHandler) http.HandlerFunc {
 			return
 		}
 
-		refreshToken, err = access.NewRefreshToken()
+		refreshToken, err := access.NewRefreshToken()
 		if err != nil {
 			util.InternalError(w, r, log, fmt.Errorf("could not generate JWT refreshToken"))
 			return
