@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/lib/pq"
@@ -30,6 +32,12 @@ func (s *Storage) Add(u u.User) (int, error) {
 		return 0, fmt.Errorf("%s: %v", op, err)
 	}
 
+	_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, id)
+
+	if err != nil {
+		return 0, fmt.Errorf("%s: INSERT INTO public.roles (user_id, role)\n\tvalues ($1, $2): %v", op, err)
+	}
+
 	return id, nil
 }
 
@@ -57,60 +65,64 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 		return user, fmt.Errorf("%s.s.db.Prepare(`SELECT id, username, email, date, is_blocked, is_admin FROM public.users WHERE login = $1`): %v", op, err)
 	}
 
-	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin)
+	var isAdmin bool
+	err = stmt.QueryRow(u.Login).Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin)
 	if err != nil {
 		return user, fmt.Errorf("%s.stmt.QueryRow(u.Login).Scan(user): %v", op, err)
 	}
 	if user.IsBlocked {
-		user.IsAdmin = false
+		user.Roles = append(user.Roles, "USER")
+	}
+
+	err = s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(pq.Array(&user.Roles))
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		if user.ID != 0 {
+			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, user.ID)
+
+			user.Roles = append(user.Roles, "USER")
+
+			if err != nil {
+				return user, fmt.Errorf("%s: %v", op, err)
+			}
+
+			return user, nil
+		}
+		return user, fmt.Errorf("%s/select role from roles where user_id = $1: %v", op, err)
 	}
 
 	return user, nil
 }
 
-func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
-	const op = "database.postgres.UpdateUserField"
+func (s *Storage) UpdateRoles(id int, roles []string) (int64, error) {
+	const op = "database.postgres.UpdateRoles"
 
-	switch field {
-	case "admin":
-		field = "is_admin"
-	case "isadmin":
-		field = "is_admin"
-	case "IsAdmin":
-		field = "is_admin"
-	case "isAdmin":
-		field = "is_admin"
-	case "IsBlock":
-		field = "is_admin"
-	case "isblock":
-		field = "is_admin"
-	case "isBlock":
-		field = "is_admin"
-	case "block":
-		field = "is_blocked"
-	default:
-		return -2, fmt.Errorf("%s: no such field: %v", op, field)
-	}
-	query := fmt.Sprintf(`UPDATE public.users SET %s = $1 WHERE id = $2`, field)
-
-	stmt, err := s.db.Prepare(query)
+	var exists bool
+	err := s.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM public.roles WHERE user_id = $1)`, id).Scan(&exists)
 	if err != nil {
-		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
+		return -1, fmt.Errorf("%s: %w while checking existence with user_id: %d", op, err, id)
 	}
-	defer stmt.Close()
 
-	res, err := stmt.Exec(val, id)
+	if exists {
+		res, err := s.db.Exec(`UPDATE public.roles SET role = $2 WHERE user_id = $1`, id, pq.Array(roles))
+		if err != nil {
+			return -1, fmt.Errorf("%s: %w while updating roles for user_id: %d", op, err, id)
+		}
+
+		n, err := res.RowsAffected()
+		if err != nil {
+			return -1, fmt.Errorf("%s: %w while fetching rows affected for user_id: %d", op, err, id)
+		}
+		return n, nil
+	}
+
+	res, err := s.db.Exec(`INSERT INTO public.roles (user_id, role) VALUES ($1, $2)`, id, pq.Array(roles))
 	if err != nil {
-		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
+		return -1, fmt.Errorf("%s: %w while inserting roles for user_id: %d", op, err, id)
 	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
-	}
-
-	if n == 0 {
-		return n, fmt.Errorf("%s: no users with id: %v", op, id)
+		return -1, fmt.Errorf("%s: %w while fetching rows affected for user_id: %d", op, err, id)
 	}
 
 	return n, nil
@@ -181,21 +193,28 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 
 	rows, err := s.db.Query(query, qParams...)
 	if err != nil {
-		return result, fmt.Errorf("%s: %v", op, err)
+		return result, fmt.Errorf("%s: users req %v", op, err)
 	}
 
 	err = s.db.QueryRow(metaQuery, mParams...).Scan(&result.Meta.TotalAmount)
 	if err != nil {
-		return result, fmt.Errorf("%s: %v", op, err)
+		return result, fmt.Errorf("%s: meta req %v", op, err)
 	}
 
 	defer rows.Close()
 
 	var user u.TableUser
 	var users []u.TableUser
+	var isAdmin bool
 	for rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin, &user.PhoneNumber); err != nil {
-			return result, fmt.Errorf("%s: %v", op, err)
+		user.Roles = []string{"USER"}
+
+		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin, &user.PhoneNumber); err != nil {
+			return result, fmt.Errorf("%s: user scan %v", op, err)
+		}
+
+		if err := s.db.QueryRow(`select role from public.roles where user_id = $1`, user.ID).Scan(pq.Array(&user.Roles)); err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return result, fmt.Errorf("%s: roles scan %v", op, err)
 		}
 
 		users = append(users, user)
@@ -210,23 +229,80 @@ func (s *Storage) All(q u.GetAllQuery) (result u.MetaResponse, E error) {
 func (s *Storage) Get(id int) (u.TableUser, error) {
 	const op = "database.postgres.GetUser"
 
-	rows, err := s.db.Query(`SELECT id, username, email, date, is_blocked, is_admin, phone_number FROM public.users WHERE id = $1`, id)
+	var user u.TableUser
+	var isAdmin bool
+
+	err := s.db.QueryRow(`SELECT id, username, email, date, is_blocked, is_admin, phone_number FROM public.users WHERE id = $1`, id).
+		Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &isAdmin, &user.PhoneNumber)
 	if err != nil {
 		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
-	defer rows.Close()
 
-	var user u.TableUser
+	err = s.db.QueryRow(`select role from public.roles where user_id = $1;`, id).Scan(pq.Array(&user.Roles))
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		if user.ID != 0 {
+			_, err = s.db.Exec(`insert into public.roles (user_id, role) values ($1, ARRAY['USER'])`, user.ID)
 
-	if rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Date, &user.IsBlocked, &user.IsAdmin, &user.PhoneNumber); err != nil {
-			return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
+			user.Roles = append(user.Roles, "USER")
+
+			if err != nil {
+				return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
+			}
+
+			return user, nil
 		}
-	} else {
-		return u.TableUser{}, fmt.Errorf("%s: no such user", op)
+		return u.TableUser{}, fmt.Errorf("%s: %v", op, err)
 	}
 
 	return user, nil
+}
+
+func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
+	const op = "database.postgres.UpdateUserField"
+
+	switch field {
+	case "admin":
+		field = "is_admin"
+	case "isadmin":
+		field = "is_admin"
+	case "IsAdmin":
+		field = "is_admin"
+	case "isAdmin":
+		field = "is_admin"
+	case "IsBlock":
+		field = "is_admin"
+	case "isblock":
+		field = "is_admin"
+	case "isBlock":
+		field = "is_admin"
+	case "block":
+		field = "is_blocked"
+	default:
+		return -2, fmt.Errorf("%s: no such field: %v", op, field)
+	}
+	query := fmt.Sprintf(`UPDATE public.users SET %s = $1 WHERE id = $2`, field)
+
+	stmt, err := s.db.Prepare(query)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Exec(val, id)
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		return -1, fmt.Errorf("%s: %v with parameters:%v, %v, %v", op, err, field, id, val)
+	}
+
+	if n == 0 {
+		return n, fmt.Errorf("%s: no users with id: %v", op, id)
+	}
+
+	return n, nil
 }
 
 func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
@@ -286,9 +362,9 @@ func (s *Storage) SaveRefreshToken(token string, id int) error {
 
 	stmt, err := s.db.Prepare(`
 		INSERT INTO public.tokens (user_id, token, date) 
-		VALUES ($1, $2, NOW() + INTERVAL '12 hours') 
+		VALUES ($1, $2, NOW() + INTERVAL '8 minutes') 
 		ON CONFLICT (user_id) 
-		DO UPDATE SET token = EXCLUDED.token, date = NOW() + INTERVAL '12 hours'
+		DO UPDATE SET token = EXCLUDED.token, date = NOW() + INTERVAL '8 minutes'
 	`)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
