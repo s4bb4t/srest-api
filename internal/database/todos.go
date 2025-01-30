@@ -42,7 +42,6 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	var res sql.Result
 
 	if t.IsDone != nil {
-		fmt.Println(t.IsDone, id, *t.IsDone)
 		stmt, err = s.db.Prepare(`UPDATE public.todos SET is_done = $1 WHERE id = $2`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: prepare %v", op, err)
@@ -56,7 +55,7 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	}
 
 	if t.Title != "" {
-		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1, is_done = $2 WHERE id = $2`)
+		stmt, err = s.db.Prepare(`UPDATE public.todos SET title = $1  WHERE id = $2`)
 		if err != nil {
 			return -1, fmt.Errorf("%s: %v", op, err)
 		}
