@@ -124,7 +124,7 @@ func (s *Storage) Delete(id int) (int64, error) {
 func (s *Storage) GetTodo(id int) (t.Todo, error) {
 	const op = "database.postgres.GetTodo"
 
-	rows, err := s.db.Query(`SELECT * FROM public.todos WHERE id = $1`, id)
+	rows, err := s.db.Query(`SELECT id, title, created, is_done FROM public.todos WHERE id = $1`, id)
 	if err != nil {
 		return t.Todo{}, fmt.Errorf("%s: %v", op, err)
 	}
@@ -149,13 +149,13 @@ func (s *Storage) OutputAll(filter string) ([]t.Todo, t.TodoInfo, int, error) {
 	query := ``
 	switch filter {
 	case "all":
-		query = `SELECT * FROM public.todos ORDER BY id ASC`
+		query = `SELECT id, title, created, is_done FROM public.todos ORDER BY id ASC`
 	case "completed":
-		query = `SELECT * FROM public.todos WHERE is_done = true ORDER BY id ASC`
+		query = `SELECT id, title, created, is_done FROM public.todos WHERE is_done = true ORDER BY id ASC`
 	case "inWork":
-		query = `SELECT * FROM public.todos WHERE is_done = false ORDER BY id ASC`
+		query = `SELECT id, title, created, is_done FROM public.todos WHERE is_done = false ORDER BY id ASC`
 	default:
-		query = `SELECT * FROM public.todos ORDER BY id ASC`
+		query = `SELECT id, title, created, is_done FROM public.todos ORDER BY id ASC`
 	}
 
 	rows, err := s.db.Query(query)
