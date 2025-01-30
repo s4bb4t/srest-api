@@ -5,8 +5,8 @@ type Todo struct {
 	Title       string `json:"title"`
 	Created     string `json:"created"`
 	IsDone      bool   `json:"isDone"`
-	Executor    string `json:"executor,omitempty"`
-	Description string `json:"description,omitempty"`
+	Executor    string `json:"executor"`
+	Description string `json:"description"`
 }
 
 type Todos []Todo
