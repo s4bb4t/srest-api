@@ -42,13 +42,14 @@ func (s *Storage) Update(id int, t t.TodoRequest) (int64, error) {
 	var res sql.Result
 
 	if t.IsDone != nil {
+		fmt.Println(t.IsDone, id, *t.IsDone)
 		stmt, err = s.db.Prepare(`UPDATE public.todos SET is_done = $1 WHERE id = $2`)
 		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
+			return -1, fmt.Errorf("%s: prepare %v", op, err)
 		}
 		res, err = stmt.Exec(*t.IsDone, id)
 		if err != nil {
-			return -1, fmt.Errorf("%s: %v", op, err)
+			return -1, fmt.Errorf("%s:  exec %v", op, err)
 		}
 
 		stmt.Close()
