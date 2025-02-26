@@ -96,6 +96,10 @@ func (s *Storage) Auth(u u.AuthData) (user u.TableUser, err error) {
 func (s *Storage) UpdateRoles(id int, roles []string) (int64, error) {
 	const op = "database.postgres.UpdateRoles"
 
+	if id == 1 || id == 2 {
+		return 0, nil
+	}
+
 	var exists bool
 	err := s.db.QueryRow(`SELECT EXISTS(SELECT 1 FROM public.roles WHERE user_id = $1)`, id).Scan(&exists)
 	if err != nil {
@@ -130,6 +134,10 @@ func (s *Storage) UpdateRoles(id int, roles []string) (int64, error) {
 
 func (s *Storage) Remove(id int) (int64, error) {
 	const op = "database.postgres.RemoveUser"
+
+	if id == 1 || id == 2 {
+		return 0, nil
+	}
 
 	stmt, err := s.db.Prepare(`
 	DELETE FROM public.users 
@@ -260,6 +268,10 @@ func (s *Storage) Get(id int) (u.TableUser, error) {
 func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 	const op = "database.postgres.UpdateUserField"
 
+	if id == 1 || id == 2 {
+		return 0, nil
+	}
+
 	switch field {
 	case "admin":
 		field = "is_admin"
@@ -307,6 +319,10 @@ func (s *Storage) UpdateField(field string, id int, val any) (int64, error) {
 
 func (s *Storage) UpdateUser(u u.PutUser, id int) (int64, error) {
 	const op = "database.postgres.UpdateUser"
+
+	if id == 1 || id == 2 {
+		return 0, nil
+	}
 
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -408,6 +424,10 @@ func (s *Storage) RefreshToken(token string) (string, int, error) {
 
 func (s *Storage) ChangePassword(u u.Pwd, id int) (int64, error) {
 	const op = "database.postgres.ChangePassword"
+
+	if id == 1 || id == 2 {
+		return 0, nil
+	}
 
 	var exists bool
 	stmt, err := s.db.Prepare(`SELECT EXISTS (SELECT 1 FROM public.users WHERE id = $1)`)
